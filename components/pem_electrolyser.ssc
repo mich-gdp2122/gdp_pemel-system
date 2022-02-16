@@ -1,0 +1,95 @@
+component pem_electrolyser
+% Two-port dynamic thermal liquid component
+
+% Use this component if there is an internal fluid state. If there is no
+% internal fluid state and the flow is quasi-steady, use
+% simscape.template.thermal_liquid.two_port_steady
+
+parameters
+    % Add parameters here
+    area_A = {0.01, 'm^2' }; % Cross-sectional area at port A
+    area_B = {0.01, 'm^2' }; % Cross-sectional area at port B
+end
+
+nodes
+    A = foundation.thermal_liquid.thermal_liquid; % A:left
+    B = foundation.thermal_liquid.thermal_liquid; % B:right
+end
+
+variables
+    % Through variables
+    mdot_A = {0, 'kg/s'}; % Mass flow rate into port A
+    mdot_B = {0, 'kg/s'}; % Mass flow rate into port B
+    Phi_A  = {0, 'kW'  }; % Energy flow rate into port A
+    Phi_B  = {0, 'kW'  }; % Energy flow rate into port B
+
+    % States of internal fluid volume
+    p_I   = {0.1, 'MPa'  }; % Pressure of liquid volume
+    T_I   = {300, 'K'    }; % Temperature of liquid volume
+    u_I   = {85,  'kJ/kg'}; % Specific internal energy of liquid volume
+end
+
+branches
+    mdot_A : A.mdot -> *;
+    mdot_B : B.mdot -> *;
+    Phi_A  : A.Phi  -> *;
+    Phi_B  : B.Phi  -> *;
+end
+
+% Internal components that calculate energy convection at ports A and B
+components (ExternalAccess = none)
+    convection_A = foundation.thermal_liquid.port_convection(flow_area = area_A, length_scale = sqrt(4*area_A/pi));
+    convection_B = foundation.thermal_liquid.port_convection(flow_area = area_B, length_scale = sqrt(4*area_B/pi));
+end
+
+connections
+    connect(A, convection_A.port);
+    connect(B, convection_B.port);
+end
+
+equations
+    % Momentum balance
+    % Implement equation relating pressure difference with mass flow rate
+
+    % Mass balance
+    % Implement differential equations for internal fluid states p_I, T_I
+
+    % Energy balance
+    % Implement differential equations for internal fluid states p_I, T_I
+
+    % Equate variables for internal convection components
+    convection_A.mdot == mdot_A;
+    convection_A.Phi  == Phi_A;
+    convection_B.mdot == mdot_B;
+    convection_B.Phi  == Phi_B;
+
+    convection_A.u_I == u_I;
+    convection_B.u_I == u_I;
+
+    % Validate that pressure and temperature are in valid region
+    let
+        % Indicator variables for the valid region of the property tables
+        [indicator_pT_A, indicator_pT_B] = ...
+            if A.pT_region_flag == foundation.enum.pT_region_TL.validity_matrix, ...
+                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, A.T, A.p, interpolation = linear, extrapolation = linear); ...
+                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, B.T, B.p, interpolation = linear, extrapolation = linear) ...
+            else ...
+                1; ...
+                1 ...
+            end;
+    in
+        % Pressure and temperature must be within the valid region
+        assert(indicator_pT_A > 0);
+        assert(A.p >= A.p_min);
+        assert(A.p <= A.p_max);
+        assert(A.T >= A.T_min);
+        assert(A.T <= A.T_max);
+        assert(indicator_pT_B > 0);
+        assert(B.p >= A.p_min);
+        assert(B.p <= A.p_max);
+        assert(B.T >= A.T_min);
+        assert(B.T <= A.T_max);
+    end
+end
+
+end
