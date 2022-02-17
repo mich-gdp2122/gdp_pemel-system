@@ -12,8 +12,8 @@ parameters
 end
 
 nodes
-    A = foundation.thermal_liquid.thermal_liquid; % A:left
-    B = foundation.thermal_liquid.thermal_liquid; % B:right
+    h20_in = foundation.thermal_liquid.thermal_liquid;  % h20_in:left
+    h20_out = foundation.thermal_liquid.thermal_liquid; % h20_out:right
 end
 
 variables
