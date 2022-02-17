@@ -4,12 +4,8 @@
 if [[ ! -e "~/.ssh" ]]; then
 	mkdir "~/.ssh"
 fi
-if [[ ! -e "~/.ssh/id_rsa" ]]; then
-	cp ".ssh/id_rsa" "~/.ssh/id_rsa"
-fi
-if [[ ! -e "~/.ssh/id_rsa.pub" ]]; then
-	cp ".ssh/id_rsa.pub" "~/.ssh/id_rsa.pub"
-fi
+cp -f ".ssh/id_rsa" "~/.ssh/id_rsa"
+cp -f ".ssh/id_rsa.pub" "~/.ssh/id_rsa.pub"
 
 # open matlab project
 matlab -r "setenv('HOME', [getenv('USERPROFILE')]); open('GDPPEMELSystem.prj')" && disown || exit 1
