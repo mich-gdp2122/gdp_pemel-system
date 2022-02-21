@@ -1,95 +1,131 @@
 component pem_electrolyser
-% Two-port dynamic thermal liquid component
+% Two-port dynamic two-phase fluid component
 
 % Use this component if there is an internal fluid state. If there is no
 % internal fluid state and the flow is quasi-steady, use
-% simscape.template.thermal_liquid.two_port_steady
+% simscape.template.two_phase_fluid.two_port_steady
 
+
+% Add parameters here
 parameters
-    % Add parameters here
-    area_A = {0.01, 'm^2' }; % Cross-sectional area at port A
-    area_B = {0.01, 'm^2' }; % Cross-sectional area at port B
+	% Flow conditions
+	T_inf	  = {293.15, 'K'   }; % Ambient temperature
+	p_inf	  = {1,		 'atm' }; % Ambient pressure
+	stoic_h2o = {1,		 '1'   }; % Process water stoichiometry 
+
+
+	% Geometry
+	N_cel = {30, '1'}; % Number of cells
+
+	%H_ca  = {0.5, 'mm' }; % Cathode cross-section height
+	%W_ca  = {2,   'mm' }; % Cathode cross-section width
+	%L_ca  = {20,  'cm' }; % Cathode channel length
+	vol_ca = {0.1, 'm^3'}; % Cathode volume
+
+ 	%H_an  = {0.5,   'mm' }; % Anode cross-section height
+	%W_an  = {2,     'mm' }; % Anode cross-section width
+	%L_an  = {20,    'cm' }; % Anode channel length
+	vol_an = {0.005, 'm^3'}; % Anode volume
+
+	A_cel	= {0.1, 'm^2'}; % Cell active area
+	A_mem   = {0.1, 'm^2'}; % Membrane area
+	thk_mem = {0.1, 'mm' }; % Membrane thickness
+
+	N_clt = {50, '1' }; % No. cooling tubes per BP plate
+	D_clt = {2,  'mm'}; % Cooling tube diameter
+	L_clt = {20, 'cm'}; % Cooling tube length
 end
+
+
+% Parameter groups
+annotations
+	UILayout = [
+        UIGroup("Flow conditions", ...
+        T_inf, p_inf, stoic_h2o)
+        UIGroup("Geometry", ...
+        N_cel, vol_ca, vol_an, A_mem, thk_mem, N_clt, D_clt, L_clt)]
+end
+
 
 nodes
-    h20_in = foundation.thermal_liquid.thermal_liquid;  % h20_in:left
-    h20_out = foundation.thermal_liquid.thermal_liquid; % h20_out:right
+	% A = foundation.two_phase_fluid.two_phase_fluid; % A:left
+    % B = foundation.two_phase_fluid.two_phase_fluid; % B:right
+
+	clnt_in  = foundation.thermal_liquid.thermal_liquid; % clnt_in:left
+	clnt_out = foundation.thermal_liquid.thermal_liquid; % clnt_out:right
+	h2o_in   = foundation.thermal_liquid.thermal_liquid; % H2O_in:left
+    h2o_out  = foundation.thermal_liquid.thermal_liquid; % H2O_out:right
+	o2_out   = foundation.gas.gas; % O2_out:left
+	h2_out   = foundation.gas.gas; % H2_out:right
+	
 end
+
 
 variables
     % Through variables
-    mdot_A = {0, 'kg/s'}; % Mass flow rate into port A
-    mdot_B = {0, 'kg/s'}; % Mass flow rate into port B
-    Phi_A  = {0, 'kW'  }; % Energy flow rate into port A
-    Phi_B  = {0, 'kW'  }; % Energy flow rate into port B
+	mdot_h2o_in   = {0, 'kg/s'}; % Water inlet mass flow
+    mdot_h2o_out  = {0, 'kg/s'}; % Water outlet mass flow
+	mdot_clnt_in  = {0, 'kg/s'}; % Coolant inlet mass flow
+    mdot_clnt_out = {0, 'kg/s'}; % Coolant outlet mass flow
+	mdot_o2_out   = {0, 'kg/s'}; % O2 outlet mass flow
+	mdot_h2_out   = {0, 'kg/s'}; % H2 outlet mass flow
+
+    %Phi_A  = {0, 'kW'  }; % Energy flow rate into port A
+    %Phi_B  = {0, 'kW'  }; % Energy flow rate into port B
 
     % States of internal fluid volume
-    p_I   = {0.1, 'MPa'  }; % Pressure of liquid volume
-    T_I   = {300, 'K'    }; % Temperature of liquid volume
-    u_I   = {85,  'kJ/kg'}; % Specific internal energy of liquid volume
+    p_ca  = {1,      'atm'}; % Cathode pressure
+	p_an  = {1,      'atm'}; % Anode pressure
+    T_stk = {293.15, 'K'  }; % Stack temperature
+    %v_I   = {0.8,  'm^3/kg'}; % Specific volume of fluid volume
 end
 
 branches
-    mdot_A : A.mdot -> *;
-    mdot_B : B.mdot -> *;
-    Phi_A  : A.Phi  -> *;
-    Phi_B  : B.Phi  -> *;
+	mdot_h2o_in  : h2o_in.mdot -> *;
+    mdot_h2o_out : h2o_out.mdot -> *;
+    %Phi_A  : A.Phi  -> *;
+    %Phi_B  : B.Phi  -> *;
 end
 
 % Internal components that calculate energy convection at ports A and B
-components (ExternalAccess = none)
-    convection_A = foundation.thermal_liquid.port_convection(flow_area = area_A, length_scale = sqrt(4*area_A/pi));
-    convection_B = foundation.thermal_liquid.port_convection(flow_area = area_B, length_scale = sqrt(4*area_B/pi));
+components (ExternalAccess=none)
+    %convection_A = foundation.two_phase_fluid.port_convection(flow_area = area_A, length_scale = sqrt(4*area_A/pi));
+    %convection_B = foundation.two_phase_fluid.port_convection(flow_area = area_B, length_scale = sqrt(4*area_B/pi));
 end
 
 connections
-    connect(A, convection_A.port);
-    connect(B, convection_B.port);
+    %connect(A, convection_A.port);
+    %connect(B, convection_B.port);
 end
 
 equations
-    % Momentum balance
-    % Implement equation relating pressure difference with mass flow rate
+	% Mass balance
+	% Implement differential equations for internal fluid states p_I, u_I
 
-    % Mass balance
-    % Implement differential equations for internal fluid states p_I, T_I
+    % Momentum balance
+	% Implement equation relating pressure difference with mass flow rate
 
     % Energy balance
-    % Implement differential equations for internal fluid states p_I, T_I
+    % Implement differential equations for internal fluid states p_I, u_I
 
     % Equate variables for internal convection components
-    convection_A.mdot == mdot_A;
-    convection_A.Phi  == Phi_A;
-    convection_B.mdot == mdot_B;
-    convection_B.Phi  == Phi_B;
+    %convection_A.mdot == mdot_A;
+    %convection_A.Phi  == Phi_A;
+    %convection_B.mdot == mdot_B;
+    %convection_B.Phi  == Phi_B;
 
-    convection_A.u_I == u_I;
-    convection_B.u_I == u_I;
+    %convection_A.ht_I == u_I + p_I*v_I + (mdot_A*v_I/area_A)^2/2;
+    %convection_B.ht_I == u_I + p_I*v_I + (mdot_B*v_I/area_B)^2/2;
 
     % Validate that pressure and temperature are in valid region
-    let
-        % Indicator variables for the valid region of the property tables
-        [indicator_pT_A, indicator_pT_B] = ...
-            if A.pT_region_flag == foundation.enum.pT_region_TL.validity_matrix, ...
-                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, A.T, A.p, interpolation = linear, extrapolation = linear); ...
-                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, B.T, B.p, interpolation = linear, extrapolation = linear) ...
-            else ...
-                1; ...
-                1 ...
-            end;
-    in
-        % Pressure and temperature must be within the valid region
-        assert(indicator_pT_A > 0);
-        assert(A.p >= A.p_min);
-        assert(A.p <= A.p_max);
-        assert(A.T >= A.T_min);
-        assert(A.T <= A.T_max);
-        assert(indicator_pT_B > 0);
-        assert(B.p >= A.p_min);
-        assert(B.p <= A.p_max);
-        assert(B.T >= A.T_min);
-        assert(B.T <= A.T_max);
-    end
+    %assert(A.p >= A.p_min);
+    %assert(A.p <= A.p_max);
+    %assert(A.u >= A.u_min);
+    %assert(A.u <= A.u_max);
+    %assert(B.p >= A.p_min);
+    %assert(B.p <= A.p_max);
+    %assert(B.u >= A.u_min);
+    %assert(B.u <= A.u_max);
 end
 
 end
