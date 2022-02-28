@@ -78,6 +78,11 @@ annotations
         N_clt, D_clt, L_clt, thk_bp, cp_bp, k_bp)]
 end
 
+% Derived parameters
+parameters (Access = private)
+
+end
+
 variables
     % Through variables
 	mdot_h2o_in     = {0, 'kg/s'}; % Water inlet mass flow
@@ -137,9 +142,46 @@ connections
     %connect(B, convection_B.port);
 end
 
-
+% Place placeholder eq's here
 intermediates
-    
+	% Cell/outlet thermal properties
+		% cp
+
+		% cv
+
+		% R
+
+	% Coolant flow properties
+		% dT & avg T
+
+		% Thermal
+        % k
+        % mu
+        
+        
+		% Re
+		
+		% Pr
+
+		% Nu
+
+		% Friction factor
+
+	% Coolant heat transfer
+		% Heat transf. coeff.
+ 
+		% E-NTU
+
+    % Coolant pressure drop
+		
+	% Electrical
+	
+	% Energy flow components
+
+ 	% Membrane
+	
+	% mdot_reacts
+
 end
 
 
