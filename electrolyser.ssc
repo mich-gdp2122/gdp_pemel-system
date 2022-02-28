@@ -1,4 +1,4 @@
-component pem_electrolyser
+component electrolyser
 % Two-port dynamic two-phase fluid component
 
 % Use this component if there is an internal fluid state. If there is no
@@ -155,8 +155,8 @@ intermediates
 		% dT & avg T
 
 		% Thermal
-        % k
-        % mu
+            % k
+            % mu
         
         
 		% Re
