@@ -4,7 +4,7 @@ component electrolyser
 % Use this component if there is an internal fluid state. If there is no
 % internal fluid state and the flow is quasi-steady, use
 % simscape.template.two_phase_fluid.two_port_steady
-
+%test
 
 % Define block nodes
 nodes
@@ -38,13 +38,10 @@ end
 parameters
 	% Flow conditions
 	T_inf	  = {293.15, 'K'   }; % Ambient temperature
-	p_inf	  = {1,		 'atm' }; % Ambient pressure
-	stoic_h2o = {1,		 '1'   }; % Process water stoichiometry 
-
 
 	% Geometry
 	N_cel = {30, '1'}; % Number of cells
-    A_cel	= {0.1, 'm^2'}; % Cell active area
+    A_cel = {0.1, 'm^2'}; % Cell active area
 
 	%H_ca  = {0.5, 'mm' }; % Cathode cross-section height
 	%W_ca  = {0.5, 'mm' }; % Cathode cross-section width
@@ -56,22 +53,22 @@ parameters
 	%L_an  = {10,    'mm' }; % Anode channel length
 	vol_an = {0.005, 'm^3'}; % Anode volume
 
-	A_mem   = {0.1,   'm^2'}; % Membrane area
-	thk_mem = {0.178, 'mm' }; % Membrane thickness
+	A_mem   = {0.1,      'm^2'}; % Membrane area
+	thk_mem = {0.178E-3, 'm'  }; % Membrane thickness
 
-	N_clt  = {50,  '1'       }; % No. cooling tubes per BP plate
-	D_clt  = {2,   'mm'      }; % Cooling tube diameter
-	L_clt  = {20,  'cm'      }; % Cooling tube length
-    thk_bp = {2,   'mm'      }; % BP plate thickness
-    cp_bp  = {100, 'J/(kg*K)'}; % BP plate Sp. heat (Cp)
-    k_bp   = {1,   'W/(m*K)' }; % BP plate heat conductivity
+	N_clt  = {50,    '1'       }; % No. cooling tubes per BP plate
+	D_clt  = {0.002, 'm'       }; % Cooling tube diameter
+	L_clt  = {0.2,   'm'       }; % Cooling tube length
+    thk_bp = {0.002, 'm'       }; % BP plate thickness
+    cp_bp  = {100,   'J/(kg*K)'}; % BP plate Sp. heat (Cp)
+    k_bp   = {1,     'W/(m*K)' }; % BP plate heat conductivity
 end
 
 % Parameter groups
 annotations
 	UILayout = [
         UIGroup("Flow conditions", ...
-        T_inf, p_inf, stoic_h2o)
+        T_inf)
         UIGroup("Cell specs", ...
         N_cel, A_cel, vol_ca, vol_an, A_mem, thk_mem)
         UIGroup("Cooling specs", ...
@@ -80,6 +77,11 @@ end
 
 % Derived parameters
 parameters (Access = private)
+	% Cooling channels
+	Ax_clt    = pi*(D_clt/2)^2; % Cross-sectional area [m^2]
+	Prm_clt   = pi*D_clt;		% Cross-sectional perimeter [m]
+	As_clt    = Prm_clt*L_clt;  % Pipe surface area [m^2]
+	N_clt_stk = N_clt*N_cel;    % No. cooling tubes in stack
 
 end
 
@@ -90,89 +92,139 @@ variables
     mdot_h2o_out_ca = {0, 'kg/s'}; % Water cathode outlet mass flow
 	mdot_o2_out     = {0, 'kg/s'}; % O2 outlet mass flow
 	mdot_h2_out     = {0, 'kg/s'}; % H2 outlet mass flow
-    mdot_clnt_in    = {0, 'kg/s'}; % Coolant inlet mass flow
-    mdot_clnt_out   = {0, 'kg/s'}; % Coolant inlet mass flow
+    mdot_clnt       = {0, 'kg/s'}; % Coolant inlet mass flow
     
     Phi_h2o_in      = {0, 'W'}; % Water inlet energy flow
     Phi_h2o_out_an  = {0, 'W'}; % Water anode energy mass flow
     Phi_h2o_out_ca  = {0, 'W'}; % Water cathode energy mass flow
-	Phi_clnt_in     = {0, 'W'}; % Coolant inlet energy flow
 	Phi_o2_out      = {0, 'W'}; % O2 outlet energy flow
 	Phi_h2_out      = {0, 'W'}; % H2 outlet energy flow
+	%Phi_clnt_in     = {0, 'W'}; % Coolant inlet energy flow
+	%Phi_clnt_out    = {0, 'W'}; % Coolant outlet energy flow
     
-    i               = {0, 'A'}; % Current
-    v               = {0, 'V'}; % Voltage
+    I               = {0, 'A'}; % Current
  
     % Internal state variables
-    T_stk = {293.15, 'K'  }; % Stack temperature
+    T_stk     = {293.15, 'K'  }; % Stack temperature
     
-	m_h2o_an = {0, 'kg'}; % Anode water mass
-    m_h2o_ca = {0, 'kg'}; % Cathode water mass
-	m_o2     = {0, 'kg'}; % O2 mass
-    m_h2     = {0, 'kg'}; % H2 mass
+	m_h2o_an  = {0, 'kg'}; % Anode water mass
+    m_h2o_ca  = {0, 'kg'}; % Cathode water mass
+	m_o2      = {0, 'kg'}; % O2 mass
+    m_h2      = {0, 'kg'}; % H2 mass
     
-    %p_ca  = {1, 'atm'}; % Cathode pressure
-	%p_an  = {1, 'atm'}; % Anode pressure
-    p_o2     = {1, 'atm'}; % O2 pressure
-    p_h2     = {1, 'atm'}; % H2 pressure
-	p_h2o_an = {1, 'atm'}; % Anode water pressure
-	p_h2o_ca = {1, 'atm'}; % Cathode water pressure
+    %p_ca      = {1, 'atm'}; % Cathode pressure
+	%p_an      = {1, 'atm'}; % Anode pressure
+    p_o2      = {1, 'atm'}; % O2 pressure
+    p_h2      = {1, 'atm'}; % H2 pressure
+	p_h2o_an  = {1, 'atm'}; % Anode water pressure
+	p_h2o_ca  = {1, 'atm'}; % Cathode water pressure
+
+	Qdot_clnt = {0, 'W'}; % Heat transferred to coolant
+
+	V_stk     = {0, 'V'  }; % Voltage
 end
 
 branches
-	mdot_h2o_in     : h2o_in.mdot -> *;
+	mdot_h2o_in     : h2o_in.mdot     -> *;
     mdot_h2o_out_an : h2o_out_an.mdot -> *;
-    mdot_clnt       : clnt_in.mdot -> clnt_out.mdot;
-    
-    I : elec_pos.i -> elec_neg.i;
-    
-    %Phi_A  : A.Phi  -> *;
-    %Phi_B  : B.Phi  -> *;
+	mdot_h2o_out_ca : h2o_out_ca.mdot -> *;
+	mdot_h2_out     : h2_out.mdot     -> *;
+	mdot_o2_out     : o2_out.mdot     -> *;
+    mdot_clnt       : clnt_in.mdot    -> clnt_out.mdot;
+
+	Phi_h2o_in     : h2o_in.Phi     -> *;
+    Phi_h2o_out_an : h2o_out_an.Phi -> *;
+	Phi_h2o_out_ca : h2o_out_ca.Phi -> *;
+	Phi_h2_out     : h2_out.Phi     -> *;
+	Phi_o2_out     : o2_out.Phi     -> *;
+    %Phi_clnt_in    : clnt_in.Phi    -> *;
+	%Phi_clnt_out   : clnt_out.Phi   -> *;
+
+    I			   : elec_pos.i -> elec_neg.i;
 end
 
 % Internal components that calculate energy convection at ports A and B
-components (ExternalAccess=none)
+%components (ExternalAccess=none)
     %convection_A = foundation.two_phase_fluid.port_convection(flow_area = area_A, length_scale = sqrt(4*area_A/pi));
     %convection_B = foundation.two_phase_fluid.port_convection(flow_area = area_B, length_scale = sqrt(4*area_B/pi));
-end
+%end
 
 
-connections
+%connections
     %connect(A, convection_A.port);
     %connect(B, convection_B.port);
-end
+%end
 
 % Place placeholder eq's here
 intermediates
-	% Cell/outlet thermal properties
-		% cp
-
-		% cv
-
-		% R
+	% Cell thermal properties
+ 	cp_h2o_in = tablelookup(h2o_in.T_TLU, h2o_in.p_TLU, h2o_in.cp_TLU, h2o_in.T, h2o_in.p, interpolation = linear, extrapolation = linear);
+ 	cp_h2o_an = tablelookup(h2o_out_an.T_TLU, h2o_out_an.p_TLU, h2o_out_an.cp_TLU, T_stk, p_h2o_an, interpolation = linear, extrapolation = linear);
+ 	cp_h2o_ca = tablelookup(h2o_out_ca.T_TLU, h2o_out_ca.p_TLU, h2o_out_ca.cp_TLU, T_stk, p_h2o_ca, interpolation = linear, extrapolation = linear);
+ 	cp_h2     = tablelookup(h2_out.T_TLU1, h2_out.cp_TLU1, T_stk, interpolation = linear, extrapolation = linear);
+ 	cp_o2     = tablelookup(o2_out.T_TLU1, o2_out.cp_TLU1, T_stk, interpolation = linear, extrapolation = linear);
+	
+	rho_h2o_an = tablelookup(h2o_out_an.T_TLU, h2o_out_an.p_TLU, h2o_out_an.rho_TLU, T_stk, p_h2o_an, interpolation = linear, extrapolation = linear);
+ 	rho_h2o_ca = tablelookup(h2o_out_ca.T_TLU, h2o_out_ca.p_TLU, h2o_out_ca.rho_TLU, T_stk, p_h2o_ca, interpolation = linear, extrapolation = linear);
 
 	% Coolant flow properties
-		% dT & avg T
+		% dT, avg T & p
+		dT_clnt    = clnt_out.T - clnt_in.T
+		T_avg_clnt = (clnt_out.T + clnt_in.T)/2;
+		p_avg_clnt = (clnt_out.p + clnt_in.p)/2;
 
 		% Thermal
-            % k
-            % mu
+		rho_clnt = tablelookup(clnt_in.T_TLU, clnt_in.p_TLU, clnt_in.rho_TLU, T_avg_clnt, p_avg_clnt, interpolation = linear, extrapolation = linear);
+		cp_clnt  = tablelookup(clnt_in.T_TLU, clnt_in.p_TLU, clnt_in.cp_TLU, T_avg_clnt, p_avg_clnt, interpolation = linear, extrapolation = linear);
+		k_clnt   = tablelookup(clnt_in.T_TLU, clnt_in.p_TLU, clnt_in.k_TLU,  T_avg_clnt, p_avg_clnt, interpolation = linear, extrapolation = nearest);
+		mu_clnt  = tablelookup(clnt_in.T_TLU, clnt_in.p_TLU, clnt_in.mu_TLU, T_avg_clnt, p_avg_clnt, interpolation = linear, extrapolation = nearest);
         
-        
-		% Re
-		
-		% Pr
+		% Single channel mass flow & avg velocity (for whole stack)
+		mdot_clnt_clt = mdot_clnt/N_clt_stk;
+		u_clnt        = mdot_clnt_clt/(rho_clnt*Ax_clt);
 
-		% Nu
+		% Non-dim numbers
+		%Re_clnt = mdot_clnt_clt*D_clt/(Ax_clnt*mu_clnt);
+		Re_clnt = rho_clnt*u_clnt*D_clt/mu_clnt;
+		Pr_clnt = mu_clnt*cp_clnt/k_clnt;
 
-		% Friction factor
+		% Darcy friction factor
+		if Re_clnt <= 2300  % Laminar case
+			f_clnt = 64/Re_clnt;
+		elseif Re_clnt > 2300 && Re_clnt < 3000  % Transitional case (via interpolation)
+			f_min = 64/(2300);
+			f_max = ( 0.790*log(3000) - 1.64 )^(-2);
+			
+			f_clnt = f_min + ( (Re_clnt - 2300)/(3000 - 2300) )*(f_max - f_min);
+		elseif Re_clnt >= 3000  % Turbulent case (Petukov correl.)
+			f_clnt = ( 0.790*log(Re_clnt) - 1.64 )^(-2);  
+		end
+
+		% Nusselt no. (const. surface T)
+		if Re_clnt <= 2300  % Laminar case
+			Nu_clnt = 3.66;
+		elseif Re_clnt > 2300 && Re_clnt < 3000  % Transitional case (via interpolation)
+			Nu_min = 3.66;
+			Nu_max = ( (f_clnt/8)*(3000 - 1000)*Pr_clnt )/( 1 + 12.7*((f_clnt/8)^0.5)*( Pr_clnt^(2/3) - 1 ) );
+			
+			Nu_clnt = Nu_min + ( (Re_clnt - 2300)/(3000 - 2300) )*(Nu_max - Nu_min);
+		elseif Re_clnt >= 3000  % Turbulent case (Gnielinski correl.)
+			Nu_clnt = ( (f_clnt/8)*(Re_clnt - 1000)*Pr_clnt )/( 1 + 12.7*((f_clnt/8)^0.5)*( Pr_clnt^(2/3) - 1 ) );  
+		end
 
 	% Coolant heat transfer
 		% Heat transf. coeff.
+		hQ_clnt = ( k_clnt*Nu_clnt )/D_clt;
  
 		% E-NTU
+		NTU       = hQ_clnt*As_clt/(mdot_clnt_clt*cp_clnt);
+		efct_clnt = 1 - exp(-NTU);
+
+		% Heat transferred
+		Qdot_clnt = efct_clnt*mdot_clnt*cp_clnt*dT_clnt;
 
     % Coolant pressure drop
+	dp_clnt = f_clnt*(L_clt/D_clt)*(0.5*rho_clnt*(u_clnt^2));
 		
 	% Electrical
 	
@@ -205,13 +257,17 @@ equations
 	p_h2o_ca == p_h2;
 
 	% Coolant mass balance
-	clnt_in.mdot - clnt_out.mdot == 0;
+	%clnt_in.mdot - clnt_out.mdot == 0;
+
+	% Coolant energy balance
+	%clnt_out.Phi - clnt_in.Phi == Qdot_clnt;
 
 	% Coolant pressure drop
 	clnt_in.p - clnt_out.p == dp_clnt;
 
 	% Electrical
 	elec_pos.v - elec_neg.v == V_stk;
+	%elec_pos.i - elec_neg.i == 0;
     
 
     % Equate variables for internal convection components
