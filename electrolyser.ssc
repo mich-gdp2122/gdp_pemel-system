@@ -37,40 +37,44 @@ end
 % Add specified parameters here
 parameters
 	% Flow conditions
-	T_inf	  = {293.15, 'K'   }; % Ambient temperature
+	T_inf	  = {amb.T, 'K'}; % Ambient temperature
 
 	% Geometry
-	N_cel = {30, '1'}; % Number of cells
-    A_cel = {0.1, 'm^2'}; % Cell active area
+	N_cel = {pemel.N_cel, '1'}; % Number of cells
+    A_cel = {pemel.A_cel, 'm^2'}; % Cell active area
 
-	%H_ca  = {0.5, 'mm' }; % Cathode cross-section height
-	%W_ca  = {0.5, 'mm' }; % Cathode cross-section width
-	%L_ca  = {10,  'mm' }; % Cathode channel length
-	vol_ca = {0.1, 'm^3'}; % Cathode volume
+    %Ac_an  = {pemel.Ac_an,  'm^2'}; % Anode channel cross-section area
+    %Prm_an = {pemel.Prm_an, 'm'  }; % Anode channel cross-section perimeter
+	%L_an   = {pemel.L_an,   'm'  }; % Anode channel length
+	vol_an = {pemel.vol_an, 'm^3'}; % Anode volume
+    
+    %Ac_ca  = {pemel.Ac_ca,  'm^2'}; % Cathode channel cross-section area
+    %Prm_ca = {pemel.Prm_ca, 'm'  }; % Cathode channel cross-section perimeter
+	%L_ca   = {pemel.L_ca,   'm'  }; % Cathode channel length
+	vol_ca = {pemel.vol_ca, 'm^3'}; % Cathode volume
 
- 	%H_an  = {0.5,   'mm' }; % Anode cross-section height
-	%W_an  = {0.5,   'mm' }; % Anode cross-section width
-	%L_an  = {10,    'mm' }; % Anode channel length
-	vol_an = {0.005, 'm^3'}; % Anode volume
+	A_mem   = {pemel.A_mem,   'm^2'}; % Membrane area
+	thk_mem = {pemel.thk_mem, 'm'  }; % Membrane thickness
 
-	A_mem   = {0.1,      'm^2'}; % Membrane area
-	thk_mem = {0.178E-3, 'm'  }; % Membrane thickness
-
-	N_clt  = {50,    '1'       }; % No. cooling tubes per BP plate
-	D_clt  = {0.002, 'm'       }; % Cooling tube diameter
-	L_clt  = {0.2,   'm'       }; % Cooling tube length
-    thk_bp = {0.002, 'm'       }; % BP plate thickness
-    cp_bp  = {100,   'J/(kg*K)'}; % BP plate Sp. heat (Cp)
-    k_bp   = {1,     'W/(m*K)' }; % BP plate heat conductivity
+    % Cooling
+	N_clt   = {pemel.N_clt,   '1'       }; % No. cooling tubes per BP plate
+	Ac_clt  = {pemel.Ac_clt,  'm^2'     }; % Cooling tube cross-section area
+    Prm_clt = {pemel.Prm_clt, 'm'       }; % Cooling tube cross-section perimeter
+	L_clt  =  {pemel.L_clt,   'm'       }; % Cooling tube length
+    thk_bp =  {pemel.thk_bp,  'm'       }; % BP plate thickness
+    cp_bp  =  {pemel.cp_bp,   'J/(kg*K)'}; % BP plate Sp. heat (Cp)
+    k_bp   =  {pemel.k_bp,    'W/(m*K)' }; % BP plate heat conductivity
+    
+    % Electrical
+    V_stk_i = {pemel.V_stk_i, 'V'    }; % Polarisation curve voltage vector
+    J_stk_i = {pemel.J_stk_i, 'A/m^2'}; % Polarisation curve current density vector
 end
 
 % Parameter groups
 annotations
 	UILayout = [
-        UIGroup("Flow conditions", ...
-        T_inf)
         UIGroup("Cell specs", ...
-        N_cel, A_cel, vol_ca, vol_an, A_mem, thk_mem)
+        T_inf, N_cel, A_cel, vol_ca, vol_an, A_mem, thk_mem, V_stk_i, J_stk_i)
         UIGroup("Cooling specs", ...
         N_clt, D_clt, L_clt, thk_bp, cp_bp, k_bp)]
 end
@@ -227,12 +231,21 @@ intermediates
 	dp_clnt = f_clnt*(L_clt/D_clt)*(0.5*rho_clnt*(u_clnt^2));
 		
 	% Electrical
-	
+    J = I/A_cel;    % Current density
+    V_stk = tablelookup(J_stk_i, V_stk_i, J, interpolation = linear, extrapolation = nearest);
+	P_stk = V_stk*I % Stack power
+    
+    % mdot_reacts
+    mdot_h2o_reac = M_h2o*I/(2*F);
+    mdot_h2_reac  = M_h2*I/(2*F);
+    mdot_o2_reac  = M_o2*I/(2*F);
+    
 	% Energy flow components
+    Qdot_reac   = P_stk - mdot_h2_reac*HHV_h2;
+    %Qdot_h2o_in = Phi_h2o_in - mdot_h2o_in*cp_h2o_in*T_inf;
 
  	% Membrane
 	
-	% mdot_reacts
 
 end
 
@@ -247,8 +260,8 @@ equations
 	der(m_h2)	  == mdot_h2_reac - mdot_h2_out;
 
     % Stack energy balance
-	c_stk*der(T_stk) == Qdot_reac + Phi_h2o_in - Phi_o2_out - Phi_h2_out ...
-					  - Phi_h2o_an_out - Phi_h2o_ca_out - Qdot_clnt;
+	c_stk*der(T_stk) == Qdot_reac + Qdot_h2o_in - Qdot_o2_out - Qdot_h2_out ...
+					  - Qdot_h2o_an_out - Qdot_h2o_ca_out - Qdot_clnt;
 
 	% Species pressures
 	p_o2 == (m_o2*R_o2*T_stk)/vol_g_an;
