@@ -1,7 +1,6 @@
 %% PLACE INPUT PARAMETERS IN THIS FILE %%
 
 %%% Load constants and gas properties
-const_file;
 data_gas_file;
 
 %% Ambient conditions
@@ -31,9 +30,9 @@ pemel.vol_ca = 0.1;            % Cathode channel volume                  [m^3]
 pemel.A_mem   = pemel.A_cel;   % Membrane area           [m^2]
 pemel.thk_mem = 1E-4;          % Membrane thickness      [m]
 %pemel.M_mem   = 1.1;           % Membrane dry molar mass [kg/mol]
-%pemel.rho     = 1.98E-3;       % Membrane dry density    [kg/cm^3]
+pemel.rho     = 1.98E-3;       % Membrane dry density    [kg/cm^3]
 
-pemel.N_clt   = 50;             % No. cooling tubes per BP plate      []
+pemel.N_clt   = 50;            % No. cooling tubes per BP plate      []
 pemel.Ac_clt  = 1E-6;          % Cooling tube cross-section area      [m^2]
 pemel.Prm_clt = 4E-3;          % Cooling tube cross-section perimeter [m]
 pemel.L_clt   = 0.5;           % Cooling tube length                  [m]
@@ -46,3 +45,9 @@ pemel.k_bp    = 1;             % BP plate heat conductivity           [W/(m*K)]
 %% BoP efficiencies
 BoP.eff_pmp  = 0.90;  % Coolant pump efficiency []
 BoP.eff_fan  = 0.90;  % Fan efficiency []
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Derived Parameters (DO NOT MODIFY)
+pemel.N_clt_stk = pemel.N_clt*pemel.N_cel;    % No. cooling tubes in stack
+pemel.Dh_clt = 4*pemel.Ac_clt/pemel.Prm_clt;  % Cooling tube hydraulic diameter [m]
