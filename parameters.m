@@ -17,6 +17,11 @@ control.dT_stk = 5;            % Coolant T-diff thru stack     [C or K] (Default
 pemel.N_cel     = 30;          % Number of cells in stack []
 pemel.A_cel     = 0.1;         % Cell active area         [m^2]
 
+% Cell V-i correlation
+pemel.V_i = [1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2];     % [V]
+pemel.i_i    = [0.010209, 0.062283, 0.24657, 0.58725, ...  % [A/cm^2]
+				1.0239, 1.5091, 2.014, 2.5151];
+
 %pemel.Ac_an  = 2.5E-4;         % Anode channel cross-section area      [m^2]
 %pemel.Prm_an = 0.002;          % Anode channel cross-section perimeter [m]
 %pemel.L_an   = 0.01;           % Anode channel length                  [m]
@@ -58,7 +63,7 @@ Pump.CS  = 0.01;  %Pump inlet & outlet cross setion
 TL.FlowRate  = 0.5;  %Thermal liquid flow rate Kg/s
 
 %%% Electrolyser heat transfer
-Pipe.lenght  = 1;  %Pipe lenght in m
+Pipe.length  = 1;  %Pipe lenght in m
 Heat.load  = 26.875;  %Heat transfer from electrolyser into the cooling water in KW
 
 
