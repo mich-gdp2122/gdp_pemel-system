@@ -47,6 +47,16 @@ pemel.cp_bp   = 100;           % BP plate Sp. heat (Cp)               [J/(kg*K)]
 pemel.k_bp    = 1;             % BP plate heat conductivity           [W/(m*K)]
 
 
+%% TMS block parameters
+%%% Cooling water
+Pump.CS  = 0.01;  %Pump inlet & outlet cross setion
+TL.FlowRate  = 0.5;  %Thermal liquid flow rate Kg/s
+
+%%% Electrolyser heat transfer
+Pipe.length  = 1;  %Pipe lenght in m
+Heat.load  = 26.875;  %Heat transfer from electrolyser into the cooling water in KW
+
+
 %% BoP efficiencies
 BoP.eff_pmp  = 0.90;  % Coolant pump efficiency []
 BoP.eff_fan  = 0.90;  % Fan efficiency []
@@ -56,15 +66,6 @@ BoP.eff_fan  = 0.90;  % Fan efficiency []
 %% Derived Parameters (DO NOT MODIFY)
 pemel.N_clt_stk = pemel.N_clt*pemel.N_cel;    % No. cooling tubes in stack
 pemel.Dh_clt = 4*pemel.Ac_clt/pemel.Prm_clt;  % Cooling tube hydraulic diameter [m]
-
-%% TMS block parameters
-%%% Cooling water
-Pump.CS  = 0.01;  %Pump inlet & outlet cross setion
-TL.FlowRate  = 0.5;  %Thermal liquid flow rate Kg/s
-
-%%% Electrolyser heat transfer
-Pipe.length  = 1;  %Pipe lenght in m
-Heat.load  = 26.875;  %Heat transfer from electrolyser into the cooling water in KW
 
 
 
