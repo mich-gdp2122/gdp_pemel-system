@@ -47,17 +47,19 @@ pemel.i_i     =	[0.14154,0.39234,0.76815,1.2179,1.7085,2.2219,2.7477,3.2785,3.80
 pemel.T_i     =	[340.11,340.37,340.84,341.47,342.2,343.03,343.93,344.9,345.94,347.04,348.21];  % [K]
 pemel.H2out_i = [1.44E-06,4.00E-06,7.84E-06,1.25E-05,1.75E-05,2.28E-05,2.82E-05,3.36E-05,3.91E-05,4.45E-05,4.96E-05];  % [kg/s]
 
+%clnt.p_stk_in = 
+
 %% Operating conditions
 % Stack
-pemel.T_stk = pemel.T_i(6);			% Nominal stack temperature [K]
+pemel.T_stk = 353.15; %pemel.T_i(6);			% Nominal stack temperature [K]
 pemel.p_ca  = 20 * 100000;			% Nominal cathode pressure [bar -> Pa]
 pemel.p_an  = amb.p;				% Nominal anode pressure   [Pa]
 
 % Electrical
-ctrl.i		= pemel.i_i(6);			% Nominal current density [A/cm^2]
+ctrl.i = pemel.i_i(6);			% Nominal current density [A/cm^2]
 
 % Process water
-h2o.mdot_stk = 12;					% Nominal mass flow rate per stack [kg/s]
+h2o.mdot_stk  = 12;					% Nominal mass flow rate per stack [kg/s]
 h2o.T_stk_in  = 345.7;				% Stack inlet temperature [K]
 
 % Coolant
@@ -69,6 +71,7 @@ clnt.mdot_stk = 12;					% Nominal mass flow rate per stack [kg/s]
 %% BoP efficiencies
 BoP.eff_pmp  = 0.90;  % Coolant pump efficiency []
 BoP.eff_fan  = 0.90;  % Fan efficiency []
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,5 +90,7 @@ pemel.I_i     = pemel.i_i*pemel.A_cel;  % i -> I [A/cm^2 -> A/m^2 -> A]
 pemel.V_stk_i = pemel.V_i*pemel.N_cel;  % Cell -> stack voltage [V]
 ctrl.I        = ctrl.i*pemel.A_cel;     % i -> I [A/cm^2 -> A/m^2 -> A]
 
+% Stack-level mass flow conversion
+pemel.H2out_stk_i = pemel.N_cel*pemel.H2out_i;  % H2 out [kg/s]
 
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
