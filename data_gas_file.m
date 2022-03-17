@@ -2,7 +2,7 @@
 %load('data_gas.mat');
 
 %% Temperature vector
-gasData.T_i = [273.16:5:473.16];  % [K]
+gasData.T_i = [273.16:5:423.16];  % [K]
 
 %% H2 gas data
 % sp. enthalpy [kJ/kg]
