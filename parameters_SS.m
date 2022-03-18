@@ -100,7 +100,7 @@ pemel.totPrm_clt_stk = pemel.N_clt_stk*pemel.Prm_clt;  % [m]
 pemel.Dh_clt = 4*pemel.totAc_clt_stk/pemel.totPrm_clt_stk;  % Cooling tube hydraulic diameter [m]
 
 % Total anode/cathode channel area
-pemel.totAc_ch_stk = pemel.N_stk*pemel.Ac_ch;  % [m^2]
+pemel.totAc_ch_stk = pemel.N_stk*pemel.Ac_c;  % [m^2]
 
 % Electrical conversion
 pemel.I_i     = pemel.i_i*pemel.A_cel;  % i -> I [A/cm^2 -> A/m^2 -> A]
