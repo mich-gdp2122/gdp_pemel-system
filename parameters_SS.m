@@ -76,6 +76,9 @@ BoP.eff_fan  = 0.90;  % Fan efficiency []
 
 
 %% Organic Rankine Cycle
+%%%Cooling system model
+Cooli.T_initial= 353.15; %Input temperature [K]
+
 %%%Condenser
 Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
 Con.PortA_A    = 0.01;   %Condenser port A area [m^2]
@@ -86,7 +89,7 @@ Con.Area       = 1e-4;   %Condenser thermal resistance area [m^2]
 Con.Heat_Coeff = 20;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
 Con.Coolant_T  = 283.15;     %Condenser cooling temperature [K]
 
-%Power system
+%%%Power system
 Shaft.speed    = 3600;   %Shaft speed [rpm]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
