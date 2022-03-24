@@ -10,6 +10,6 @@ cp -f "$HERE/.ssh/id_rsa" ~/".ssh/id_rsa"
 cp -f "$HERE/.ssh/id_rsa.pub" ~/".ssh/id_rsa.pub"
 
 # open matlab project
-/Applications/MATLAB_R2021b.app/bin/matlab -r "open ('$HERE/GDPPEMELSystem.prj')" ; disown
+/Applications/MATLAB_R2022a.app/bin/matlab -r "open ('$HERE/GDPPEMELSystem.prj')" ; disown
 
 exit 0
