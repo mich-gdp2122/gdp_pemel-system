@@ -95,7 +95,7 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 %% Derived Parameters
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
 
-pemel.Q_clt        = pemel.q*(pemel.Prm_clt*pemel.L_clt);   % Heat flux transfer to single tube [W]
+%pemel.Q_clt        = pemel.q*(pemel.Prm_clt*pemel.L_clt);   % Heat flux transfer to single tube [W]
 
 % Current density -> current
 input.I       = input.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
