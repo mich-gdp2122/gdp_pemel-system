@@ -35,10 +35,12 @@ pemel.thk_bp  = 0.002294;       % BP plate thickness b/tw heat source & channel 
 pemel.cp_bp   = 535.71;         % BP plate Sp. heat (Cp)               [J/(kg*K)]
 pemel.k_bp    = 20.233;         % BP plate heat conductivity           [W/(m*K)]
 
-pemel.Ac_ch  = (0.8E-3)^2;      % Process channel cross-section area      [m^2]
-%pemel.Prm_ch = 0.002;          % Process channel cross-section perimeter [m]
-%pemel.L_ch   = 0.01;           % Process channel length                  [m]
-%pemel.vol_ch = 0.1;            % Process channel volume                  [m^3]
+% Process channels
+pemel.N_ch   = 4;				% No. anode/cathode channels each per cell []
+pemel.Ac_ch  = (0.8E-3)^2;      % Process channel cross-section area       [m^2]
+%pemel.Prm_ch = 0.002;          % Process channel cross-section perimeter  [m]
+%pemel.L_ch   = 0.01;           % Process channel length                   [m]
+%pemel.vol_ch = 0.1;            % Process channel volume                   [m^3]
 
 
 %% Operating conditions
@@ -53,6 +55,7 @@ pemel.V_stk = 60; %pemel.N_cel*interp1(pemel.i_i, pemel.V_i, input.i, 'makima', 
 %pemel.q     = 8955.5;  % Stack heat flux density [W/m^2]
 
 % Process water
+h2o.stoich    = 1.2;		% Stoichiometric ratio
 h2o.mdot_stk  = 12;			% Nominal mass flow rate per stack [kg/s]
 h2o.T_stk_in  = 345.7;		% Stack inlet temperature [K]
 
@@ -95,7 +98,8 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 %% Derived Parameters
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
 
-%pemel.Q_clt        = pemel.q*(pemel.Prm_clt*pemel.L_clt);   % Heat flux transfer to single tube [W]
+%pemel.Q_clt  = pemel.q*(pemel.Prm_clt*pemel.L_clt);   % Heat flux transfer to single tube [W]
+pemel.Dh_clt = 4*pemel.Ac_clt/pemel.Prm_clt;  % Hydraulic diameter [m]
 
 % Current density -> current
 input.I       = input.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
@@ -107,28 +111,29 @@ pemel.As_clt  = pemel.Prm_clt*pemel.L_clt;	% Surface area [m^2]
 
 % Params for total no. cells per stack
 pemel.N_clt_stk      = pemel.N_cel*pemel.N_clt;    % No. cooling tubes in stack
+pemel.N_ch_stk       = pemel.N_cel*pemel.N_ch;	   % No. process channels in stack
 pemel.totAc_clt_stk  = pemel.N_clt_stk*pemel.Ac_clt;   % [m^2]
 pemel.totPrm_clt_stk = pemel.N_clt_stk*pemel.Prm_clt;  % [m]
 pemel.totVol_clt_stk = pemel.N_clt_stk*pemel.Vol_clt;  % Volume [m^3]
 pemel.totAs_clt_stk  = pemel.N_clt_stk*pemel.As_clt;   % Surface area [m^2]
-pemel.totAc_ch_stk   = pemel.N_stk*pemel.Ac_ch; % Total anode/cathode channel area [m^2]
+pemel.totAc_ch_stk   = pemel.N_ch_stk*pemel.Ac_ch; % Total anode/cathode channel area [m^2]
 
 % Params for total no. cells overall 
 pemel.totN_cel   = pemel.N_cel*pemel.N_stk;	    % Total no. cells overall
 pemel.totN_clt   = pemel.totN_cel*pemel.N_clt;  % Total no. cool tubes overall
-pemel.totAc_clt  = pemel.totN_cel*1;
-pemel.totPrm_clt = pemel.totN_cel*1;
-pemel.totVol_clt = pemel.totN_cel*1;
-pemel.totAs_clt  = pemel.totN_cel*1;
-pemel.totAc_ch   = pemel.totN_cel*1;
+pemel.totN_ch    = pemel.totN_cel*pemel.N_ch;   % Total no. proc. channels overall
+pemel.totAc_clt  = pemel.totN_clt*pemel.Ac_clt;
+pemel.totPrm_clt = pemel.totN_clt*pemel.Prm_clt;
+pemel.totVol_clt = pemel.totN_clt*pemel.Vol_clt;
+pemel.totAs_clt  = pemel.totN_clt*pemel.As_clt;
+pemel.totAc_ch   = pemel.totN_ch*pemel.Ac_ch;
 
 % Process fluid mass flow rates
+h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*input.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
+h2o.mdot_in_tot   = h2o.stoich*h2o.mdot_reac_tot;					 % Total h2o inlet mass flow rate [kg/s]
+h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet mass flow rate [kg/s]
+h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*input.I/(2*const.F);   % Total h2 mass produced [kg/s]
 
-
-% Hydraulic diameters
-pemel.Dh_clt = 4*pemel.Ac_clt/pemel.Prm_clt;  % Hydraulic diameter [m]
-pemel.Dh_clt_stk = 4*pemel.totAc_clt_stk/pemel.totPrm_clt_stk;  % Hydraulic diameter [m]
-pemel.Dh_clt_tot = 4*pemel.totAc_clt/pemel.totPrm_clt;  % Hydraulic diameter [m]
 
 % Stack-level mass flow conversion
 %pemel.H2out_stk_i = pemel.N_cel*pemel.H2out_i;  % H2 out [kg/s]
