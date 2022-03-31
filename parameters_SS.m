@@ -136,7 +136,7 @@ prch.Dh = 4*prch.Ac/prch.Prm;  % Process channels
 Con.D   = 2*sqrt(Con.PortA_A/pi);	% ORC condenser diameter (circular pipe assumed)
 
 % Total mass flow rates (for total no. cells overall)
-clnt.mdot_tot = pemel.totN_cel*clnt.mdot_stk;
+clnt.mdot_tot = pemel.N_stk*clnt.mdot_stk;
 
 % Process fluid mass flow rates
 h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*pemel.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
