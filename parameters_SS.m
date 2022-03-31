@@ -86,17 +86,20 @@ ph.L = 0.3;	 %% Pipe length
 %%%Cooling system model
 Cooli.T_initial= 345.15; %Input temperature [K]
 
-%%%Condenser
+% Heat exchanger
+HX.L           = 1;      % Coolant-ORC Heat exchanger length (m)
+
+% Condenser
 Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
 Con.PortA_A    = 0.01;   %Condenser port A area [m^2]
 Con.PortB_A    = 0.01;   %Condenser port A area [m^2]
 
-%Thermal 
+% Thermal 
 Con.Area       = 1e-4;   %Condenser thermal resistance area [m^2]
 Con.Heat_Coeff = 20;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
 Con.Coolant_T  = 283.15;     %Condenser cooling temperature [K]
 
-%%%Power system
+% Power system
 Shaft.speed    = 3600;   %Shaft speed [rpm]
 
 
