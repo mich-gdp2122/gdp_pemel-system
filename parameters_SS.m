@@ -64,10 +64,9 @@ h2o.T_stk_in  = 345.7;		% Stack inlet temperature [K]
 h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
 
 % Coolant
-clnt.mdot_stk  = 0.9;			% Nominal mass flow rate per stack [kg/s]
-clnt.T_stk_in  = 341.28; %interp1(pemel.i_i, pemel.TIn_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant inlet temperature @ stack [K] 
-clnt.dT_stk    = 5.98; %interp1(pemel.i_i, pemel.dT_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant T-diff thru stack [K]
-clnt.T_stk_out = clnt.T_stk_in + clnt.dT_stk;  % Coolant outlet temperature [K]
+clnt.mdot_stk  = 0.9;	 % Nominal mass flow rate per stack [kg/s]
+clnt.T_stk_in  = 339.15; %interp1(pemel.i_i, pemel.TIn_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant inlet temperature @ stack [K] 
+clnt.T_stk_out = 345.15;  % Coolant outlet temperature [K]
 clnt.p_stk_in  = 2742.5 + amb.p; %interp1(pemel.i_i, pemel.pIn_clnt_i, pemel.i, 'makima', 'extrap'); % Coolant stack inlet pressure [Pa]
 clnt.dp_stk    = 2681; % interp1(pemel.i_i, pemel.dp_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant stack pressure drop [Pa]
 clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
@@ -85,9 +84,10 @@ ph.L = 0.3;	 %% Pipe length
 %% Organic Rankine Cycle
 %%%Cooling system model
 Cooli.T_initial= 345.15; %Input temperature [K]
+ORC.mdot       = 1.7;    % Nominal mass flow rate [kg/s]
 
 % Heat exchanger
-HX.L           = 1;      % Coolant-ORC Heat exchanger length (m)
+HX.L           = 4.5;      % Coolant-ORC Heat exchanger length (m)
 
 % Condenser
 Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
@@ -109,6 +109,7 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
 
 %pemel.Q_clt  = pemel.q*(clch.Prm*clch.L);   % Heat flux transfer to single tube [W]
+clnt.dT_stk    = 5.98;
 
 % Current density -> current
 pemel.I       = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
@@ -118,16 +119,7 @@ pemel.I       = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
 clch.Vol = clch.Ac*clch.L;	% Volume [m^3]
 clch.As  = clch.Prm*clch.L;	% Surface area [m^2]
 
-% Params for total no. cells per stack
-%clch.N_stk      = pemel.N_cel*clch.N;    % No. cooling tubes in stack
-%prch.N_stk       = pemel.N_cel*prch.N;	   % No. process channels in stack
-%clch.Ac_tot_stk  = clch.N_stk*clch.Ac;   % [m^2]
-%clch.Prm_tot_stk = clch.N_stk*clch.Prm;  % [m]
-%clch.Vol_tot_stk = clch.N_stk*clch.Vol;  % Volume [m^3]
-%clch.As_tot_stk  = clch.N_stk*clch.As;   % Surface area [m^2]
-%prch.Ac_tot_stk   = prch.N_stk*prch.Ac; % Total anode/cathode channel area [m^2]
-
-% Params for total no. cells overall 
+% Specs for total no. cells overall 
 pemel.totN_cel = pemel.N_cel*pemel.N_stk;  % Total no. cells overall
 clch.N_tot     = pemel.totN_cel*clch.N;    % Total no. cool tubes overall
 prch.N_tot     = pemel.totN_cel*prch.N;    % Total no. anode/cathode channels (each) overall
@@ -141,6 +133,10 @@ prch.Ac_tot    = prch.N_tot*prch.Ac;	   % Process channel cross-section area [m^
 % Hydraulic diameters [m]
 clch.Dh = 4*clch.Ac/clch.Prm;  % Cooling channels
 prch.Dh = 4*prch.Ac/prch.Prm;  % Process channels
+Con.D   = 2*sqrt(Con.PortA_A/pi);	% ORC condenser diameter (circular pipe assumed)
+
+% Total mass flow rates (for total no. cells overall)
+clnt.mdot_tot = pemel.totN_cel*clnt.mdot_stk;
 
 % Process fluid mass flow rates
 h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*pemel.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
