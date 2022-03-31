@@ -84,7 +84,7 @@ ph.L = 0.3;	 %% Pipe length
 
 %% Organic Rankine Cycle
 %%%Cooling system model
-Cooli.T_initial= 353.15; %Input temperature [K]
+Cooli.T_initial= 345.15; %Input temperature [K]
 
 %%%Condenser
 Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
