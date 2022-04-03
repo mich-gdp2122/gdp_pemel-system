@@ -85,19 +85,19 @@ ph.L = 20;	 %% Pipe length
 %% Organic Rankine Cycle
 %%%Cooling system model
 Cooli.T_initial= 345.15; %Input temperature [K]
-ORC.mdot       = 1.7;    % Nominal mass flow rate [kg/s]
+ORC.mdot       = 2;    % Nominal mass flow rate [kg/s]
 
 % Heat exchanger
 HX.L           = 1;      % Coolant-ORC Heat exchanger length (m)
 
 % Condenser
-Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
-Con.PortA_A    = 0.01;   %Condenser port A area [m^2]
-Con.PortB_A    = 0.01;   %Condenser port A area [m^2]
+Con.Fluid_V    = 0.5;      %Condenser fluid volume [m^3]
+Con.PortA_A    = 0.02;   %Condenser port A area [m^2]
+Con.PortB_A    = 0.02;   %Condenser port A area [m^2]
 
 % Thermal 
-Con.Area       = 1e-4;   %Condenser thermal resistance area [m^2]
-Con.Heat_Coeff = 20;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
+Con.Area       = 16;   %Condenser thermal resistance area [m^2]
+Con.Heat_Coeff = 3500;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
 Con.Coolant_T  = 283.15;     %Condenser cooling temperature [K]
 
 % Power system
