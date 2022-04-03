@@ -57,11 +57,12 @@ pemel.V_stk = 60; %pemel.N_cel*interp1(pemel.i_i, pemel.V_i, pemel.i, 'makima', 
 
 % Process water
 h2o.stoich    = 1.2;		% Stoichiometric ratio
-h2o.mdot_stk  = 12;			% Nominal mass flow rate per stack [kg/s]
-h2o.T_stk_in  = 345.7;		% Stack inlet temperature [K]
+h2o.T_stk_in  = 340;		% Stack inlet temperature [K]
+h2o.T_stk_out = 341;		% Stack outlet temperature [K]
+%h2o.mdot_stk  = 12;			% Nominal mass flow rate per stack [kg/s]
 
 % Hydrogen
-h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
+%h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
 
 % Coolant
 clnt.mdot_stk  = 0.9;	 % Nominal mass flow rate per stack [kg/s]
@@ -135,10 +136,12 @@ clch.Dh = 4*clch.Ac/clch.Prm;  % Cooling channels
 prch.Dh = 4*prch.Ac/prch.Prm;  % Process channels
 Con.D   = 2*sqrt(Con.PortA_A/pi);	% ORC condenser diameter (circular pipe assumed)
 
-% Total mass flow rates (for total no. cells overall)
-clnt.mdot_tot = pemel.N_stk*clnt.mdot_stk;
+% Total mass flow rates (for total no. cells overall) [kg/s]
+clnt.mdot_tot = pemel.N_stk*clnt.mdot_stk;  % Coolant
+%h2o.mdot_tot  = pemel.N_stk*h2o.mdot_stk;	% H2O
+%h2.mdot_tot   = pemel.N_stk*h2.mdot_stk;    % H2
 
-% Process fluid mass flow rates
+% Process fluid total mass flow rates [kg/s]
 h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*pemel.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
 h2o.mdot_in_tot   = h2o.stoich*h2o.mdot_reac_tot;					 % Total h2o inlet mass flow rate [kg/s]
 h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet mass flow rate [kg/s]
