@@ -80,7 +80,7 @@ BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
 
 
 %% Preheater
-ph.L = 0.3;	 %% Pipe length
+ph.L = 20;	 %% Pipe length
 
 %% Organic Rankine Cycle
 %%%Cooling system model
@@ -88,7 +88,7 @@ Cooli.T_initial= 345.15; %Input temperature [K]
 ORC.mdot       = 1.7;    % Nominal mass flow rate [kg/s]
 
 % Heat exchanger
-HX.L           = 4.5;      % Coolant-ORC Heat exchanger length (m)
+HX.L           = 1;      % Coolant-ORC Heat exchanger length (m)
 
 % Condenser
 Con.Fluid_V    = 5;      %Condenser fluid volume [m^3]
