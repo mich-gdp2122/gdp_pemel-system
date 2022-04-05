@@ -15,15 +15,9 @@ pemel.N_stk = 8;		   % No. stacks				  []
 pemel.N_cel = 30;          % Number of cells in stack []
 pemel.A_cel = 0.1*100^2;   % Cell active area         [cm^2]
 
-% Membrane
-%mem.A   = pemel.A_cel;   % Membrane area           [m^2]
-%mem.thk = 1E-4;          % Membrane thickness      [m]
-%mem.M   = 1.1;          % Membrane dry molar mass [kg/mol]
-%mem.rho = 1.98E-3;       % Membrane dry density    [kg/cm^3]
-
 % Cooling channels
 clch.N   = 60;            % No. cooling tubes per BP plate       []
-clch.L   = 0.2;           % Cooling tube length                  [m]
+clch.L   = 0.25;           % Cooling tube length                  [m]
 clch.W   = 0.001;		  % Cooling tube width					 [m]
 clch.Ac  = clch.W^2;      % Cooling tube cross-section area      [m^2]
 clch.Prm = 4*clch.W;      % Cooling tube cross-section perimeter [m]
@@ -31,16 +25,17 @@ clch.Prm = 4*clch.W;      % Cooling tube cross-section perimeter [m]
 % Bipolar plate
 bp.L   = 0.5;			% BP plate length [m]
 bp.W   = 0.2;			% BP plate width [m]
-bp.thk = 0.002294;      % BP plate thickness b/tw heat source & channel [m]
-bp.cp  = 535.71;        % BP plate Sp. heat (Cp)               [J/(kg*K)]
-bp.k   = 20.233;        % BP plate heat conductivity           [W/(m*K)]
+bp.thk = 0.002;			% BP plate thickness [m]
+bp.rho = 4494;			% BP density [kg/m^3]
+bp.cp  = 534;			% BP plate Sp. heat (Cp)               [J/(kg*K)]
+bp.k   = 20.2;        % BP plate heat conductivity           [W/(m*K)]
 
 % Process channels
 prch.N   = 4;			% No. anode/cathode channels each per cell []
 prch.W   = 0.8E-3;		% Process channel width
 prch.Ac  = prch.W^2;    % Process channel cross-section area       [m^2]
 prch.Prm = 4*prch.W;    % Process channel cross-section perimeter  [m]
-%prch.L   = 0.01;       % Process channel length                   [m]
+prch.L   = 0.025;       % Process channel length                   [m]
 %prch.vol = 0.1;        % Process channel volume                   [m^3]
 
 
@@ -76,11 +71,17 @@ clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 %% Balance-of-Plant
 % Efficiencies
 BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
-%BoP.eff_fan = 0.90;  % Fan efficiency []
 
+
+%% Copper piping
+%pipe.k   = 400;   % Thermal conductivity [W/(m*K)]
+%pipe.cp  = 385;	  % Cp heat capacity [J/(kg*K)]
+%pipe.rho = 8960;  % Density [kg/m^3]
+%pipe.thk = 1E-3;
 
 %% Preheater
-ph.L = 20;	 %% Pipe length
+ph.L = 1;	 %% Pipe length [m]
+
 
 %% Organic Rankine Cycle
 %%%Cooling system model
@@ -116,9 +117,10 @@ clnt.dT_stk    = 5.98;
 pemel.I       = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
 %pemel.I_i     = pemel.i_i*pemel.A_cel;  % i -> I [A/cm^2 -> A/m^2 -> A]
 
-% Single cooling channel geometries
-clch.Vol = clch.Ac*clch.L;	% Volume [m^3]
-clch.As  = clch.Prm*clch.L;	% Surface area [m^2]
+% Single cooling, process channel geometries
+clch.Vol = clch.Ac*clch.L;	% Cooling channel volume [m^3]
+clch.As  = clch.Prm*clch.L;	% Cooling channel surface area [m^2]
+prch.Vol = prch.Ac*prch.L;  % Process channel volume [m^3]
 
 % Specs for total no. cells overall 
 pemel.totN_cel = pemel.N_cel*pemel.N_stk;  % Total no. cells overall
@@ -147,14 +149,7 @@ h2o.mdot_in_tot   = h2o.stoich*h2o.mdot_reac_tot;					 % Total h2o inlet mass fl
 h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet mass flow rate [kg/s]
 h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 mass produced [kg/s]
 
-
-%mdot_h2_24h = 473; % kg/24hr
-%mdot_h2_s   = round(mdot_h2_24h/86400, 3, 'significant');
-
-%n_h2_tot_calc = 0.83*h2.mdot_reac_tot/const.M_h2;
-%n_h2_tot_set = mdot_h2_s/const.M_h2;
-
-% Stack-level mass flow conversion
-%pemel.H2out_stk_i = pemel.N_cel*pemel.H2out_i;  % H2 out [kg/s]
+% Total BP plate mass
+bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
