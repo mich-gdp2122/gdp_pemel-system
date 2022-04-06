@@ -10,6 +10,7 @@ amb.p     = 1  * 101325;       % Ambient air pressure [Pa]
 amb.phi   = 0.60;              % Ambient humidity     [0-1]
 amb.T_sea = 10 + 273.15;	   % Ocean background temperature [K]
 
+
 %% Stack specifications
 pemel.N_stk = 8;		   % No. stacks				  []
 pemel.N_cel = 30;          % Number of cells in stack []
@@ -54,7 +55,7 @@ pemel.V_stk = 60; %pemel.N_cel*interp1(pemel.i_i, pemel.V_i, pemel.i, 'makima', 
 h2o.stoich    = 1.2;		% Stoichiometric ratio
 h2o.T_stk_in  = 340;		% Stack inlet temperature [K]
 h2o.T_stk_out = 341;		% Stack outlet temperature [K]
-%h2o.mdot_stk  = 12;			% Nominal mass flow rate per stack [kg/s]
+%h2o.mdot_stk  = 12;		% Nominal mass flow rate per stack [kg/s]
 
 % Hydrogen
 %h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
@@ -74,10 +75,11 @@ BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
 
 
 %% Copper piping
-%pipe.k   = 400;   % Thermal conductivity [W/(m*K)]
-%pipe.cp  = 385;	  % Cp heat capacity [J/(kg*K)]
-%pipe.rho = 8960;  % Density [kg/m^3]
-%pipe.thk = 1E-3;
+pipe.k   = 400;     % Thermal conductivity [W/(m*K)]
+pipe.thk = 0.5E-3;  % Pipe thickness [m]
+%pipe.cp  = 385;     % Cp heat capacity [J/(kg*K)]
+%pipe.rho = 8960;    % Density [kg/m^3]
+
 
 %% Preheater
 ph.L = 1;	 %% Pipe length [m]
@@ -131,12 +133,17 @@ clch.Prm_tot   = clch.N_tot*clch.Prm;	   % Cool tube cross-section perimeter [m]
 clch.Vol_tot   = clch.N_tot*clch.Vol;	   % Cool tube volume [m^3]
 clch.As_tot    = clch.N_tot*clch.As;	   % Cool tube surface area [m^2]
 prch.Ac_tot    = prch.N_tot*prch.Ac;	   % Process channel cross-section area [m^2]
+%prch.Prm_tot   = prch.N_tot*prch.Prm;	   % Process channel cross-section perimeter [m]
 %pemel.V_tot    = pemel.N_stk*pemel.V_stk;  % Overall voltage [V]
 
-% Hydraulic diameters [m]
+% Stack channel hydraulic diameters [m]
 clch.Dh = 4*clch.Ac/clch.Prm;  % Cooling channels
 prch.Dh = 4*prch.Ac/prch.Prm;  % Process channels
-Con.D   = 2*sqrt(Con.PortA_A/pi);	% ORC condenser diameter (circular pipe assumed)
+
+% External pipe diameters (circular pipe assumed) [m]
+prch.D = sqrt(4*prch.Ac_tot/pi);	% Process water
+clch.D = sqrt(4*clch.Ac_tot/pi);	% Coolant
+Con.D  = sqrt(4*Con.PortA_A/pi);	% ORC condenser
 
 % Total mass flow rates (for total no. cells overall) [kg/s]
 clnt.mdot_tot = pemel.N_stk*clnt.mdot_stk;  % Coolant
@@ -151,5 +158,9 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 
 % Total BP plate mass
 bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
+
+% Preheater lengths
+[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
+								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
 
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
