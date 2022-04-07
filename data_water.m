@@ -4,7 +4,6 @@ function [rho, cp, k, mu, Pr] = data_water(T_in, T_out)
 % Rows of the tables correspond to the temperature vector
 %%
 T = mean([T_in T_out]);	% Convert to avg temperature
-
 T_TLU = 273.1600:10:373.16; % Temperature vector [K]
 
 rho_TLU = [ ...

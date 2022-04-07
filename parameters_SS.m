@@ -4,8 +4,8 @@
 const_file;
 data_gas_file;
 
-%% Ambient conditions.16
-amb.T     = 20 + 273.15;       % Ambient temperature  [K]
+%% Ambient conditions
+amb.T     = 10 + 273.15;       % Ambient temperature  [K]
 amb.p     = 1  * 101325;       % Ambient air pressure [Pa]
 amb.phi   = 0.60;              % Ambient humidity     [0-1]
 amb.T_sea = 10 + 273.15;	   % Ocean background temperature [K]
@@ -75,8 +75,8 @@ BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
 
 
 %% Copper piping
-pipe.k   = 400;     % Thermal conductivity [W/(m*K)]
-pipe.thk = 0.5E-3;  % Pipe thickness [m]
+%pipe.k   = 400;     % Thermal conductivity [W/(m*K)]
+%pipe.thk = 0.5E-3;  % Pipe thickness [m]
 %pipe.cp  = 385;     % Cp heat capacity [J/(kg*K)]
 %pipe.rho = 8960;    % Density [kg/m^3]
 
