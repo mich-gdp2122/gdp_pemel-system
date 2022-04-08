@@ -5,7 +5,7 @@ const_file;
 data_gas_file;
 
 %% Ambient conditions
-amb.T     = 10 + 273.15;       % Ambient temperature  [K]
+amb.T     = 20 + 273.15;       % Ambient temperature  [K]
 amb.p     = 1  * 101325;       % Ambient air pressure [Pa]
 amb.phi   = 0.60;              % Ambient humidity     [0-1]
 amb.T_sea = 10 + 273.15;	   % Ocean background temperature [K]
