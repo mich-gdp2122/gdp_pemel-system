@@ -37,13 +37,14 @@ C_rat = C_min/C_max;
 efct = ( C_h*(Th_in - Th_out) )/( C_min*(Th_in - Tc_in) );  % Effectiveness
 NTU  = (1/(1 - C_rat))*log( (1 - efct*C_rat)/(1 - efct) );  % NTU for counter-flow HX
 
+
 %% 5) Calc ovrl heat transf coeff, U
 % Calc hot & cold heat transf coeff's
 h_c = calc_h(rho_c, k_c, mu_c, Pr_c, D_c, mdot_c);
 h_h = calc_h(rho_h, k_h, mu_h, Pr_h, D_h, mdot_h);
 
 % Overall heat trasnf coeff.
-U = 1/(1/h_c + 1/h_h);
+U = 1/((1/h_c) + (1/h_h));
 
 %% 6) Calc heat transf surface area, and hence each pipe length
 As = NTU*C_min/U;
@@ -78,7 +79,7 @@ function h = calc_h(rho, k, mu, Pr, Dh, mdot)
 	end
 	
 	% Coolant Nusselt number []
-	Nu_lam = 4.36;							% Laminar case (const. heat flux)
+	Nu_lam= 4.36;							% Laminar case (const. heat flux)
 	Nu_tur = ( (f/8)*(Re - 1000)*Pr )/...	% Turbulent case (Gnielinski)
 			 ( 1 + 12.7*((f/8)^0.5)*( Pr^(2/3) - 1 ) );  
 
