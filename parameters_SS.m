@@ -70,25 +70,29 @@ clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 
 
 %% Balance-of-Plant
+% Rated powers
+BoP.PwrRt_htr = 2;	 % Elec. heater rated power [kW]
+
 % Efficiencies
 BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
 
+% Preheater
+%ph.L = 1;	 %% Pipe length [m]
 
-%% Copper piping
+% Heat rejector
+HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
+
+% Copper piping
 %pipe.k   = 400;     % Thermal conductivity [W/(m*K)]
 %pipe.thk = 0.5E-3;  % Pipe thickness [m]
 %pipe.cp  = 385;     % Cp heat capacity [J/(kg*K)]
 %pipe.rho = 8960;    % Density [kg/m^3]
 
 
-%% Preheater
-ph.L = 1;	 %% Pipe length [m]
-
-
 %% Organic Rankine Cycle
 %%%Cooling system model
-Cooli.T_initial= 345.15; %Input temperature [K]
-ORC.mdot       = 1.7;    % Nominal mass flow rate [kg/s]
+Cooli.T_initial = 345.15; %Input temperature [K]
+ORC.mdot        = 1.7;    % Nominal mass flow rate [kg/s]
 
 % Heat exchanger
 HX.L           = 12;      % Coolant-ORC Heat exchanger length (m)
@@ -109,8 +113,9 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  DO NOT PUT INPUT PARAMETERS BELOW HERE!  (put them in above section)  %%%%
+
 %% Derived Parameters
-%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
 
 %pemel.Q_clt  = pemel.q*(clch.Prm*clch.L);   % Heat flux transfer to single tube [W]
 clnt.dT_stk    = 5.98;
@@ -159,8 +164,13 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 % Total BP plate mass
 bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
-% Preheater lengths
-[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
 
-%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
+%% Heat exchanger sizing
+% Preheater lengths
+[ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
+						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
+
+% Heat rejector length & thermal resistance
+[HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
+										 amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
+%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them in first sectiom)  %%%%
