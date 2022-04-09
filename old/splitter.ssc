@@ -1,0 +1,124 @@
+component splitter
+% Two-port steady thermal liquid component
+
+% Use this component if there is no internal fluid state, i.e. the flow is
+% quasi-steady. If there is an internal fluid state, use
+% simscape.template.thermal_liquid.two_port_dynamic
+
+%parameters
+    % Add parameters here
+   % area_A = {0.01, 'm^2' }; % Cross-sectional area at port A
+    %area_B = {0.01, 'm^2' }; % Cross-sectional area at port B
+%end
+
+nodes
+	A  = foundation.thermal_liquid.thermal_liquid; % A:left
+    B1 = foundation.thermal_liquid.thermal_liquid; % f*A:right
+	B0 = foundation.thermal_liquid.thermal_liquid; % (1-f)*A:right
+end
+
+inputs
+    % Split factor
+    f = {0, '1'}; % f:left
+end
+
+parameters
+    area = {0.01, 'm^2'}; % Cross-sectional area
+end
+
+% Check split factor range
+equations
+	assert(f >= 0);
+	assert(f <= 1);
+end
+
+variables
+    % Through variables
+    mdot_A  = {0, 'kg/s'}; % Mass flow rate into port A
+    mdot_B1 = {0, 'kg/s'}; % Mass flow rate into port f*A
+	mdot_B0 = {0, 'kg/s'}; % Mass flow rate into port (1-f)*A
+    Phi_A   = {0, 'kW'  }; % Energy flow rate into port A
+    Phi_B1  = {0, 'kW'  }; % Energy flow rate into port f*A
+	Phi_B0  = {0, 'kW'  }; % Energy flow rate into port (1-f)*A
+end
+
+branches
+    mdot_A  : A.mdot  -> *;
+    mdot_B1 : B1.mdot -> *;
+	mdot_B0 : B0.mdot -> *;
+    Phi_A   : A.Phi   -> *;
+    Phi_B1  : B1.Phi  -> *;
+	Phi_B0  : B0.Phi  -> *;
+end
+
+% Internal components that calculate energy convection at ports A and B
+components (ExternalAccess = none)
+    convection_A = foundation.thermal_liquid.port_convection(flow_area = area, length_scale = sqrt(4*area/pi));
+    convection_B1 = foundation.thermal_liquid.port_convection(flow_area = area, length_scale = sqrt(4*area/pi));
+	convection_B0 = foundation.thermal_liquid.port_convection(flow_area = area, length_scale = sqrt(4*area/pi));
+end
+
+connections
+    connect(A, convection_A.port);
+    connect(B1, convection_B1.port);
+	connect(B0, convection_B1.port);
+end
+
+equations
+    % Mass balance
+    mdot_A == mdot_B1 + mdot_B0;
+	mdot_B1 == f*mdot_A;
+	mdot_B0 == (1-f)*mdot_A;
+
+    % Energy balance
+    Phi_A + Phi_B1 + Phi_B0 == 0;
+	Phi_B1 == f*Phi_A;
+	Phi_B0 == (1-f)*Phi_A;
+
+
+    % Equate variables for internal convection components
+    convection_A.mdot == mdot_A;
+    convection_A.Phi  == Phi_A;
+    convection_B1.mdot == mdot_B1;
+    convection_B1.Phi  == Phi_B1;
+	convection_B0.mdot == mdot_B0;
+    convection_B0.Phi  == Phi_B0;
+
+    %convection_A.u_I + convection_B1.u_I + convection_B0.u_I == 0;
+	convection_B1.u_I == convection_A.u_I;
+	convection_B0.u_I == convection_A.u_I;
+
+    % Validate that pressure and temperature are in valid region
+    let
+        % Indicator variables for the valid region of the property tables
+        [indicator_pT_A, indicator_pT_B1, indicator_pT_B0] = ...
+            if A.pT_region_flag == foundation.enum.pT_region_TL.validity_matrix, ...
+                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, A.T, A.p, interpolation = linear, extrapolation = linear); ...
+                tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, B1.T, B1.p, interpolation = linear, extrapolation = linear); ...
+				tablelookup(A.T_TLU, A.p_TLU, A.pT_validity_TLU, B0.T, B0.p, interpolation = linear, extrapolation = linear) ...
+            else ...
+                1; ...
+				1; ...
+                1 ...
+            end;
+    in
+        % Pressure and temperature must be within the valid region
+        assert(indicator_pT_A > 0);
+        assert(A.p >= A.p_min);
+        assert(A.p <= A.p_max);
+        assert(A.T >= A.T_min);
+        assert(A.T <= A.T_max);
+        assert(indicator_pT_B1 > 0);
+        assert(B1.p >= A.p_min);
+        assert(B1.p <= A.p_max);
+        assert(B1.T >= A.T_min);
+        assert(B1.T <= A.T_max);
+		assert(indicator_pT_B0 > 0);
+		assert(B0.p >= A.p_min);
+        assert(B0.p <= A.p_max);
+        assert(B0.T >= A.T_min);
+        assert(B0.T <= A.T_max);
+    end
+end
+
+end

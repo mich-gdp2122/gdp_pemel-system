@@ -1,4 +1,4 @@
-function [L_c, L_h] = ph_sizer(mdot_c,mdot_h,D_c,D_h,...
+function [L_c, L_h] = HXsizer_PH(mdot_c,mdot_h,D_c,D_h,...
 											Tc_in,Tc_out,Th_in,Th_out)
 % Determines required length of hot & cold sides for preheater
 
@@ -90,7 +90,7 @@ function h = calc_h(rho, k, mu, Pr, Dh, mdot)
 	elseif Re > Re_lam && Re < Re_tur	% Transitional case (via interpolation)
 		Nu = blend(Nu_lam, Nu_tur, Re_lam, Re_tur, Re);
 	end
-	h = k*Nu/Dh;  % Coolant heat transfer coefficient [J/(m^2 K)]
+	h = k*Nu/Dh;  % Heat transfer coefficient [W/(m^2 K)]
 end
 
 %% Blend function
@@ -103,12 +103,6 @@ function y = blend(y1,y2,x1,x2,x)
 
 % [Source: simscape.function.blend.scc]
 	u = (x-x1)/(x2-x1);
-	transition = 3*u^2 - 2*u^3;
-	if le(x,x1)
-		y = y1;
-	elseif ge(x,x2)
-    	y = y2;
-	else
-    	y = (1-transition)*y1 + transition*y2;
-	end
+	t = 3*u^2 - 2*u^3;
+    y = (1-t)*y1 + t*y2;
 end
