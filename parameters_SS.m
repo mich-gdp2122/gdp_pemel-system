@@ -91,12 +91,12 @@ Cooli.T_initial= 345.15; %Input temperature [K]
 ORC.mdot       = 1.7;    % Nominal mass flow rate [kg/s]
 
 % Heat exchanger
-HX.L           = 10;      % Coolant-ORC Heat exchanger length (m)
+HX.L           = 9.5;      % Coolant-ORC Heat exchanger length (m)
 
 % Condenser
 Con.Fluid_V    = 0.5;      %Condenser fluid volume [m^3]
-Con.PortA_A    = 0.02;   %Condenser port A area [m^2]
-Con.PortB_A    = 0.02;   %Condenser port A area [m^2]
+Con.PortA_A    = 0.01;   %Condenser port A area [m^2]
+Con.PortB_A    = 0.01;   %Condenser port A area [m^2]
 
 % Thermal 
 Con.Area       = 16;   %Condenser thermal resistance area [m^2]
@@ -160,7 +160,7 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
 % Preheater lengths
-[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
+%[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
+%								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
 
 %%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them above this section)  %%%%
