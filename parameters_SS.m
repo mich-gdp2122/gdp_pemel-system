@@ -167,13 +167,13 @@ bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clc
 
 %% Heat exchanger sizing
 % Preheater lengths
-<<<<<<< HEAD
+%<<<<<<< HEAD
 %[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 %								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
-=======
+%=======
 [ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
->>>>>>> b7f98c250e7af706702288aaaf3113110c7e3eea
+%>>>>>>> b7f98c250e7af706702288aaaf3113110c7e3eea
 
 % Heat rejector length & thermal resistance
 [HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
