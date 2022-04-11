@@ -69,13 +69,10 @@ clnt.dp_stk    = 2681; % Coolant stack pressure drop [Pa]
 
 %% Balance-of-Plant
 % Rated powers
-BoP.PwrRt_htr = 2;	 % Elec. heater rated power [kW]
+htr.PwrRt = 30;		 % Elec. heater rated power [kW]
 
 % Efficiencies
-BoP.eff_pmp = 0.90;  % Coolant pump efficiency []
-
-% Preheater
-%ph.L = 1;	 %% Pipe length [m]
+BoP.eff_pmp = 0.80;  % Pump efficiency []
 
 % Heat rejector
 HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
@@ -114,7 +111,6 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 %%%%  DO NOT PUT INPUT PARAMETERS BELOW HERE!  (put them in above section)  %%%%
 
 %% Derived Parameters
-
 %pemel.Q_clt  = pemel.q*(clch.Prm*clch.L);   % Heat flux transfer to single tube [W]
 clnt.dT_stk    = 5.98;
 
@@ -160,20 +156,18 @@ h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet m
 h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 mass produced [kg/s]
 
 % Total BP plate mass
-bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
+%bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
 
 %% Heat exchanger sizing
 % Preheater lengths
-<<<<<<< HEAD
-%[ph.L_h2o, ph.L_clnt] = ph_sizer(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-%								amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
-=======
 [ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
->>>>>>> b7f98c250e7af706702288aaaf3113110c7e3eea
 
-% Heat rejector length & thermal resistance
+% Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
 [HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
 										 amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
-%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them in first sectiom)  %%%%
+
+% Electric heater (assumed equal to feedwater-side preheater length) [m]
+htr.L = ph.L_h2o;
+%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them in first section)  %%%%
