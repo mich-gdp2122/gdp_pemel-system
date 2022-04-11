@@ -42,12 +42,14 @@ prch.L   = 0.025;       % Process channel length                   [m]
 
 %% Stack operating conditions
 % Inputs
-pemel.i		  = 2.2219;	      % Nominal current density [A/cm^2]
-pemel.V_stk   = 60;			  % Nominal stack voltage [V]
-pemel.T_stk   = 80 + 273.15;  % Nominal stack temperature [K]
-pemel.p_ca    = 20 * 100000;  % Nominal cathode pressure [bar -> Pa]
-pemel.p_an    = amb.p;	      % Nominal anode pressure   [Pa]
-pemel.eff_stk = 0.8;		  % Stack efficiency
+pemel.i = 2.2219;	    % Nominal current density [A/cm^2]
+
+% Stack
+pemel.p_ca  = 20 * 100000;  % Nominal cathode pressure [bar -> Pa]
+pemel.p_an  = amb.p;	    % Nominal anode pressure   [Pa]
+pemel.T_stk = 80 + 273.15; %interp1(pemel.i_i, pemel.T_i, pemel.i, 'makima', 'extrap');  % Nominal stack temperature [K]
+pemel.V_stk = 60; %pemel.N_cel*interp1(pemel.i_i, pemel.V_i, pemel.i, 'makima', 'extrap');  % Nominal stack voltage [V]
+%pemel.q     = 8955.5;  % Stack heat flux density [W/m^2]
 
 % Process water
 h2o.stoich    = 1.2;		% Stoichiometric ratio
@@ -59,12 +61,12 @@ h2o.T_stk_out = 341;		% Stack outlet temperature [K]
 %h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
 
 % Coolant
-clnt.mdot_stk  = 0.9;	  % Nominal mass flow rate per stack [kg/s]
-clnt.T_stk_in  = 339.15;  % Coolant inlet temperature @ stack [K] 
+clnt.mdot_stk  = 0.9;	 % Nominal mass flow rate per stack [kg/s]
+clnt.T_stk_in  = 339.15; %interp1(pemel.i_i, pemel.TIn_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant inlet temperature @ stack [K] 
 clnt.T_stk_out = 345.15;  % Coolant outlet temperature [K]
-%clnt.p_stk_in  = 2742.5 + amb.p; % Coolant stack inlet pressure [Pa]
-clnt.dp_stk    = 2681; % Coolant stack pressure drop [Pa]
-%clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
+clnt.p_stk_in  = 2742.5 + amb.p; %interp1(pemel.i_i, pemel.pIn_clnt_i, pemel.i, 'makima', 'extrap'); % Coolant stack inlet pressure [Pa]
+clnt.dp_stk    = 2681; % interp1(pemel.i_i, pemel.dp_clnt_i, pemel.i, 'makima', 'extrap');  % Coolant stack pressure drop [Pa]
+clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 
 
 %% Balance-of-Plant
@@ -136,8 +138,8 @@ prch.Ac_tot    = prch.N_tot*prch.Ac;	   % Process channel cross-section area [m^
 %pemel.V_tot    = pemel.N_stk*pemel.V_stk;  % Overall voltage [V]
 
 % Stack channel hydraulic diameters [m]
-clch.Dh_stk = 4*clch.Ac/clch.Prm;  % Cooling channels
-prch.Dh_stk = 4*prch.Ac/prch.Prm;  % Process channels
+clch.Dh = 4*clch.Ac/clch.Prm;  % Cooling channels
+prch.Dh = 4*prch.Ac/prch.Prm;  % Process channels
 
 % External pipe diameters (circular pipe assumed) [m]
 prch.D = sqrt(4*prch.Ac_tot/pi);	% Process water
@@ -163,6 +165,7 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 % Preheater lengths
 [ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
+>>>>>>> ff6de8d57de2682d8900eb3818dc48873daf8839
 
 % Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
 [HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
