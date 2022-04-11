@@ -165,7 +165,6 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 % Preheater lengths
 [ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
->>>>>>> ff6de8d57de2682d8900eb3818dc48873daf8839
 
 % Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
 [HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
