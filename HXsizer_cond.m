@@ -20,11 +20,12 @@ end
 U = 1/((1/h_c) + (1/h_h));
 
 
-%% 2) Calc pipe length required and thermal resistance
-% Length [m] & surface area m[^2], 
+%% 2) Calc fluid volume required and thermal resistance
+% Surface area m[^2] and pipe length, 
 % via integrated 1st Law && Newton's Cooling Law relation
-L  = ( mdot*abs(dh_41) )/( U*pi*D*(Th - Tc) );
-As = pi*D*L;
+As = ( mdot*abs(dh_41) )/( U*(Th - Tc) );
+L  = As/(pi*D_c);
+%Vol = (D/4)*As;
 
 % Thermal resistance [K/W]
 Rt = 1/(U*As);

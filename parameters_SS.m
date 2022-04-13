@@ -88,20 +88,20 @@ HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
 
 %% Organic Rankine Cycle
 % Operating conditions
-Cooli.T_initial = 345.15; %Input temperature [K]
-%ORC.mdot        = 1.7;    % Nominal mass flow rate [kg/s]
-ORC.Tmax		= clnt.T_stk_in - 5;	% Max ORC temperature (on sat curve) [K]
-ORC.Tmin		= amb.T_sea + 10;		% Min ORC temperature (on sat curve) [K]
-ORC.x1			= 0.3;					% State 1 quality (vapour mass fraction)
-ORC.x3			= 0.95;					% State 3 quality
+%ORC.mdot        = 1.7;					% Nominal mass flow rate [kg/s]
+ORC.Tmax = clnt.T_stk_in - 5;	% Max ORC temperature (on sat curve) [K]
+ORC.Tmin = amb.T_sea + 10;		% Min ORC temperature (on sat curve) [K]
+ORC.x1	 = 0.3;					% State 1 quality (vapour mass fraction)
+ORC.x3   = 0.95;				% State 3 quality
 
 % Heat exchanger
-HX.L           = 9.5;      % Coolant-ORC Heat exchanger length (m)
+HX.L = 9.5;      % Coolant-ORC Heat exchanger length (m)
+%HX_ORC.VolRto = 1.2;  % Cold-side boiler to hot-side total pipe volume ratio
 
 % Condenser
-Con.Fluid_V    = 0.5;      %Condenser fluid volume [m^3]
-Con.PortA_A    = 0.01;   %Condenser port A area [m^2]
-Con.PortB_A    = 0.01;   %Condenser port A area [m^2]
+Con.Fluid_V = 0.5;    % Condenser fluid volume [m^3]
+Con.PortA_A = 0.01;   % Condenser port A area [m^2]
+Con.PortB_A = 0.01;   % Condenser port A area [m^2]
 
 % Thermal 
 Con.Area       = 16;   %Condenser thermal resistance area [m^2]
@@ -165,7 +165,7 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 %bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
 % ORC properties
-[ORC.pmin, ORC.pmax, ORC.v3, ORC.mdot, ORC.Ac, ORC.D] = ...
+[ORC.pmin, ORC.pmax, ORC.v3, ORC.mdot, ORC.Ac, ORC.D, ORC.y1, ORC.y3] = ...
 	ORCspec(ORC.Tmin, ORC.Tmax, ORC.x1, ORC.x3, clnt.mdot_tot, clnt.T_stk_out, clnt.T_stk_in);
 
 %% Heat exchanger sizing
@@ -179,7 +179,7 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 	HXsizer_rjct(clnt.mdot_tot, clch.D, amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
 
 % Coolant/ORC fluid HX lengths [m], thermal resistance [K/W]
-[HX_ORC.L_c, HX_ORC.L_h, HX_ORC.Rt] = ...
+[HX_ORC.L_h, HX_ORC.L_c, HX_ORC.Rt, HX_ORC.As] = ...
 	HXsizer_ORC(clnt.mdot_tot, ORC.mdot, ORC.D, clch.D, ...
 	clnt.T_stk_out, clnt.T_stk_in, ORC.Tmax, ORC.x3);
 
