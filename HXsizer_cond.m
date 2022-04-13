@@ -24,7 +24,7 @@ U = 1/((1/h_c) + (1/h_h));
 % Surface area m[^2] and pipe length, 
 % via integrated 1st Law && Newton's Cooling Law relation
 As = ( mdot*abs(dh_41) )/( U*(Th - Tc) );
-L  = As/(pi*D_c);
+L  = As/(pi*D);
 %Vol = (D/4)*As;
 
 % Thermal resistance [K/W]
