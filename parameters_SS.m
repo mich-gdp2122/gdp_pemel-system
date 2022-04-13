@@ -18,7 +18,7 @@ pemel.A_cel = 0.1*100^2;   % Cell active area         [cm^2]
 
 % Cooling channels
 clch.N   = 60;            % No. cooling tubes per BP plate       []
-clch.L   = 0.25;           % Cooling tube length                  [m]
+clch.L   = 0.25;          % Cooling tube length                  [m]
 clch.W   = 0.001;		  % Cooling tube width					 [m]
 clch.Ac  = clch.W^2;      % Cooling tube cross-section area      [m^2]
 clch.Prm = 4*clch.W;      % Cooling tube cross-section perimeter [m]
@@ -29,7 +29,7 @@ bp.W   = 0.2;			% BP plate width [m]
 bp.thk = 0.002;			% BP plate thickness [m]
 bp.rho = 4494;			% BP density [kg/m^3]
 bp.cp  = 534;			% BP plate Sp. heat (Cp)               [J/(kg*K)]
-bp.k   = 20.2;        % BP plate heat conductivity           [W/(m*K)]
+bp.k   = 20.2;			% BP plate heat conductivity           [W/(m*K)]
 
 % Process channels
 prch.N   = 4;			% No. anode/cathode channels each per cell []
@@ -74,7 +74,7 @@ clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 htr.PwrRt = 30;		 % Elec. heater rated power [kW]
 
 % Efficiencies
-BoP.eff_pmp = 0.80;  % Pump efficiency []
+BoP.eff_pmp = 0.85;  % Pump efficiency []
 
 % Heat rejector
 HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
@@ -87,9 +87,13 @@ HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
 
 
 %% Organic Rankine Cycle
-%%%Cooling system model
+% Operating conditions
 Cooli.T_initial = 345.15; %Input temperature [K]
-ORC.mdot        = 1.7;    % Nominal mass flow rate [kg/s]
+%ORC.mdot        = 1.7;    % Nominal mass flow rate [kg/s]
+ORC.Tmax		= clnt.T_stk_in - 5;	% Max ORC temperature (on sat curve) [K]
+ORC.Tmin		= amb.T_sea + 10;		% Min ORC temperature (on sat curve) [K]
+ORC.x1			= 0.3;					% State 1 quality (vapour mass fraction)
+ORC.x3			= 0.95;					% State 3 quality
 
 % Heat exchanger
 HX.L           = 9.5;      % Coolant-ORC Heat exchanger length (m)
@@ -160,15 +164,28 @@ h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 
 % Total BP plate mass
 %bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
 
+% ORC properties
+[ORC.pmin, ORC.pmax, ORC.v3, ORC.mdot, ORC.Ac, ORC.D] = ...
+	ORCspec(ORC.Tmin, ORC.Tmax, ORC.x1, ORC.x3, clnt.mdot_tot, clnt.T_stk_out, clnt.T_stk_in);
 
 %% Heat exchanger sizing
-% Preheater lengths
-[ph.L_h2o, ph.L_clnt] = HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-						amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
+% Preheater lengths [m], thermal resistance [K/W]
+[ph.L_h2o, ph.L_clnt] = ...
+	HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
+	amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
 
 % Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
-[HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = HXsizer_rjct(clnt.mdot_tot, clch.D, ...
-										 amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
+[HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U] = ...
+	HXsizer_rjct(clnt.mdot_tot, clch.D, amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
+
+% Coolant/ORC fluid HX lengths [m], thermal resistance [K/W]
+[HX_ORC.L_c, HX_ORC.L_h, HX_ORC.Rt] = ...
+	HXsizer_ORC(clnt.mdot_tot, ORC.mdot, ORC.D, clch.D, ...
+	clnt.T_stk_out, clnt.T_stk_in, ORC.Tmax, ORC.x3);
+
+% ORC condenser length [m], thermal resistance [K/W]
+[HX_cond.L, HX_cond.Rt] = ...
+	HXsizer_cond(ORC.mdot, ORC.D, amb.T_sea, ORC.Tmin, ORC.x1);
 
 % Electric heater (assumed equal to feedwater-side preheater length) [m]
 htr.L = ph.L_h2o;
