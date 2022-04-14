@@ -1,5 +1,4 @@
 %% PLACE INPUT PARAMETERS IN THIS FILE %%
-clearvars;
 
 %%% Load constants and gas properties
 const_file;
@@ -73,10 +72,11 @@ clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 
 %% Balance-of-Plant
 % Efficiencies
-BoP.eff_pmp = 0.85;  % Pump efficiency []
+BoP.eff_pmp  = 0.85;  % Pump efficiency    []
+BoP.eff_tbne = 0.85;  % Turbine efficiency []
 
 % Correction factors
-BoP.cf_hxL = 1.45;	 % Correction factor for HX length
+BoP.cf_hxL = 2;	 % Correction factor for HX length
 
 % Rated powers
 htr.PwrRt = 50;		 % Elec. heater rated power [kW]
