@@ -104,7 +104,7 @@ HX.L = 9.5;      % Coolant-ORC Heat exchanger length (m)
 %HX_ORC.VolRto = 1.2;  % Cold-side boiler to hot-side total pipe volume ratio
 
 % Condenser
-Con.Fluid_V = 0.5;    % Condenser fluid volume [m^3]
+Con.Fluid_V = 0.2;    % Condenser fluid volume [m^3]
 Con.PortA_A = 0.01;   % Condenser port A area [m^2]
 Con.PortB_A = 0.01;   % Condenser port A area [m^2]
 
