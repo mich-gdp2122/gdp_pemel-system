@@ -111,7 +111,7 @@ Con.PortB_A = 0.01;   % Condenser port A area [m^2]
 % Thermal 
 Con.Area       = 16;   %Condenser thermal resistance area [m^2]
 Con.Heat_Coeff = 3500;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
-Con.Coolant_T  = 283.15;     %Condenser cooling temperature [K]
+Con.Coolant_T  = 293.15;     %Condenser cooling temperature [K]
 
 % Power system
 Shaft.speed    = 3600;   %Shaft speed [rpm]
