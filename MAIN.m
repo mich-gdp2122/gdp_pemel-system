@@ -7,7 +7,15 @@
 %	outTMS(i)_Qclnt [stkIn, PHOut, rjOut]  Stack in, Phtr out, RJ out [kW]
 %	outTMS(i)_eff   [stk, BoP, tot]		   Stack, BoP, Overall [%]
 %   outTMS(i)_ORC   [
-clear all
+%% Set program modes
+mode_test = 0;	% Test mode (don't clear vars & run simulations if != 0)
+
+%%
+if mode_test == 0
+	clearvars('-except', 'mode_*')
+elseif exist ('outTMS*', 'var') ~= 0
+	clearvars('-except', 'outTMS*', 'mode_*')
+end
 close all
 
 % Bar chart properties
@@ -35,13 +43,22 @@ outdir_ch = [outdir, '/straight'];
 mkdir(outdir_ch);
 
 %% 1) Plot data
-parameters_SS;  % Run parameters script
+% Run parameters script & save workspace (except 'c','mode_' & 'outdir' variables)
+parameters_SS;
+save([outdir_ch,'/output.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
 
-% Run simulations
-sim("TMS1_noPH_noORC.slx");	% No preheat; no ORC
-sim("TMS2_PH_noORC.slx");		% Preheat; no ORC
-%sim("TMS3_noPH_ORC.slx");		% No preheat; ORC
-%sim("TMS4_PH_ORC.slx");		% Preheat; ORC
+if mode_test == 0
+	% Run simulations
+	disp('Simulating TMS1...');
+	sim("TMS1_noPH_noORC.slx");		% No preheat; no ORC
+	disp('Simulating TMS2...');
+	sim("TMS2_PH_noORC.slx");		% Preheat; no ORC
+	% disp('Simulating TMS3...');
+	% sim("TMS3_noPH_ORC.slx");		% No preheat; ORC
+	% disp('Simulating TMS4...');
+	% sim("TMS4_PH_ORC.slx");		% Preheat; ORC
+	disp('Simulations complete')
+end
 
 % Plot Power Consumption data [kW]
 y1_pwr = round([outTMS1_pwr; outTMS2_pwr], 3, 'significant');  % round data to 3 sf
@@ -259,4 +276,8 @@ writetable(Tb_HX, [outdir_ch,'/HXdata.txt'], ...
 type([outdir_ch,'/HXdata.txt'])
 
 % Save workspace variables to file
-%save([outdir_ch,'/output.mat']);
+save([outdir_ch,'/output.mat'], 'outTMS*', 'y1_*', '-append');
+
+% Reload workspace file to clear clutter
+clearvars -except outdir outdir_ch;
+load([outdir_ch,'/output.mat']);

@@ -56,6 +56,7 @@ pemel.V_stk = 60;			% Nominal stack voltage [V]
 h2o.stoich    = 3.70;		% Stoichiometric ratio
 h2o.T_stk_in  = 340;		% Stack inlet temperature [K]
 h2o.T_stk_out = 341;		% Stack outlet temperature [K]
+h2o.dp_stk    = 5;			% Stack pressure drop [bar]
 %h2o.mdot_stk  = 12;		% Nominal mass flow rate per stack [kg/s]
 
 % Hydrogen
@@ -72,8 +73,8 @@ clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 
 %% Balance-of-Plant
 % Efficiencies
-BoP.eff_pmp  = 0.85;  % Pump efficiency    []
-BoP.eff_tbne = 0.85;  % Turbine efficiency []
+BoP.eff_pmp  = 0.80;  % Pump efficiency    []
+BoP.eff_tbne = 0.80;  % Turbine efficiency []
 
 % Correction factors
 BoP.cf_hxL = 2;	 % Correction factor for HX length
@@ -119,95 +120,7 @@ Shaft.speed    = 3600;   %Shaft speed [rpm]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%  DO NOT PUT INPUT PARAMETERS BELOW HERE!  (put them in above section)  %%%%
+%% %%%%%%%%%%%    DO NOT PUT INPUT PARAMETERS BELOW THIS LINE!    %%%%%%%%%%% %%
 
-%% Derived Parameters
-%pemel.Q_clt  = pemel.q*(clch.Prm*clch.L);   % Heat flux transfer to single tube [W]
-clnt.dT_stk    = 5.98;
-
-% Current density -> current
-pemel.I       = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
-%pemel.I_i     = pemel.i_i*pemel.A_cel;  % i -> I [A/cm^2 -> A/m^2 -> A]
-
-% Single cooling, process channel geometries
-clch.Vol = clch.Ac*clch.L;	% Cooling channel volume [m^3]
-clch.As  = clch.Prm*clch.L;	% Cooling channel surface area [m^2]
-prch.Vol = prch.Ac*prch.L;  % Process channel volume [m^3]
-
-% Specs for total no. cells overall 
-pemel.totN_cel = pemel.N_cel*pemel.N_stk;  % Total no. cells overall
-clch.N_tot     = pemel.totN_cel*clch.N;    % Total no. cool tubes overall
-prch.N_tot     = pemel.totN_cel*prch.N;    % Total no. anode/cathode channels (each) overall
-clch.Ac_tot    = clch.N_tot*clch.Ac;	   % Cool tube cross-section area [m^2]
-clch.Prm_tot   = clch.N_tot*clch.Prm;	   % Cool tube cross-section perimeter [m]
-clch.Vol_tot   = clch.N_tot*clch.Vol;	   % Cool tube volume [m^3]
-clch.As_tot    = clch.N_tot*clch.As;	   % Cool tube surface area [m^2]
-prch.Ac_tot    = prch.N_tot*prch.Ac;	   % Process channel cross-section area [m^2]
-%prch.Prm_tot   = prch.N_tot*prch.Prm;	   % Process channel cross-section perimeter [m]
-%pemel.V_tot    = pemel.N_stk*pemel.V_stk;  % Overall voltage [V]
-
-% Stack channel hydraulic diameters [m]
-clch.Dh_stk = 4*clch.Ac/clch.Prm;  % Cooling channels
-prch.Dh_stk = 4*prch.Ac/prch.Prm;  % Process channels
-
-% External pipe diameters (circular pipe assumed) [m]
-prch.D = sqrt(4*prch.Ac_tot/pi);	% Process water
-clch.D = sqrt(4*clch.Ac_tot/pi);	% Coolant
-Con.D  = sqrt(4*Con.PortA_A/pi);	% ORC condenser
-
-% Total mass flow rates (for total no. cells overall) [kg/s]
-clnt.mdot_tot = pemel.N_stk*clnt.mdot_stk;  % Coolant
-%h2o.mdot_tot  = pemel.N_stk*h2o.mdot_stk;	% H2O
-%h2.mdot_tot   = pemel.N_stk*h2.mdot_stk;    % H2
-
-% Process fluid total mass flow rates [kg/s]
-h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*pemel.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
-h2o.mdot_in_tot   = h2o.stoich*h2o.mdot_reac_tot;					 % Total h2o inlet mass flow rate [kg/s]
-h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet mass flow rate [kg/s]
-h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 mass produced [kg/s]
-
-% Total BP plate mass
-%bp.m = bp.rho * pemel.totN_cel*(bp.L*bp.W*bp.thk - (prch.N*prch.Vol + clch.N*clch.Vol));
-
-% ORC properties
-[ORC.pmin, ORC.pmax, ORC.v3, ORC.mdot, ORC.Ac, ORC.D, ORC.y1, ORC.y3] = ...
-	ORCspec(ORC.Tmin, ORC.Tmax, ORC.x1, ORC.x3, clnt.mdot_tot, ...
-	clnt.T_stk_out, clnt.T_stk_in);
-
-%% Heat exchanger sizing
-% Preheater lengths [m], thermal resistance [K/W]
-[HX_ph.L_h2o, HX_ph.L_clnt, HX_ph.Rt, HX_ph.As, HX_ph.U, HX_ph.Th_out, ...
- HX_ph.Lm_c, HX_ph.Lm_h] = ...
-	HXsizer_PH(BoP.cf_hxL, h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-	amb.T_sea, h2o.T_stk_in, clnt.T_stk_out);
-
-% Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
-[HX_rj.L, HX_rj.Rt, HX_rj.As, HX_rj.U, HX_rj.Lm] = ...
-	HXsizer_rjct(BoP.cf_hxL, clnt.mdot_tot, clch.D, ...
-	amb.T_sea, clnt.T_stk_out, clnt.T_stk_in);
-
-% Heat rejector length [m], surface area [m^2], thermal resistance [K/W]
-% for preheater outlet temperature
-[HX_rjPH.L, HX_rjPH.Rt, HX_rjPH.As, HX_rjPH.U, HX_rjPH.Lm] = ...
-	HXsizer_rjct(BoP.cf_hxL, clnt.mdot_tot, clch.D, ...
-	amb.T_sea, HX_ph.Th_out, clnt.T_stk_in);
-
-% Coolant/ORC fluid HX lengths [m], thermal resistance [K/W]
-[HX_ORC.L_h, HX_ORC.L_c, HX_ORC.Rt, HX_ORC.As, HX_ORC.U, HX_ORC.Lm_h, HX_ORC.Lm_c] = ...
-	HXsizer_ORC(BoP.cf_hxL, clnt.mdot_tot, ORC.mdot, ORC.D, clch.D, ...
-	clnt.T_stk_out, clnt.T_stk_in, ORC.Tmax, ORC.x3);
-
-% Coolant/ORC fluid HX lengths [m], thermal resistance [K/W]
-% for preheater outlet temperature
-[HX_ORCph.L_h, HX_ORCph.L_c, HX_ORCph.Rt, HX_ORCph.As, HX_ORCph.U, ...
- HX_ORCph.Lm_h, HX_ORCph.Lm_c] = ...
-	HXsizer_ORC(BoP.cf_hxL, clnt.mdot_tot, ORC.mdot, ORC.D, clch.D, ...
-	HX_ph.Th_out, clnt.T_stk_in, ORC.Tmax, ORC.x3);
-
-% ORC condenser length [m], thermal resistance [K/W]
-[HX_cond.L, HX_cond.Rt, HX_cond.As, HX_cond.U, HX_cond.Lm] = ...
-	HXsizer_cond(BoP.cf_hxL, ORC.mdot, ORC.D, amb.T_sea, ORC.Tmin, ORC.x1);
-
-% Electric heater length (assumed equal to feedwater-side preheater length) [m]
-htr.L = HX_ph.L_h2o;
-%%%%  DO NOT PUT INPUT PARAMETERS HERE! (put them in first section)  %%%%
+% Get derived parameters
+parameters_derived;
