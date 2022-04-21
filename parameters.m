@@ -38,7 +38,6 @@ prch.W   = 0.8E-3;		% Process channel width
 prch.Ac  = prch.W^2;    % Process channel cross-section area       [m^2]
 prch.Prm = 4*prch.W;    % Process channel cross-section perimeter  [m]
 prch.L   = 0.025;       % Process channel length                   [m]
-%prch.vol = 0.1;        % Process channel volume                   [m^3]
 
 
 %% Stack operating conditions
@@ -59,9 +58,6 @@ h2o.T_stk_out = 341;		% Stack outlet temperature [K]
 h2o.dp_stk    = 5;			% Stack pressure drop [bar]
 %h2o.mdot_stk  = 12;		% Nominal mass flow rate per stack [kg/s]
 
-% Hydrogen
-%h2.mdot_stk = 6.84E-4;		% Nominal mass flow rate per stack [kg/s]
-
 % Coolant
 clnt.mdot_stk  = 0.9;						   % Nominal mass flow rate per stack [kg/s]
 clnt.T_stk_in  = 339.15;					   % Coolant inlet temperature @ stack [K] 
@@ -78,46 +74,19 @@ BoP.eff_tbne = 0.80;  % Turbine efficiency []
 
 % Correction factors
 cf.L_ph   = 1.4;  % Correction factor for preheater length
-cf.L_phCL = 1;	% Correction factor for preheater length (closed-loop)
+cf.L_phCL = 1.4;
 cf.L_rjORC = 1;
 
 % Rated powers
 htr.PwrRt = 50;		 % Elec. heater rated power [kW]
 
-% Heat rejector
-%HX_rj.h_c = 10000;	 % Sea heat transf coeff. [W/(m^2*K)]
-
-% Copper piping
-%pipe.k   = 400;     % Thermal conductivity [W/(m*K)]
-%pipe.thk = 0.5E-3;  % Pipe thickness [m]
-%pipe.cp  = 385;     % Cp heat capacity [J/(kg*K)]
-%pipe.rho = 8960;    % Density [kg/m^3]
-
-
 %% Organic Rankine Cycle
 % Operating conditions
 %ORC.mdot = 1.7;				% Nominal mass flow rate [kg/s]
 ORC.dTh  = 5;					% ORC HX driving temp diff [K]
-ORC.Tmin = amb.T_sea + 8;		% Min ORC temperature (on sat curve) [K]
+ORC.Tmin = amb.T_sea + 10;		% Min ORC temperature (on sat curve) [K]
 ORC.x1	 = 0.3;					% State 1 quality (vapour mass fraction)
 ORC.x3   = 0.95;				% State 3 quality
-
-% Heat exchanger
-HX.L = 9.5;      % Coolant-ORC Heat exchanger length (m)
-%HX_ORC.VolRto = 1.2;  % Cold-side boiler to hot-side total pipe volume ratio
-
-% Condenser
-Con.Fluid_V = 0.2;    % Condenser fluid volume [m^3]
-Con.PortA_A = 0.01;   % Condenser port A area [m^2]
-Con.PortB_A = 0.01;   % Condenser port A area [m^2]
-
-% Thermal 
-Con.Area       = 16;   %Condenser thermal resistance area [m^2]
-Con.Heat_Coeff = 3500;     %Condenser thermal resistance heat coefficient [W/(m^2*K)]
-Con.Coolant_T  = 293.15;     %Condenser cooling temperature [K]
-
-% Power system
-Shaft.speed    = 3600;   %Shaft speed [rpm]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
