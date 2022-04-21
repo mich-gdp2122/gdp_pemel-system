@@ -1,12 +1,15 @@
-function [pmin, pmax, v3, mdot, Ac, D, y1, y3] = ...
-	ORCspec(Tmin, Tmax, x1, x3, mdot_h, Th_in, Th_out)
+function [Tmax, pmin, pmax, v3, mdot, Ac, D, y1, y3, pwr_pmp, pwr_tbne] = ...
+	ORCspec(Tmin, dTh, x1, x3, mdot_h, Th_in, Th_out, eff_pmp, eff_tbn)
 % Calculate mass flow and pipe area requirements for ORC
-%%
-% Get relevant state properties
-[rho1,  ~, ~,~,~,~,~, pmin, c1] = data_r600a_sat(Tmin, x1); % State 1
-[rho2,  ~, ~,~,~,~,~,    ~, c2] = data_r600a_sat(Tmax, 0);  % State 2 (sat L)
-[rho3, v3, ~,~,~,~,~, pmax, c3] = data_r600a_sat(Tmax, x3); % State 3
-[rho4,  ~, ~,~,~,~,~,    ~, c4] = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
+%% Calculate roperties
+% Max temperature [K]
+Tmax = Th_out - dTh;
+
+% State & process properties
+[rho1,  ~, ~,~,~,~,~, pmin, c1, h1] = data_r600a_sat(Tmin, x1); % State 1
+[rho2,  ~, ~,~,~,~,~,    ~, c2, h2] = data_r600a_sat(Tmax, 0);  % State 2 (sat L)
+[rho3, v3, ~,~,~,~,~, pmax, c3, h3] = data_r600a_sat(Tmax, x3); % State 3
+[rho4,  ~, ~,~,~,~,~,    ~, c4, h4] = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
 
 [rho23, ~,~,~,~,~, dh_23, ~, c23] = data_r600a_sat(Tmax, 0, x3);  % Process 2->3
 [rho41, ~,~,~,~,~,     ~, ~, c41] = data_r600a_sat(Tmin, x1, 1);  % Process 4->1
@@ -43,7 +46,12 @@ rhoc_min = ...
 % Required diameter [m] and cross-section area [m^2]
 D  = sqrt( (4*mdot)/(pi*rhoc_min*Ma_max) );
 Ac = pi*(D/2)^2;
+
+%% Calculate pump and turbine power [W]
+pwr_pmp  = (1/eff_pmp)*mdot*abs(h2 - h1);
+pwr_tbne = eff_tbn*mdot*abs(h4 - h3); 
 end
+
 %%
 function y_out = y(x, rho_sL, rho_sv)
 % Convert vapour quality/mass fraction to volume fraction

@@ -44,7 +44,7 @@ mkdir(outdir_ch);
 
 %% 1) Plot data
 % Run parameters script & save workspace (except 'c','mode_' & 'outdir' variables)
-parameters_SS;
+parameters;
 save([outdir_ch,'/output.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
 
 if mode_test == 0
