@@ -1,4 +1,4 @@
-function [L, Rt] = HXsizer_cond(cf_L, mdot, D, Tc, Th, x1, h_c)
+function [L, Rt, As, U, Lm] = HXsizer_cond(cf_L, mdot, D, Tc, Th, x1, h_c)
 % Determines required length of ORC condenser
 %
 % Cold side assumed stationary ocean w/ infinite thermal capacity
@@ -25,6 +25,7 @@ U = 1/((1/h_c) + (1/h_h));
 % via integrated 1st Law && Newton's Cooling Law relation
 As = ( mdot*abs(dh_41) )/( U*(Th - Tc) );
 L  = cf_L*As/(pi*D);
+Lm = As/(pi*D);      % Ideal length
 %Vol = (D/4)*As;
 
 % Thermal resistance [K/W]

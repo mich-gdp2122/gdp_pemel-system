@@ -1,4 +1,4 @@
-function [L, Rt, As, U] = HXsizer_rjct(cf_L, mdot_h, D_h, Tc, Th_in, Th_out, h_c)
+function [L, Rt, As, U, Lm] = HXsizer_rjct(cf_L, mdot_h, D_h, Tc, Th_in, Th_out, h_c)
 % Determines required length of coolant heat rejector
 %
 % Cold side assumed stationary ocean w/ infinite thermal capacity
@@ -22,7 +22,8 @@ U = 1/((1/h_c) + (1/h_h));
 % Surface area m[^2] and length [m^2]
 % via integrated 1st Law && Newton's Cooling Law relation
 As = ((mdot_h*cp_h)/U)*log((Th_in - Tc)/(Th_out - Tc));
-L = cf_L*As/(pi*D_h);
+L  = cf_L*As/(pi*D_h);
+Lm = As/(pi*D_h);		% Ideal length
 
 % Thermal resistance [K/W]
 Rt = 1/(U*As);

@@ -1,5 +1,5 @@
-function [L_c, L_h, Rt, As, U] = HXsizer_PH(cf_L, mdot_c, mdot_h, D_c, D_h,...
-							Tc_in, Tc_out, Th_in, Th_out)
+function [L_c, L_h, Rt, As, U, Th_out, Lm_c, Lm_h] = ...
+	HXsizer_PH(cf_L, mdot_c, mdot_h, D_c, D_h, Tc_in, Tc_out, Th_in, Th_out)
 % Determines required length of hot & cold sides for preheater
 
 %% 1) Calc thermal properties @ avg. temperatures
@@ -56,6 +56,10 @@ As = NTU*C_min/U;
 % Each-side pipe length required [m]
 L_c = cf_L*As/(pi*D_c);
 L_h = cf_L*As/(pi*D_h);
+
+% Each-side ideal pipe length required [m]
+Lm_c = As/(pi*D_c);
+Lm_h = As/(pi*D_h);
 
 % Thermal resistance [K/W]
 Rt = 1/(U*As);
