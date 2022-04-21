@@ -77,7 +77,9 @@ BoP.eff_pmp  = 0.80;  % Pump efficiency    []
 BoP.eff_tbne = 0.80;  % Turbine efficiency []
 
 % Correction factors
-BoP.cf_hxL = 2;	 % Correction factor for HX length
+cf.L_ph   = 1.4;  % Correction factor for preheater length
+cf.L_phCL = 1;	% Correction factor for preheater length (closed-loop)
+cf.L_rjORC = 1;
 
 % Rated powers
 htr.PwrRt = 50;		 % Elec. heater rated power [kW]

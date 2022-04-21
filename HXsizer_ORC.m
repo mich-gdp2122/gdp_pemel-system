@@ -1,5 +1,5 @@
-function [L_h, L_c, Rt, As, U, Lm_h, Lm_c] = ...
-	HXsizer_ORC(cf_L, mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tc, x3)
+function [L_h, L_c, Rt, As, U] = ...
+	HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tc, x3)
 % Determines required length of hot & cold sides for preheater
 
 %% 1) Calc thermal properties
@@ -18,15 +18,11 @@ U = 1/((1/h_c) + (1/h_h));
 As = (mdot_h*cp_h/U)*log( (Th_in - Tc)/(Th_out - Tc) );
 
 % Req'd hot-side pipe length [m] & pipe volume occupied [m^3]
-L_h   = cf_L*As/(pi*D_h);
+L_h   = As/(pi*D_h);
 %Vol_c = (D_c/4)*As;
-L_c   = cf_L*As/(pi*D_c);
+L_c   = As/(pi*D_c);
 %Vol_h = (D_h/4)*As;
 %Vol_c = VolRto*Vol_h;
-
-% Ideal lengths
-Lm_h   = cf_L*As/(pi*D_h);
-Lm_c   = cf_L*As/(pi*D_c);
 
 % Thermal resistance [K/W]
 Rt = 1/(U*As);
