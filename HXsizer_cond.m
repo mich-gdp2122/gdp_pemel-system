@@ -1,4 +1,4 @@
-function [L, Rt, As, U] = HXsizer_cond(mdot, D, Tc, Th, x1, h_c)
+function [L, Rt, As, U] = HXsizer_cond(mdot, Qout, D, Tc, Th, x1, h_c)
 % Determines required length of ORC condenser
 %
 % Cold side assumed stationary ocean w/ infinite thermal capacity
@@ -6,7 +6,7 @@ function [L, Rt, As, U] = HXsizer_cond(mdot, D, Tc, Th, x1, h_c)
 
 %% 1) Calc thermal properties and heat transf coeff's
 % Hot side properties & heat transf coeff [W/(m^2*K)]
-[~,~,~, k_h, mu_h,  ~, dh_41] = data_r600a_sat(Th, 1, x1);
+[~,~,~, k_h, mu_h] = data_r600a_sat(Th, 1, x1);
 h_h = calc_h_pipe2P('Ts', k_h, mu_h, D, mdot, Th, 1, x1);
 
 % Cold-side properties & h_c via nat. convect. correlation (if no h_c value
@@ -23,7 +23,7 @@ U = 1/((1/h_c) + (1/h_h));
 %% 2) Calc fluid volume required and thermal resistance
 % Surface area m[^2] and pipe length, 
 % via integrated 1st Law && Newton's Cooling Law relation
-As = ( mdot*abs(dh_41) )/( U*(Th - Tc) );
+As = Qout/( U*(Th - Tc) );
 L  = As/(pi*D);
 %Vol = (D/4)*As;
 
