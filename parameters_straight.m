@@ -18,7 +18,7 @@ pemel.A_cel   = 0.1*100^2;   % Cell active area   [cm^2]
 pemel.eff_stk = 0.79;		 % Stack efficiency   []
 
 % Cooling channels
-clch.N   = 60;            % No. cooling tubes per BP plate       []
+clch.N   = 2*60;            % No. cooling tubes per BP plate       []
 clch.L   = 0.25;          % Cooling tube length                  [m]
 clch.W   = 0.001;		  % Cooling tube width					 [m]
 clch.Ac  = clch.W^2;      % Cooling tube cross-section area      [m^2]
@@ -59,12 +59,12 @@ h2o.dp_stk    = 5;			% Stack pressure drop [bar]
 %h2o.mdot_stk  = 12;		% Nominal mass flow rate per stack [kg/s]
 
 % Coolant
-clnt.mdot_stk  = 0.9;						   % Nominal mass flow rate per stack [kg/s]
-clnt.T_stk_in  = 339.15;					   % Coolant inlet temperature @ stack [K] 
-clnt.T_stk_out = 345.15;					   % Coolant outlet temperature [K]
-clnt.p_stk_in  = 2742.5 + amb.p;			   % Coolant stack inlet pressure [Pa]
-clnt.dp_stk    = 2681;						   % Coolant stack pressure drop [Pa]
-clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
+clnt.Vldot_ch  = 0.25*1e-6;					   % Volume flow rate per channel [mL/s -> m^3/s]
+clnt.T_stk_in  = 339;						   % Coolant inlet temperature @ stack [K] 
+clnt.T_stk_out = clnt.T_stk_in + 6;			   % Coolant outlet temperature [K]
+%clnt.p_stk_in  = 2742.5 + amb.p;			   % Coolant stack inlet pressure [Pa]
+clnt.dp_stk    = 2600;						   % Coolant stack pressure drop [Pa]
+%clnt.p_stk_out = clnt.p_stk_in - clnt.dp_stk;  % Coolant outlet pressure [Pa]
 
 
 %% Balance-of-Plant
