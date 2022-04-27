@@ -1,90 +1,122 @@
 function ORCstruct = ORCspec(dTc, dTh, mdot_h, Th_in, Th_out, Tc, eff_pmp, eff_tbn)
 % Calculate mass flow and pipe area requirements for ORC
-%% Calculate roperties
-% Max & min cycle temperatures, via driving temps [K]
-Tmax = Th_out - dTh;
+
+%% Constant (non-Tmax dependent) properties
+% Min cycle temperature, via driving temp [K]
 Tmin = Tc + dTc;
 
 % State properties on saturation line
-[rho2, ~,~,~,~,~,~, pmax, c2, h2, s2] = data_r600a_sat(Tmax, 0);  % State 2 (sat L)
-[rho4, ~,~,~,~,~,~, pmin, c4, h4, s4] = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
+[rho1,  ~, cp_c1, ~,~,~,~, pmin,    c1,  h1,  s1]  = data_r600a_sat(Tmin, 0);  % State 1
+[rho4,  ~, ~,     ~,~,~,~, ~,       c4,  h4,  s4]  = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
 
-% State properties in sat region, via isentropic processes
-[rho1, c1, h1, x1] = isentrop(Tmin, s2, 0);  % State 1, via process 1->2
-[rho3, c3, h3, x3] = isentrop(Tmax, s4, 1);  % State 1, via process 1->2
-%[rho1, ~,~,~,~,~,~,~, c1, h1] = data_r600a_sat(Tmin, x1); % State 1
-%[rho3, ~,~,~,~,~,~,~, c3, h3] = data_r600a_sat(Tmax, x3); % State 3
-
-[rho23, ~,~,~,~,~,~,~, c23] = data_r600a_sat(Tmax, 0, x3);  % Process 2->3
-[rho41, ~,~,~,~,~,~,~, c41] = data_r600a_sat(Tmin, x1, 1);  % Process 4->1
-
-% Sp. enthalpy changes [J/kg]
-dh_12 = h2 - h1;
-dh_23 = h3 - h2;
-dh_34 = h4 - h3;
-dh_41 = h1 - h4;
-
-% Vapour volume fractions
-% y1 = y(x1, rho2, rho4);
-% y3 = y(x3, rho2, rho4);
-
-
-%% Mass flow required to transfer coolant heat
 % Coolant cp [J/(kg*K)] and heat transfer req'd [W]
 [~, cp_h, ~, ~, ~] = data_water(Th_in, Th_out);
 Qin = mdot_h*cp_h*abs(Th_in - Th_out);
 
-% ORC mass flow req'd, via energy balance [kg/s]
-mdot = Qin/abs(dh_23);
 
-% Heat rejection req'd [W]
-Qout = mdot*abs(dh_41);
+%% Pinch-point optimisation
+% Iterate over Th range to find optimal pinch-point temp for max net pwr out
+Tpp_i = linspace(min(Th_in,Th_out), max(Th_in,Th_out));
+for i = 1:length(Tpp_i)
+	%% Calculate top-side (Tmax dependent) properties
+	% Max cycle temperature, via driving temp [K]
+	Tmax(i) = Tpp_i(i) - dTh;
+	
+	% State properties on saturation line
+	[rho2f, ~,~,~,~,~,~, pmax(i), c2a, h2f, s2f(i)] = data_r600a_sat(Tmax(i), 0);  % State 2f
+	% Subcooled liq state properties, via Gibb's eq w/ ds = 0
+	h2   = h1 + 1E6*(pmax - pmin)/rho1;
+	T2(i) = Tmin + (h2 - h1)/cp_c1;
+	% State properties in sat region, via isentropic processes
+	[rho3, c3, h3, x3(i)] = isentrop(Tmax(i), s4, 1);   % State 3, via process 3->4
 
+	% Sp. enthalpy changes [J/kg]
+	dh_12 = h2 - h1;
+	dh_23 = h3 - h2;
+	dh_34 = h4 - h3;
+	dh_41 = h1 - h4;
+	
+	
+	%% Mass flow required to transfer coolant heat
+	% ORC mass flow req'd, via energy balance [kg/s]
+	mdot(i) = Qin/abs(dh_23);
+	
+	% Heat rejection req'd [W]
+	Qout(i) = mdot(i)*abs(dh_41);
+	
 
-%% Pipe area required to maintain incompressible flow
-Ma_max = 0.27;		% Max incompressible Mach number
+	%% Pipe area required to maintain incompressible flow
+	Ma_max = 0.27;		% Max incompressible Mach number
+	
+	% Minimum rho*c
+	rhoc_min = ...
+		min([rho1*c1, ...					% State 1
+	 		rho2f*c2a, ...					% State 2
+	 		rho3*c3, ...					% State 3
+	 		rho4*c4, ...					% State 4
+	 		]);
+	
+	% Required diameter [m] and cross-section area [m^2]
+	D(i)  = sqrt( (4*mdot(i))/(pi*rhoc_min*Ma_max) );
+	Ac(i) = pi*(D(i)/2)^2;
 
-% Minimum rho*c
-rhoc_min = ...
-	min([rho1*c1, ...					% State 1
-		 rho2*c2, ...					% State 2
-		 rho3*c3, ...					% State 3
-		 rho4*c4, ...					% State 4
-		 mean([rho1*c1 rho2*c2]), ...	% Process 1->2		 
-		 rho23*c23, ...					% Process 2->3
-		 mean([rho3*c3 rho4*c4]), ...	% Process 3->4
-		 rho41*c41, ...					% Process 4->1
-		 ]);
+	
+	%% Calculate cycle performance
+	% Pump and turbine power [W]
+	pwr_pmp(i)  = (1/eff_pmp)*mdot(i)*abs(dh_12);
+	pwr_tbne(i) = eff_tbn*mdot(i)*abs(dh_34); 
 
-% Required diameter [m] and cross-section area [m^2]
-D  = sqrt( (4*mdot)/(pi*rhoc_min*Ma_max) );
-Ac = pi*(D/2)^2;
+	% Net power out
+	pwr_net(i) = pwr_tbne(i) - pwr_pmp(i);
 
-%% Calculate cycle performance
-% Pump and turbine power [W]
-pwr_pmp  = (1/eff_pmp)*mdot*abs(dh_12);
-pwr_tbne = eff_tbn*mdot*abs(dh_34); 
-% Thermal efficiency [%]
-eff = 100*(pwr_tbne - pwr_pmp)/Qin;
+	% Thermal efficiency [%]
+	eff(i) = 100*(pwr_tbne(i) - pwr_pmp(i))/Qin;
+end
 
+%% Find optimal values
+[pwr_net_max, i_opt] = max(pwr_net);
+opt_Tpp      = Tpp_i(i_opt);
+opt_Tmax     = Tmax(i_opt);
+opt_pmax     = pmax(i_opt);
+opt_x3       = x3(i_opt);
+opt_mdot     = mdot(i_opt);
+opt_Ac       = Ac(i_opt);
+opt_D        = D(i_opt);
+opt_pwr_pmp  = pwr_pmp(i_opt);
+opt_pwr_tbne = pwr_tbne(i_opt);
+opt_eff      = eff(i_opt);
+opt_s2f      = s2f(i_opt);
+opt_T2       = T2(i_opt);
 
 %% Put all into specified ORC structure
 ORCstruct.dTh      = dTh;
 ORCstruct.dTc      = dTc;
+ORCstruct.Tpp      = opt_Tpp;
+ORCstruct.Tmax     = opt_Tmax;
 ORCstruct.Tmin     = Tmin;
-ORCstruct.Tmax     = Tmax;
+ORCstruct.pmax     = opt_pmax; 
 ORCstruct.pmin     = pmin;
-ORCstruct.pmax     = pmax; 
-ORCstruct.x1       = x1;
-ORCstruct.x3       = x3; 
-ORCstruct.mdot     = mdot; 
-ORCstruct.Ac       = Ac; 
-ORCstruct.D        = D; 
-ORCstruct.pwr_pmp  = pwr_pmp; 
-ORCstruct.pwr_tbne = pwr_tbne; 
+ORCstruct.x1       = 0;			% Legacy parameter
+ORCstruct.x3       = opt_x3; 
+ORCstruct.mdot     = opt_mdot; 
+ORCstruct.Ac       = opt_Ac; 
+ORCstruct.D        = opt_D; 
+ORCstruct.pwr_pmp  = opt_pwr_pmp; 
+ORCstruct.pwr_tbne = opt_pwr_tbne; 
+ORCstruct.pwr_net  = pwr_net_max;
 ORCstruct.Qin      = Qin; 
 ORCstruct.Qout     = Qout;
-ORCstruct.eff      = eff;
+ORCstruct.eff      = opt_eff;
+% For plotting
+ORCstruct.plot_opt.Tpp     = Tpp_i;
+ORCstruct.plot_opt.pwr_net = pwr_net;
+ORCstruct.plot_opt.x3      = x3;
+ORCstruct.plot_Ts.T2       = opt_T2;
+ORCstruct.plot_Ts.s1       = s1;
+ORCstruct.plot_Ts.s2       = s1;
+ORCstruct.plot_Ts.s2f      = opt_s2f;
+ORCstruct.plot_Ts.s3       = s4;
+ORCstruct.plot_Ts.s4       = s4;
 end
 
 
@@ -113,8 +145,3 @@ function [rhoB, cB, hB, xB] = isentrop(TB, sA, xA)
 		end
 	end
 end
-
-% function y_out = y(x, rho_sL, rho_sv)
-% % Convert vapour quality/mass fraction to volume fraction
-% 	y_out = ( (1/rho_sv)*x )/( (1/rho_sv)*x + (1/rho_sL)*(1 - x) );
-% end
