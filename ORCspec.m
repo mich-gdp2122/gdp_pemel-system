@@ -9,9 +9,7 @@ Tmin = Tc + dTc;
 [rho1,  ~, cp_c1, ~,~,~,~, pmin,    c1,  h1,  s1]  = data_r600a_sat(Tmin, 0);  % State 1
 [rho4,  ~, ~,     ~,~,~,~, ~,       c4,  h4,  s4]  = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
 
-% Coolant cp [J/(kg*K)] and heat transfer req'd [W]
-[~, cp_h, ~, ~, ~] = data_water(Th_in, Th_out);
-Qin = mdot_h*cp_h*abs(Th_in - Th_out);
+
 
 
 %% Pinch-point optimisation
@@ -25,24 +23,22 @@ for i = 1:length(Tpp_i)
 	% State properties on saturation line
 	[rho2f, ~,~,~,~,~,~, pmax(i), c2a, h2f, s2f(i)] = data_r600a_sat(Tmax(i), 0);  % State 2f
 	% Subcooled liq state properties, via Gibb's eq w/ ds = 0
-	h2   = h1 + 1E6*(pmax - pmin)/rho1;
+	h2  = h1 + 1E6*(pmax(i) - pmin)/rho1;
 	T2(i) = Tmin + (h2 - h1)/cp_c1;
 	% State properties in sat region, via isentropic processes
 	[rho3, c3, h3, x3(i)] = isentrop(Tmax(i), s4, 1);   % State 3, via process 3->4
+	
 
-	% Sp. enthalpy changes [J/kg]
-	dh_12 = h2 - h1;
-	dh_23 = h3 - h2;
-	dh_34 = h4 - h3;
-	dh_41 = h1 - h4;
-	
-	
 	%% Mass flow required to transfer coolant heat
+	% Coolant cp [J/(kg*K)] and heat transfer req'd [W]
+	[~, cp_h, ~,~,~,~, sh(i)] = data_water(Th_in, Th_out);
+	Qin = mdot_h*cp_h*abs(Th_in - Th_out);
+
 	% ORC mass flow req'd, via energy balance [kg/s]
-	mdot(i) = Qin/abs(dh_23);
+	mdot(i) = Qin/abs(h3 - h2);
 	
 	% Heat rejection req'd [W]
-	Qout(i) = mdot(i)*abs(dh_41);
+	Qout(i) = mdot(i)*abs(h1 - h4);
 	
 
 	%% Pipe area required to maintain incompressible flow
@@ -63,8 +59,8 @@ for i = 1:length(Tpp_i)
 	
 	%% Calculate cycle performance
 	% Pump and turbine power [W]
-	pwr_pmp(i)  = (1/eff_pmp)*mdot(i)*abs(dh_12);
-	pwr_tbne(i) = eff_tbn*mdot(i)*abs(dh_34); 
+	pwr_pmp(i)  = (1/eff_pmp)*mdot(i)*abs(h2 - h1);
+	pwr_tbne(i) = eff_tbn*mdot(i)*abs(h4 - h3); 
 
 	% Net power out
 	pwr_net(i) = pwr_tbne(i) - pwr_pmp(i);
@@ -84,9 +80,19 @@ opt_Ac       = Ac(i_opt);
 opt_D        = D(i_opt);
 opt_pwr_pmp  = pwr_pmp(i_opt);
 opt_pwr_tbne = pwr_tbne(i_opt);
+opt_Qout     = Qout(i_opt);
 opt_eff      = eff(i_opt);
 opt_s2f      = s2f(i_opt);
 opt_T2       = T2(i_opt);
+
+%% ORC T-s cycle points
+%     [1,    2,      2f,       3,        4,    1   ]
+T_n = [Tmin, opt_T2, opt_Tmax, opt_Tmax, Tmin, Tmin];
+s_n = [s1,   s1,     opt_s2f,  s4,       s4,   s1  ];
+
+% Coolant endpoints
+Th_n = [Th_in, opt_Tpp,   Th_out];
+sh_n = [sh(1), sh(i_opt), sh(end)];
 
 %% Put all into specified ORC structure
 ORCstruct.dTh      = dTh;
@@ -105,18 +111,18 @@ ORCstruct.pwr_pmp  = opt_pwr_pmp;
 ORCstruct.pwr_tbne = opt_pwr_tbne; 
 ORCstruct.pwr_net  = pwr_net_max;
 ORCstruct.Qin      = Qin; 
-ORCstruct.Qout     = Qout;
+ORCstruct.Qout     = opt_Qout;
 ORCstruct.eff      = opt_eff;
 % For plotting
-ORCstruct.plot_opt.Tpp     = Tpp_i;
-ORCstruct.plot_opt.pwr_net = pwr_net;
-ORCstruct.plot_opt.x3      = x3;
-ORCstruct.plot_Ts.T2       = opt_T2;
-ORCstruct.plot_Ts.s1       = s1;
-ORCstruct.plot_Ts.s2       = s1;
-ORCstruct.plot_Ts.s2f      = opt_s2f;
-ORCstruct.plot_Ts.s3       = s4;
-ORCstruct.plot_Ts.s4       = s4;
+ORCstruct.plotOpt.Tpp     = Tpp_i;
+ORCstruct.plotOpt.pwr_net = pwr_net;
+ORCstruct.plotOpt.x3      = x3;
+ORCstruct.plotTs.T        = T_n;
+ORCstruct.plotTs.s        = s_n;
+ORCstruct.plotTs.Th       = Tpp_i;
+ORCstruct.plotTs.sh       = sh;
+ORCstruct.plotTs.Th_n     = Th_n;
+ORCstruct.plotTs.sh_n     = sh_n;
 end
 
 
