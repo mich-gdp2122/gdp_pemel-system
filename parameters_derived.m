@@ -38,10 +38,10 @@ h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet m
 h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 mass produced [kg/s]
 
 % Closed-loop feedwater base temperature
-h2o.T0_CL = calc_T0_CL(h2o.mdot_in_tot, h2o.mdot_out_tot, amb.T, h2o.T_stk_out);
+h2o.T0 = calc_T0(h2o.mdot_in_tot, h2o.mdot_out_tot, amb.T, h2o.T_stk_out);
 
 
-%% Heat exchanger sizing (NO preheat)
+%% Heat exchanger sizing & performance (NO preheat)
 % ORC properties
 ORC = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.T_stk_out, clnt.T_stk_in, amb.T_sea, ...
 	BoP.eff_pmp, BoP.eff_tbne);
@@ -53,46 +53,46 @@ ORC = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.T_stk_out, clnt.T_stk_in, am
 % Coolant/ORC fluid HX
 [HX_ORC.L_h, HX_ORC.L_c, HX_ORC.Rt, HX_ORC.As, HX_ORC.U] = ...
 	HXsizer_ORC(clnt.mdot_tot, ORC.mdot, ORC.D, clch.D, ...
-	clnt.T_stk_out, clnt.T_stk_in, ORC.Tpp, ORC.Tmax, ORC.x3);
+	clnt.T_stk_out, clnt.T_stk_in, ORC.Tpp, ORC.Tmax, ORC.Tmin, ORC.x3);
 
 % ORC condenser
 [HX_cond.L, HX_cond.Rt, HX_cond.As, HX_cond.U] = ...
 	HXsizer_cond(ORC.mdot, ORC.Qout, ORC.D, amb.T_sea, ORC.Tmin, ORC.x1);
 
 
-%% Heat exchanger sizing & performance (preheat; CLOSED FW loop)
+%% Heat exchanger sizing & performance (preheat)
 % Preheater
-[HX_phCL.L_h2o, HX_phCL.L_clnt, HX_phCL.Rt, HX_phCL.As, HX_phCL.U, clnt.Tout_PhCL] = ...
+[HX_ph.L_h2o, HX_ph.L_clnt, HX_ph.Rt, HX_ph.As, HX_ph.U, clnt.Tout_PhCL] = ...
 	HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
-	h2o.T0_CL, h2o.T_stk_in, clnt.T_stk_out);
+	h2o.T0, h2o.T_stk_in, clnt.T_stk_out);
 
 % ORC properties
-ORCphCL = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.Tout_PhCL, clnt.T_stk_in, amb.T_sea, ...
+ORCph = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.Tout_PhCL, clnt.T_stk_in, amb.T_sea, ...
 	BoP.eff_pmp, BoP.eff_tbne);
 
 % Heat rejector
-[HX_rjPhCL.L, HX_rjPhCL.Rt, HX_rjPhCL.As, HX_rjPhCL.U] = ...
+[HX_rjPh.L, HX_rjPh.Rt, HX_rjPh.As, HX_rjPh.U] = ...
 	HXsizer_rjct(clnt.mdot_tot, clch.D, ...
 	amb.T_sea, clnt.Tout_PhCL, clnt.T_stk_in);
 
 % Coolant/ORC fluid HX
-[HX_ORCphCL.L_h, HX_ORCphCL.L_c, HX_ORCphCL.Rt, HX_ORCphCL.As, HX_ORCphCL.U] = ...
-	HXsizer_ORC(clnt.mdot_tot, ORCphCL.mdot, ORCphCL.D, clch.D, ...
-	clnt.Tout_PhCL, clnt.T_stk_in, ORCphCL.Tpp, ORCphCL.Tmax, ORC.x3);
+[HX_ORCph.L_h, HX_ORCph.L_c, HX_ORCph.Rt, HX_ORCph.As, HX_ORCph.U] = ...
+	HXsizer_ORC(clnt.mdot_tot, ORCph.mdot, ORCph.D, clch.D, ...
+	clnt.Tout_PhCL, clnt.T_stk_in, ORCph.Tpp, ORCph.Tmax, ORCph.Tmin, ORC.x3);
 
 % ORC condenser length [m], thermal resistance [K/W]
-[HX_condPhCL.L, HX_condPhCL.Rt, HX_condPhCL.As, HX_condPhCL.U] = ...
-	HXsizer_cond(ORCphCL.mdot, ORCphCL.Qout, ORCphCL.D, amb.T_sea, ORC.Tmin, ORC.x1);
+[HX_condPh.L, HX_condPh.Rt, HX_condPh.As, HX_condPh.U] = ...
+	HXsizer_cond(ORCph.mdot, ORCph.Qout, ORCph.D, amb.T_sea, ORC.Tmin, ORC.x1);
 
 % Electric heater length (assumed equal to feedwater-side preheater length) [m]
-htr.L_CL = HX_phCL.L_h2o;
+htr.L = HX_ph.L_h2o;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function T0_h2o_CL = calc_T0_CL(mdot_in, mdot_out, T_amb, T_out)
+function T0_h2o = calc_T0(mdot_in, mdot_out, T_amb, T_out)
 % Calculate post-mixed feedwater temperature for closed-loop config	
 	data_amb = data_water(T_amb, T_amb);
 	data_out = data_water(T_out, T_out);
-	T0_h2o_CL  = ( (mdot_in - mdot_out)*data_amb.cp*T_amb + mdot_out*data_out.cp*T_out )...
+	T0_h2o  = ( (mdot_in - mdot_out)*data_amb.cp*T_amb + mdot_out*data_out.cp*T_out )...
 			   /( (mdot_in - mdot_out)*data_amb.cp + mdot_out*data_out.cp);
 end

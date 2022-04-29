@@ -1,17 +1,22 @@
 function [L_h, L_c, Rt, As, U] = ...
-	HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tpp, Tc2f, x3)
+	HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tpp, Tc2f, Tc2, x3)
 % Determines required length of hot & cold sides for ORC recovery heater
 %% 1) Subcooled (preheat) region
 % Calc thermal properties
-data_h2f3 = data_water(Tpp, Th_out);      % Hot-side  (coolant)
-data_c2f3 = data_r600a_sat(Tc2f, 0, x3);  % Cool-side (r600a, state 2)
+data_h2f3 = data_water(Tpp, Th_out);  % Hot-side  (coolant)
+data_c2f = data_r600a_sat(Tc2f, 0);   % Cool-side (r600a, on satL point)
+data_c2  = data_r600a_sat(Tc2, 0);	  % Cool-side (r600a, state 2)
 
+% Get mean subcooled properties
+data_c22f.k  = mean([data_c2.k, data_c2f.k]);
+data_c22f.mu = mean([data_c2.mu, data_c2f.mu]);
+data_c22f.Pr = mean([data_c2.Pr, data_c2f.Pr]);
 
 
 %% 2) Evaporation region
 % Calc thermal properties
 data_h2f3 = data_water(Th_in, Tpp);       % Hot-side  (coolant)
-data_c2f3 = data_r600a_sat(Tc2f, 0, x3);  % Cool-side (r600a)
+data_c2f3 = data_r600a_sat(Tc2f, 0, x3);  % Cool-side (r600a, states 2f->3)
 
 % Calc hot & cold heat transf coeff's
 h_h = calc_h_pipeL( 'Ts', data_h2f3.k, data_h2f3.mu, data_h2f3.Pr, D_h, mdot_h);
