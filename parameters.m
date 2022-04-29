@@ -27,7 +27,7 @@ prch.L   = 0.025;       % Process channel length                   [m]
 
 %% General stack operating conditions
 % Stack
-pemel.i = 2.2219;			% Nominal current density [A/cm^2]
+pemel.i     = 2.2219;		% Nominal current density [A/cm^2]
 pemel.V_stk = 60;			% Nominal stack voltage [V]
 pemel.p_ca  = 20 * 100000;  % Nominal cathode pressure [bar -> Pa]
 pemel.p_an  = amb.p;	    % Nominal anode pressure   [Pa]
@@ -42,8 +42,8 @@ h2o.dp_stk    = 5;			% Stack pressure drop [bar]
 
 %% Balance-of-Plant
 % Efficiencies
-BoP.eff_pmp  = 0.80;  % Pump efficiency    []
-BoP.eff_tbne = 0.80;  % Turbine efficiency []
+BoP.eff_pmp  = 0.85;  % Pump efficiency    []
+BoP.eff_tbne = 0.85;  % Turbine efficiency []
 
 % Rated powers
 htr.PwrRt = 50;		 % Elec. heater rated power [kW]

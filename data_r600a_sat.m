@@ -1,4 +1,4 @@
-function [rho, v, cp, k, mu, Pr, dh, p, c, h, s, ds] = data_r600a_sat(T, xA, xB)
+function data = data_r600a_sat(T, xA, xB) %[rho, v, cp, k, mu, Pr, dh, p, c, h, s, ds] = data_r600a_sat(T, xA, xB)
 % Saturated fluid properties for isobutane/r600a (liquid and vapour)
 %  T: Saturation temperature
 % xA: Inlet quality/vapour mass fraction
@@ -386,7 +386,7 @@ c_v_i = [...
 
 
 %% Calculations
-p = interp1(T_i, psat_i, T, 'makima', 'extrap');	% Saturated pressure [MPa]
+data.p = interp1(T_i, psat_i, T, 'makima', 'extrap');	% Saturated pressure [MPa]
 
 % Quality-weighted thermal properties @ state 1
 vA   = (1-xA)*interp1(T_i, v_L_i, T, 'makima', 'extrap') ...
@@ -427,28 +427,28 @@ if exist('xB','var') ~= 0
 			+  xB*interp1(T_i, c_v_i, T, 'makima', 'extrap');
 
 	% Average properties between states 1 & 2
-	v   = mean([vA vB]);
-	rho = mean([rhoA rhoB]);
-	cp  = mean([cpA cpB]);
-	mu  = mean([muA muB]);
-	k   = mean([kA kB]);
-	c   = mean([cA cB]);
+	data.v   = mean([vA vB]);
+	data.rho = mean([rhoA rhoB]);
+	data.cp  = mean([cpA cpB]);
+	data.mu  = mean([muA muB]);
+	data.k   = mean([kA kB]);
+	data.c   = mean([cA cB]);
 
 	% Change in enthalpy & entropy between states 1 & 2
-	dh  = hB - hA;
-	ds  = sB - sA;
+	data.dh  = hB - hA;
+	data.ds  = sB - sA;
 else
 	% Output state 1 properties if only xA specified
-	v   = vA;
-	rho = rhoA;
-	cp  = cpA;
-	mu  = muA;
-	k   = kA;
-	h   = hA;
-	c   = cA;
-	s   = sA;
-	dh  = NaN;  % Need to include dh in output, even if unused in this case
-	ds  = NaN;	% Same w/ ds
+	data.v   = vA;
+	data.rho = rhoA;
+	data.cp  = cpA;
+	data.mu  = muA;
+	data.k   = kA;
+	data.h   = hA;
+	data.c   = cA;
+	data.s   = sA;
+	data.dh  = NaN;  % Need to include dh in output, even if unused in this case
+	data.ds  = NaN;  % Same w/ ds
 end
-Pr  = (mu*cp)/kA;  % Prandtl number
+data.Pr  = (data.mu*data.cp)/data.k;  % Prandtl number
 end

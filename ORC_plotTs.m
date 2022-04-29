@@ -30,7 +30,7 @@ xlim([800, 2600])
 ylabel('T [K]')
 xlabel('s [J/(kg*K)]')
 lbl_Ts = {'1', '2', '2f', '3', '4', ''};
-lbl_Th = {'in', 'out'};
+lbl_Th = {'in', 'pp', 'out'};
 labelpoints(ORC.plotTs.s,ORC.plotTs.T,lbl_Ts);
 labelpoints(ORC.plotTs.sh_n,ORC.plotTs.Th_n,lbl_Th);
 

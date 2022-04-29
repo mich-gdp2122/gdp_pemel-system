@@ -1,4 +1,4 @@
-function [rho, cp, k, mu, Pr, beta, s] = data_water(T_in, T_out)
+function data = data_water(T_in, T_out) %[rho, cp, k, mu, Pr, beta, s] = data_water(T_in, T_out)
 % Properties of water, averaged b/tw 0.01 & 0.1 MPa
 
 % Rows of the tables correspond to the temperature vector
@@ -104,11 +104,11 @@ s_TLU = 1E3*[6.74E-06 ...
 	];  % Sp. entroy [J/(kg*K)]
 
 % outputs
-rho  = interp1(T_TLU, rho_TLU, T, 'makima', 'extrap');
-cp   = interp1(T_TLU, cp_TLU, T, 'makima', 'extrap');
-k    = interp1(T_TLU, k_TLU, T, 'makima' ,'extrap');
-mu   = interp1(T_TLU, mu_TLU, T, 'makima' ,'extrap');
-Pr   = interp1(T_TLU, Pr_TLU, T, 'makima' ,'extrap');
-beta = interp1(T_TLU, beta_TLU, T, 'makima' ,'extrap');
-s    = interp1(T_TLU, s_TLU, T, 'makima' ,'extrap');
+data.rho  = interp1(T_TLU, rho_TLU, T, 'makima', 'extrap');
+data.cp   = interp1(T_TLU, cp_TLU, T, 'makima', 'extrap');
+data.k    = interp1(T_TLU, k_TLU, T, 'makima' ,'extrap');
+data.mu   = interp1(T_TLU, mu_TLU, T, 'makima' ,'extrap');
+data.Pr   = interp1(T_TLU, Pr_TLU, T, 'makima' ,'extrap');
+data.beta = interp1(T_TLU, beta_TLU, T, 'makima' ,'extrap');
+data.s    = interp1(T_TLU, s_TLU, T, 'makima' ,'extrap');
 end

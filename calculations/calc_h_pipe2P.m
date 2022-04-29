@@ -1,16 +1,16 @@
 function h = calc_h_pipe2P(sfCase, k, mu, Dh, mdot, T, xA, xB)
 % Calculate heat transfer coefficient for liquid flow in pipe
-%  T: Saturation temperature
+%  T: Saturation temperaturedata_c.mu
 % xA: Inlet quality/vapour mass fraction
 % xB: Outlet quality/vapour mass fraction
 
 % Saturated properties
-[rho_sL, ~, ~, ~, mu_SL, Pr_sL] = data_r600a_sat(T, 0);  % Liquid
-[rho_sv, ~, ~, ~,     ~,     ~] = data_r600a_sat(T, 1);  % Vapour
+data_sL = data_r600a_sat(T, 0);  % Liquid
+data_sV = data_r600a_sat(T, 1);  % Vapour
 
 % Reynold's number
 Re    = (4*mdot)/(pi*Dh*mu);	% Avg. 2P fluid
-Re_sL = (4*mdot)/(pi*Dh*mu_SL);	% Sat. liquid
+Re_sL = (4*mdot)/(pi*Dh*data_sL.mu);	% Sat. liquid
 
 % Reynold's no. transition region
 Re_lam = 2300;
@@ -31,11 +31,11 @@ end
 
 % Turbulent value (Cavallini and Zecchin)
 Nu_tur = ...
-	(	0.05 * Re_sL^0.8 * Pr_sL^0.33 * ...
-		(  ( (sqrt(rho_sL/rho_sv) - 1)*xB + 1 )^1.8 - ...
-		   ( (sqrt(rho_sL/rho_sv) - 1)*xA + 1 )^1.8   ...
+	(	0.05 * Re_sL^0.8 * data_sL.Pr^0.33 * ...
+		(  ( (sqrt(data_sL.rho/data_sV.rho) - 1)*xB + 1 )^1.8 - ...
+		   ( (sqrt(data_sL.rho/data_sV.rho) - 1)*xA + 1 )^1.8   ...
 		) ...
-	) / ( 1.8*(sqrt(rho_sL/rho_sv) - 1)*(xB - xA) );
+	) / ( 1.8*(sqrt(data_sL.rho/data_sV.rho) - 1)*(xB - xA) );
 
 if Re <= Re_lam						% Laminar case
 	Nu = Nu_lam;
