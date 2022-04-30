@@ -66,7 +66,7 @@ Qout = mdot*abs(data_c1.h - data_c4.h);
 
 
 %% Pipe area required to maintain incompressible flow
-Ma_max = 0.27;		% Max incompressible Mach number
+Ma_max = 0.28;		% Max incompressible Mach number
 
 % Minimum rho*c
 rhoc_min = ...
@@ -101,6 +101,9 @@ s_n = [data_c1.s, data_c1.s, data_c2f.s, data_c4.s, data_c4.s, data_c1.s];
 % Coolant endpoints
 Th_n = [Th_in,     Tpp,         Th_out];
 sh_n = [data_c4.s, data_c2f.s,  data_c1.s];
+% Heatsink (sea) endpoints
+Tc_n = [Tc,        Tc];
+sc_n = [data_c1.s, data_c4.s];
 
 %% Put all into specified ORC structure
 ORCstruct.dTh      = dTh;
@@ -136,4 +139,6 @@ ORCstruct.plotTs.s        = s_n;
 ORCstruct.plotTs.Th       = Tpp;
 ORCstruct.plotTs.Th_n     = Th_n;
 ORCstruct.plotTs.sh_n     = sh_n;
+ORCstruct.plotTs.Tc_n     = Tc_n;
+ORCstruct.plotTs.sc_n     = sc_n;
 end

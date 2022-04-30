@@ -1,38 +1,64 @@
 function [L_h, L_c, Rt, As, U] = ...
 	HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tpp, Tc2f, Tc2, x3)
 % Determines required length of hot & cold sides for ORC recovery heater
-%% 1) Subcooled (preheat) region
+%% 1) Subcooled (boiler) region
 % Calc thermal properties
-data_h2f3 = data_water(Tpp, Th_out);  % Hot-side  (coolant)
+data_hPH = data_water(Tpp, Th_out);  % Hot-side  (coolant)
 data_c2f = data_r600a_sat(Tc2f, 0);   % Cool-side (r600a, on satL point)
 data_c2  = data_r600a_sat(Tc2, 0);	  % Cool-side (r600a, state 2)
 
 % Get mean subcooled properties
-data_c22f.k  = mean([data_c2.k, data_c2f.k]);
-data_c22f.mu = mean([data_c2.mu, data_c2f.mu]);
-data_c22f.Pr = mean([data_c2.Pr, data_c2f.Pr]);
+data_cPH.cp = mean([data_c2.cp, data_c2f.cp]);
+data_cPH.k  = mean([data_c2.k, data_c2f.k]);
+data_cPH.mu = mean([data_c2.mu, data_c2f.mu]);
+data_cPH.Pr = mean([data_c2.Pr, data_c2f.Pr]);
+
+% Calc heat capacity rates
+C_hPH   = mdot_h*data_hPH.cp;
+C_cPH   = mdot_c*data_cPH.cp;
+C_minPH = min(C_cPH,C_hPH);
+C_maxPH = max(C_cPH,C_hPH);
+C_rtoPH = C_minPH/C_maxPH;
+
+% Calc effectiveness and NTU
+efct = ( C_hPH*(Tpp - Th_out) )/( C_minPH*(Tpp - Tc2) );  % Effectiveness
+NTU  = (1/(1 - C_rtoPH))*log( (1 - efct*C_rtoPH)/(1 - efct) );  % NTU for counter-flow HX
+
+% Calc hot & cold side heat transf coeff's
+h_hPH = calc_h_pipeL('Qs', data_hPH.k, data_hPH.mu, data_hPH.Pr, D_h, mdot_h);
+h_cPH = calc_h_pipeL('Qs', data_cPH.k, data_cPH.mu, data_cPH.Pr, D_c, mdot_c);
+% Overall heat transf coeff.
+U_PH  = 1/((1/h_cPH) + (1/h_hPH));
+
+% Heat transf surface area, and hence each pipe length
+AsPH = NTU*C_minPH/U_PH;
 
 
 %% 2) Evaporation region
 % Calc thermal properties
-data_h2f3 = data_water(Th_in, Tpp);       % Hot-side  (coolant)
-data_c2f3 = data_r600a_sat(Tc2f, 0, x3);  % Cool-side (r600a, states 2f->3)
+data_hEvp = data_water(Th_in, Tpp);       % Hot-side  (coolant)
+data_cEvp = data_r600a_sat(Tc2f, 0, x3);  % Cool-side (r600a, states 2f->3)
 
 % Calc hot & cold heat transf coeff's
-h_h = calc_h_pipeL( 'Ts', data_h2f3.k, data_h2f3.mu, data_h2f3.Pr, D_h, mdot_h);
-h_c = calc_h_pipe2P('Qs', data_c2f3.k, data_c2f3.mu, D_c, mdot_c, Tc2f, 0, x3);
+h_hEvp = calc_h_pipeL( 'Ts', data_hEvp.k, data_hEvp.mu, data_hEvp.Pr, D_h, mdot_h);
+h_cEvp = calc_h_pipe2P('Qs', data_cEvp.k, data_cEvp.mu, D_c, mdot_c, Tc2f, 0, x3);
 % Overall heat trasnf coeff.
-U = 1/((1/h_c) + (1/h_h));
+U_Evp = 1/((1/h_cEvp) + (1/h_hEvp));
 
 % Calc HX surface area and lengths required
-As = (mdot_h*data_h2f3.cp/U)*log( (Th_in - Tc2f)/(Th_out - Tc2f) );
+AsEvp = (mdot_h*data_hEvp.cp/U_Evp)*log( (Th_in - Tc2f)/(Tpp - Tc2f) );
+
+
+%% 3) Combine sections to one HX
+% Total surface area
+As = AsPH + AsEvp;
 
 % Req'd hot-side pipe length [m] & pipe volume occupied [m^3]
 L_h   = As/(pi*D_h);
-%Vol_c = (D_c/4)*As;
 L_c   = As/(pi*D_c);
-%Vol_h = (D_h/4)*As;
-%Vol_c = VolRto*Vol_h;
+
+% Average heat transf coeff
+U = (AsPH*U_PH + AsEvp*U_Evp)/As;
 
 % Thermal resistance [K/W]
 Rt = 1/(U*As);

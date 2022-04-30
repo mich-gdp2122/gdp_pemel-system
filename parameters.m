@@ -52,7 +52,7 @@ htr.PwrRt = 50;		 % Elec. heater rated power [kW]
 %% Organic Rankine Cycle
 % Operating conditions
 %ORC.mdot = 1.7;				% Nominal mass flow rate [kg/s]
-ORC.dTh  = 5;					% ORC HX driving temp diff [K]
-ORC.dTc  = 5;					% ORC condensor driving temp [K]
+ORC.dTh  = 8;					% ORC HX driving temp diff [K]
+ORC.dTc  = 8;					% ORC condensor driving temp [K]
 %ORC.x1	 = 0.3;					% State 1 quality (vapour mass fraction)
 %ORC.x3   = 0.95;				% State 3 quality

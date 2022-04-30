@@ -47,7 +47,7 @@ NTU  = (1/(1 - C_rto))*log( (1 - efct*C_rto)/(1 - efct) );  % NTU for counter-fl
 h_c = calc_h_pipeL('Qs', data_c.k, data_c.mu, data_c.Pr, D_c, mdot_c);
 h_h = calc_h_pipeL('Qs', data_h.k, data_h.mu, data_h.Pr, D_h, mdot_h);
 
-% Overall heat trasnf coeff.
+% Overall heat transf coeff.
 U = 1/((1/h_c) + (1/h_h));
 
 %% 6) Calc heat transf surface area, and hence each pipe length

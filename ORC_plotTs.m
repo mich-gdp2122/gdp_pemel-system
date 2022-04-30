@@ -1,5 +1,5 @@
 clearvars;
-%close all;
+close all;
 parameters_straight;
 % Generate saturation lines
 Tsat = [257:2:407, 407.01:0.1:407.81];
@@ -21,18 +21,38 @@ s_sat = [s_satL, flip(s_satV)];
 figure
 hold on
 grid on
-plot(s_sat,Tsat,'k-', 'LineWidth', 1.5)
-pl_Ts = plot(ORC.plotTs.s,ORC.plotTs.T, 'ro-','LineWidth',1, 'MarkerSize',6);
+plot(s_sat,Tsat,'k-', 'LineWidth', 1.6);
+pl_Ts = plot(ORC.plotTs.s,ORC.plotTs.T, 'o-', ...
+	'LineWidth',1.1, 'MarkerSize',6, 'Color','#4DBEEE');
 %plot(ORC.plotTs.sh,ORC.plotTs.Th, 'r-', 'LineWidth',0.8)
 pl_Th = plot(ORC.plotTs.sh_n,ORC.plotTs.Th_n, 'ro--');
+%pl_Tc = plot(ORC.plotTs.sc_n,ORC.plotTs.Tc_n, 'o--', 'Color', '#0072BD');
+yline(ORC.plotTs.Tc_n,'--', ...
+	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
 ylim([270, 360])
 xlim([800, 2600])
 ylabel('T [K]')
 xlabel('s [J/(kg*K)]')
-lbl_Ts = {'1', '2', '2f', '3', '4', ''};
-lbl_Th = {'in', 'pp', 'out'};
-labelpoints(ORC.plotTs.s,ORC.plotTs.T,lbl_Ts);
-labelpoints(ORC.plotTs.sh_n,ORC.plotTs.Th_n,lbl_Th);
+lbl_Ts   =				  {'1', '2', '2f', '3', '4', ''};
+lbl_Ts_y = ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+lbl_ts_x = ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
+lbl_Th   =                   {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+lbl_Th_y = ORC.plotTs.Th_n +  2 + zeros(1,3);
+lbl_Th_x = ORC.plotTs.sh_n + 40 + zeros(1,3);
+lbl_Tc   = 'T_{sea}';
+lbl_Tc_y = ORC.plotTs.Tc_n;
+lbl_Tc_x = 930; %mean(ORC.plotTs.sc_n);
+labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+% lbl_Ts   =				  {'1', '2', '2f',   '3', '4', ''};
+% lbl_Ts_y = ORC.plotTs.T + [-4,   5,    1,     4,  -4,   0];
+% lbl_ts_x = ORC.plotTs.s + [10, -30, -100,   -10,  30,   0];
+% lbl_Th   =                   {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+% lbl_Th_y = ORC.plotTs.Th_n + [  5,          5,        5];
+% lbl_Th_x = ORC.plotTs.sh_n + [-75,        -60,        -70];
+% text(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11);
+% text(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
 
 function out = Ts_sat_r600a(X, X_ph)
 	% r600a sp entropy on saturation curve
