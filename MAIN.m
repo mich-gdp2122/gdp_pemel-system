@@ -2,30 +2,18 @@
 %
 % SIMULINK MODEL OUTPUTS:
 %	
-%	outTMS(i)_pwr   [stk, BoP, tot]				Stack, Total BoP, Total [kW]
-%	outTMS(i)_BoP   [pmpFW, pmpClnt, htr]		H2O pump, Clnt pump, heater [W]
-%	outTMS(i)_Qclnt [stkIn, PHOut, rjOut]		Stack in, Phtr out, RJ out [kW]
-%	outTMS(i)_eff   [stk, BoP, tot]				Stack, BoP, Overall [%]
-%   outTMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
+%	TMS(i)_pwr   [stk, BoP, tot]				Stack, Total BoP, Total [kW]
+%	TMS(i)_BoP   [pmpFW, pmpClnt, htr]		H2O pump, Clnt pump, heater [W]
+%	TMS(i)_Qdot [stkIn, PHOut, rjOut]		Stack in, Phtr out, RJ out [kW]
+%	TMS(i)_eff   [stk, BoP, tot]				Stack, BoP, Overall [%]
+%   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
+%
 %% Set program modes
 mode_test = 1;	% Test mode (don't run simulations if != 0)
 
 %%
 clearvars('-except', 'mode_*')
 close all
-
-% Figure dimensions
-b_h  = 720;  % Height [px]
-b_ar = 1.6; % Aspect ratio [w:h]
-
-% Bar chart colours (RGB)
-c.red    = [0.6350 0.0780 0.1840];
-c.blue   = [0.0000 0.4470 0.7410];
-c.yellow = [0.9290 0.6940 0.1250];
-c.green  = [0.4660 0.6740 0.1880];
-c.orange = [0.8500 0.3250 0.0980];
-c.cyan   = [0.3010 0.7450 0.9330];
-c.purple = [0.4940 0.1840 0.5560];
 
 % Make output directory
 outdir = ['output_', datestr(now,'yyyy-mm-dd--HH-MM-SS')];
@@ -38,74 +26,144 @@ if mode_test == 0
 	runSim('straight', outdir);					% 1) STRAIGHT CHANNELS
 	clearvars('-except', 'mode_*', 'outdir')	% Clear for next run
 	runSim('serpentine', outdir);				% 2) SERPENTINE CHANNELS
+	clearvars('-except', 'mode_*', 'outdir')	% Clear for loading data
+	disp('Simulations complete')
 end
 % Load simulation data
 strt = load('output_straight.mat');
 sptn = load('output_serpentine.mat');
 
 
-%% Power Consumption data [kW]
+%% Figure properties
+b_h  = 360;  % Height [px]
+b_ar = 1.8;  % Aspect ratio [w:h]
+
+% Bar chart colours (RGB)
+c.red    = [0.6350 0.0780 0.1840];
+c.blue   = [0.0000 0.4470 0.7410];
+c.yellow = [0.9290 0.6940 0.1250];
+c.green  = [0.4660 0.6740 0.1880];
+c.orange = [0.8500 0.3250 0.0980];
+c.cyan   = [0.3010 0.7450 0.9330];
+c.purple = [0.4940 0.1840 0.5560];
+
+
+% %% Total BoP Pwr Consumption data [kW]
+% % Round data to 3 sf
+% y_totBoP  = round([strt.TMS1_pwr(2), strt.TMS2_pwr(2), strt.TMS3_pwr(2), strt.TMS4_pwr(2); ...
+% 				   sptn.TMS1_pwr(2), sptn.TMS2_pwr(2), sptn.TMS3_pwr(2), sptn.TMS4_pwr(2)], ...
+% 			3, 'significant');
+% % Bar colours and respective legend labels
+% c_totBoP = [c.orange; c.blue; c.yellow; c.purple];
+% l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
+% % Plot data
+% plotBarData(outdir, y_totBoP, c_totBoP, 'Power consumption [kW]', ...
+% 	'grouped', [], [], '1_totBoP', l, b_h, b_ar);
+% 
+% 
+% %% BoP Power Consumption data [% tot]
+% % Round data to 3 sf
+% y1_BoP = round(0.1*[strt.TMS1_BoP/strt.TMS1_pwr(2); sptn.TMS1_BoP/sptn.TMS1_pwr(2)], ...
+% 			3, 'significant');
+% y2_BoP = round(0.1*[strt.TMS2_BoP/strt.TMS2_pwr(2); sptn.TMS2_BoP/sptn.TMS2_pwr(2)], ...
+% 			3, 'significant');
+% y3_BoP = round(0.1*[strt.TMS3_BoP/strt.TMS3_pwr(2); sptn.TMS3_BoP/sptn.TMS3_pwr(2)], ...
+% 			3, 'significant');
+% y4_BoP = round(0.1*[strt.TMS4_BoP/strt.TMS4_pwr(2); sptn.TMS4_BoP/sptn.TMS4_pwr(2)], ...
+% 			3, 'significant');
+% % Set any NaN values to 0
+% y1_BoP(isnan(y1_BoP)) = 0;
+% y2_BoP(isnan(y2_BoP)) = 0;
+% y3_BoP(isnan(y3_BoP)) = 0;
+% y4_BoP(isnan(y4_BoP)) = 0;
+% % Figure dimensions
+% p_h = 720;
+% p_ar = 0.9;
+% p_ar2 = 1.8;
+% % Bar colours and respective legend labels
+% c_BoP = [c.blue; c.cyan; c.orange; c.purple];
+% l     = {'Water pump', 'Coolant pump', 'Heater', 'ORC pump'};
+% % Plot data
+% plotPieData(outdir, y1_BoP(1,:), y2_BoP(1,:), y3_BoP(1,:), y4_BoP(1,:), c_BoP, ...
+% 			'Straight Channels','2A_BoP_strt', l, p_h, p_ar);
+% plotPieData(outdir, y1_BoP(2,:), y2_BoP(2,:), y3_BoP(2,:), y4_BoP(2,:), c_BoP, ...
+% 			'Serpentine Channels','2B_BoP_sptn', l, p_h, p_ar);
+% plotPieData2(outdir, y1_BoP, y2_BoP, y3_BoP, y4_BoP, c_BoP, ...
+% 			 '2_BoP', l, p_h, p_ar2);
+
+
+%% Heat Transfer data [kW]
 % Round data to 3 sf
-y1_pwr  = round([outTMS1_pwr; outTMS2_pwr; outTMS3_pwr; outTMS4_pwr], ...
-	3, 'significant');
-y2_pwr =  round([outTMS1A_pwr; outTMS2A_pwr; outTMS3A_pwr; outTMS4A_pwr], ...
-	3, 'significant');
+y1_Qdot(1:2,:) = round(100*[strt.TMS1_Qdot(2:end)/strt.TMS1_Qdot(1); ...
+							strt.TMS2_Qdot(2:end)/strt.TMS2_Qdot(1)], 3, 'significant');
+y1_Qdot(3,:)   = round(100*[strt.TMS3_Qdot(2), strt.TMS3_Qdot(3)+strt.TMS3_Qdot(4), strt.TMS3_Qdot(4)]/strt.TMS3_Qdot(1), ...
+					3, 'significant');
+y1_Qdot(4,:)   = round(100*[strt.TMS4_Qdot(2), strt.TMS4_Qdot(3)+strt.TMS4_Qdot(4), strt.TMS4_Qdot(4)]/strt.TMS4_Qdot(1), ...
+					3, 'significant');
+
+y2_Qdot(1:2,:) = round(100*[sptn.TMS1_Qdot(2:end)/sptn.TMS1_Qdot(1); ...
+							sptn.TMS2_Qdot(2:end)/sptn.TMS2_Qdot(1)], 3, 'significant');
+y2_Qdot(3,:)   = round(100*[sptn.TMS3_Qdot(2), sptn.TMS3_Qdot(3)+sptn.TMS3_Qdot(4), sptn.TMS3_Qdot(4)]/sptn.TMS3_Qdot(1), ...
+					3, 'significant');
+y2_Qdot(4,:)   = round(100*[sptn.TMS4_Qdot(2), sptn.TMS4_Qdot(3)+sptn.TMS4_Qdot(4), sptn.TMS4_Qdot(4)]/sptn.TMS4_Qdot(1), ...
+					3, 'significant');
+% Figure dimensions
+bQ_h = 480;
+bQ_ar = 2;
 % Bar colours and respective legend labels
-c_pwr = [c.green; c.yellow; c.orange];
-l     = {'Stack', 'BoP', 'Total'};
+c_Qdot = [c.blue; c.yellow; c.cyan];
+l       = {'Preheater', 'ORC', 'Rejected'};
 % Plot data
-plotData(outdir, y1_pwr, y2_pwr, c_pwr, 'Power consumption [kW]', ...
-	'grouped', [], [], '1_pwr', l, b_h, b_ar);
+plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [% stack]', ...
+	'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
 
 
-%% BoP Power Consumption data [W]
+%% Heat Transfer data [kW]
 % Round data to 3 sf
-y1_BoP = round([outTMS1_BoP; outTMS2_BoP; outTMS3_BoP; outTMS4_BoP], ...
-	3, 'significant');
-y2_BoP = round([outTMS1A_BoP; outTMS2A_BoP; outTMS3A_BoP; outTMS4A_BoP], ...
-	3, 'significant');
-% Bar colours and respective legend labels
-c_BoP = [c.blue; c.cyan; c.orange; c.purple];
-l     = {'Water pump', 'Coolant pump', 'Heater', 'ORC pump'};
-% Plot data
-plotData(outdir, y1_BoP, y2_BoP, c_BoP, 'Power consumption [W]', ...
-	'grouped', [0 1E5], 'log', '2_BoP', l, b_h, b_ar);
+y1_Qdot(1:2,:) = round(100*[strt.TMS1_Qdot(2:end)/strt.TMS1_Qdot(1); ...
+							strt.TMS2_Qdot(2:end)/strt.TMS2_Qdot(1)], 3, 'significant');
+y1_Qdot(3,:)   = round(100*[strt.TMS3_Qdot(2), strt.TMS3_Qdot(3)+strt.TMS3_Qdot(4), strt.TMS3_Qdot(4)]/strt.TMS3_Qdot(1), ...
+					3, 'significant');
+y1_Qdot(4,:)   = round(100*[strt.TMS4_Qdot(2), strt.TMS4_Qdot(3)+strt.TMS4_Qdot(4), strt.TMS4_Qdot(4)]/strt.TMS4_Qdot(1), ...
+					3, 'significant');
 
-
-%% Coolant Heat Transfer data [kW]
-% Round data to 3 sf
-y1_Qclnt = round([outTMS1_Qclnt; outTMS2_Qclnt; outTMS3_Qclnt; outTMS4_Qclnt], ...
-	3, 'significant');
-y2_Qclnt = round([outTMS1A_Qclnt; outTMS2A_Qclnt; outTMS3A_Qclnt; outTMS4A_Qclnt], ...
-	3, 'significant');
+y2_Qdot(1:2,:) = round(100*[sptn.TMS1_Qdot(2:end)/sptn.TMS1_Qdot(1); ...
+							sptn.TMS2_Qdot(2:end)/sptn.TMS2_Qdot(1)], 3, 'significant');
+y2_Qdot(3,:)   = round(100*[sptn.TMS3_Qdot(2), sptn.TMS3_Qdot(3)+sptn.TMS3_Qdot(4), sptn.TMS3_Qdot(4)]/sptn.TMS3_Qdot(1), ...
+					3, 'significant');
+y2_Qdot(4,:)   = round(100*[sptn.TMS4_Qdot(2), sptn.TMS4_Qdot(3)+sptn.TMS4_Qdot(4), sptn.TMS4_Qdot(4)]/sptn.TMS4_Qdot(1), ...
+					3, 'significant');
+% Figure dimensions
+bQ_h = 480;
+bQ_ar = 2;
 % Bar colours and respective legend labels
-c_Qclnt = [c.orange; c.green; c.cyan];
-l       = {'Stack', 'Preheater', 'Rejected'};
+c_Qdot = [c.blue; c.yellow; c.cyan];
+l       = {'Preheater', 'ORC', 'Rejected'};
 % Plot data
-plotData(outdir, y1_Qclnt, y2_Qclnt, c_Qclnt, 'Heat transferred [kW]', ...
-	'stacked', [], [], '3_Qclnt', l, b_h, b_ar);
+plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [% stack]', ...
+	'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
 
 
 %% Efficiency data [%]
 % Round data to 3 sf
-y1_eff = round([outTMS1_eff; outTMS2_eff; outTMS3_eff; outTMS4_eff], ...
+y1_eff = round([TMS1_eff; TMS2_eff; TMS3_eff; TMS4_eff], ...
 	3, 'significant');
-y2_eff = round([outTMS1A_eff; outTMS2A_eff; outTMS3A_eff; outTMS4A_eff], ...
+y2_eff = round([TMS1A_eff; TMS2A_eff; TMS3A_eff; TMS4A_eff], ...
 	3, 'significant');
 % Bar colours and respective legend labels
 c_eff = [c.orange; c.green];
 l     = {'Stack', 'Overall'};
 % Plot data
-plotData(outdir, y1_eff, y2_eff, c_eff, 'Efficiency [%]', ...
+plotBarData(outdir, y1_eff, y2_eff, c_eff, 'Efficiency [%]', ...
 	'grouped',[], [], '4_eff', l, b_h, b_ar);
 
 
 %% ORC data
 % Round data to 3 sf
-y1_ORC = round([sort(outTMS3_ORC(1:3)); sort(outTMS3A_ORC(1:3)); ...
-	sort(outTMS4_ORC(1:3)); sort(outTMS4A_ORC(1:3))], ...
+y1_ORC = round([sort(TMS3_ORC(1:3)); sort(TMS3A_ORC(1:3)); ...
+	sort(TMS4_ORC(1:3)); sort(TMS4A_ORC(1:3))], ...
 	3, 'significant');
-y2_ORC = round([outTMS3_ORC(4); outTMS3A_ORC(4); outTMS4_ORC(4); outTMS4A_ORC(4)], ...
+y2_ORC = round([TMS3_ORC(4); TMS3A_ORC(4); TMS4_ORC(4); TMS4A_ORC(4)], ...
 	3, 'significant');
 
 % x labels
@@ -222,7 +280,7 @@ type([outdir,'/HXdata.txt'])
 
 %%
 % Save workspace variables to file
-save([outdir,'/output.mat'], 'outTMS*', 'y1_*', 'y2_*', '-append');
+save([outdir,'/output.mat'], 'TMS*', 'y1_*', 'y2_*', '-append');
 
 % Reload workspace file to clear clutter
 clearvars -except outdir outdir_ch;
@@ -247,32 +305,77 @@ function runSim(TMSch,outdir)
 	sim(['TMS/',TMSch,'_TMS4_PH_ORC.slx']);				% 4) Preheat; ORC
 	% Save output data for testing (if needed)
 	save(['output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
-	
-	disp('Simulations complete')
 end
 
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
-function plotData(outdir_ch,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar)
+function plotBarData(outdir,y,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar)
 	% x-axis labels
-	x1 = categorical({'1','2','3','4'});
-	x1 = reordercats(x1, {'1','2','3','4'});
-	x2 = categorical({'1A','2A','3A','4A'});
-	x2 = reordercats(x2, {'1A','2A','3A','4A'});
+	x = categorical({'Straight channels', 'Serpentine channels'});
+	x = reordercats(x, {'Straight channels', 'Serpentine channels'});
+	% Create tiled figure
+	fig = figure('Position',[300,250, b_h*b_ar, b_h]);
+	
+	% Plot data
+	if strcmp(bartype,'stacked')
+		b = bar(x, y, bartype, 'FaceColor', 'flat'); %, 'BarWidth', 0.4);
+	else
+		b = bar(x, y, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
+	end
+	set(gca, 'Ticklength', [0 0])
+	xlabel('Configuration');
+	ylabel(yLabel);
+	if strcmp(yScale,'log')
+		% Set log scale (if requested)
+		set('YScale','log')
+	end
+	if isempty(yLim) == 0
+		% Set y-axis limits (if requested)
+		ylim(yLim)
+	end
+	for i = 1:length(y(1,:))
+		% Show values on charts
+		xtips = b(i).XEndPoints;
+		ytips = b(i).YEndPoints;
+		labels = string(b(i).YData);
+		text(xtips,ytips,labels,'HorizontalAlignment','center',...
+    		'VerticalAlignment','bottom')
+		% Generate colour data
+		b(i).CData = c(i,:);
+	end
+	% Create legend labels
+	if isempty(l) == 0
+		lg = legend(b, l, 'Location','northeast');
+		%lg.Layout.Tile = 'east';
+	end
+
+	% Save figure
+	saveas(fig, [outdir,'/fig',name,'.fig']);
+	saveas(fig, [outdir,'/fig',name,'.png'], 'png');
+	saveas(fig, [outdir,'/fig',name,'.svg'], 'svg');
+end
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+function plotBarData2(outdir,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar)
+	% x-axis labels
+	x = categorical({'Config 1','Config 2','Config 3','Config 4'});
+	x = reordercats(x, {'Config 1','Config 2','Config 3','Config 4'});
 
 	% Create tiled figure
 	fig = figure('Position',[300,250, b_h*b_ar, b_h]);
-	t   = tiledlayout(fig,2,1, 'TileSpacing','compact', 'Padding','tight');
+	t   = tiledlayout(fig,1,2, 'TileSpacing','compact', 'Padding','tight');
 	t.XLabel.String = 'Configuration';
 	t.YLabel.String = yLabel;
 	
 	% Plot open FW loop data
 	t1 = nexttile;
 	if strcmp(bartype,'stacked')
-		b1 = bar(t1, x1, y1, bartype, 'FaceColor', 'flat', 'BarWidth', 0.4);
+		b1 = bar(t1, x, y1, bartype, 'FaceColor', 'flat', 'BarWidth', 0.8);
 	else
-		b1 = bar(t1, x1, y1, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
+		b1 = bar(t1, x, y1, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
 	end
-	title(t1,'Open Feedwater Loop')
+	title(t1,'Straight Channels')
 	t1.XAxis.TickLength = [0 0];
 	if strcmp(yScale,'log')
 		set(t1,'YScale','log')
@@ -287,6 +390,9 @@ function plotData(outdir_ch,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar
 		labels1 = string(b1(i).YData);
 		text(xtips1,ytips1,labels1,'HorizontalAlignment','center',...
     		'VerticalAlignment','bottom')
+% 		labels1 = string(abs(b1(i).YData));
+% 		text(xtips1,ytips1,[labels1, ' %'],'HorizontalAlignment','center',...
+%     		'VerticalAlignment','bottom')
 		% Generate colour data
 		b1(i).CData = c(i,:);
 	end
@@ -294,11 +400,11 @@ function plotData(outdir_ch,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar
 	% Plot closed FW loop data
 	t2 = nexttile;
 	if strcmp(bartype,'stacked')
-		b2 = bar(t2, x2, y2, bartype, 'FaceColor', 'flat', 'BarWidth', 0.4);
+		b2 = bar(t2, x, y2, bartype, 'FaceColor', 'flat', 'BarWidth', 0.8);
 	else
-		b2 = bar(t2, x2, y2, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
+		b2 = bar(t2, x, y2, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
 	end
-	title(t2,'Closed Feedwater Loop')
+	title(t2,'Serpentine Channels')
 	t2.XAxis.TickLength = [0 0];
 	if strcmp(yScale,'log')
 		set(t2,'YScale','log')
@@ -313,15 +419,181 @@ function plotData(outdir_ch,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar
 		labels2 = string(b2(i).YData);
 		text(xtips2,ytips2,labels2,'HorizontalAlignment','center',...
     		'VerticalAlignment','bottom')
+% 		labels2 = string(abs(b2(i).YData));
+% 		text(xtips2,ytips2,[labels2, ' %'],'HorizontalAlignment','center',...
+%     		'VerticalAlignment','bottom')
 		% Generate colour data
 		b2(i).CData = c(i,:);
 	end
 	% Create legend labels
-	lg = legend(t1, l, 'Location','northeast');
-	%lg.Layout.Tile = 'east';
+	if isempty(l) == 0
+		lg = legend(l);
+		lg.Layout.Tile = 'north';
+	end
 
 	% Save figure
-	saveas(fig, [outdir_ch,'/fig',name,'.fig']);
-	saveas(fig, [outdir_ch,'/fig',name,'.png'], 'png');
-	saveas(fig, [outdir_ch,'/fig',name,'.svg'], 'svg');
+	saveas(fig, [outdir,'/fig',name,'.fig']);
+	saveas(fig, [outdir,'/fig',name,'.png'], 'png');
+	saveas(fig, [outdir,'/fig',name,'.svg'], 'svg');
+end
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+function plotPieData(outdir,y1,y2,y3,y4,c,TMSch,name,l, p_h, p_ar)
+	fig = figure('Position',[300,250, p_h*p_ar, p_h]);
+	t   = tiledlayout(fig,2,2, 'TileSpacing','compact', 'Padding','tight');
+	title(t,TMSch, 'FontWeight', 'bold')
+
+	% Plot charts
+	% Straight
+	t1 = nexttile;
+	p1 = pie(t1,y1);
+	title(t1,'Config 1');
+	ax = gca();
+	ax.Colormap = c;
+
+	t2 = nexttile;
+	p2 = pie(t2,y2);
+	title(t2,'Config 2');
+	ax = gca();
+	ax.Colormap = c;
+
+	t3 = nexttile;
+	p3 = pie(t3,y3);
+	title(t3,'Config 3');
+	ax = gca();
+	ax.Colormap = c;
+
+	t4 = nexttile;
+	p4 = pie(t4,y4);
+	title(t4,'Config 4');
+	ax = gca();
+	ax.Colormap = c;
+
+	% Create legend labels
+	if isempty(l) == 0
+		lg = legend(l);
+		lg.Layout.Tile = 'north';
+	end
+
+	% rm 0% labels
+	txt1 = findobj(p1,'Type','Text');
+	txt2 = findobj(p2,'Type','Text');
+	txt3 = findobj(p3,'Type','Text');
+	txt4 = findobj(p4,'Type','Text');
+	Opc1 = startsWith({txt1.String}, ["0","<"]);
+	Opc2 = startsWith({txt2.String}, ["0","<"]);
+	Opc3 = startsWith({txt3.String}, ["0","<"]);
+	Opc4 = startsWith({txt4.String}, ["0","<"]);
+	delete(txt1(Opc1))
+	delete(txt2(Opc2))
+	delete(txt3(Opc3))
+	delete(txt4(Opc4))
+
+	% Save figure
+	saveas(fig, [outdir,'/fig',name,'.fig']);
+	saveas(fig, [outdir,'/fig',name,'.png'], 'png');
+	saveas(fig, [outdir,'/fig',name,'.svg'], 'svg');
+end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+function plotPieData2(outdir,y1,y2,y3,y4,c,name,l, p_h, p_ar)
+	fig = figure('Position',[300,250, p_h*p_ar, p_h]);
+	t   = tiledlayout(fig,2,4, 'TileSpacing','compact', 'Padding','tight');
+	
+	% Plot charts
+	% Straight
+	t11 = nexttile;
+	p11 = pie(t11,y1(1,:));
+	title(t11,'Config 1, straight');
+	ax = gca();
+	ax.Colormap = c;
+
+	t12 = nexttile;
+	p12 = pie(t12,y2(1,:));
+	title(t12,'Config 2, straight');
+	ax = gca();
+	ax.Colormap = c;
+
+	t13 = nexttile;
+	p13 = pie(t13,y3(1,:));
+	title(t13,'Config 3, straight');
+	ax = gca();
+	ax.Colormap = c;
+
+	t14 = nexttile;
+	p14 = pie(t14,y4(1,:));
+	title(t14,'Config 4, straight');
+	ax = gca();
+	ax.Colormap = c;
+
+	% Serpentine
+	t21 = nexttile;
+	p21 = pie(t21,y1(2,:));
+	title(t21,'Config 1, serpentine');
+	ax = gca();
+	ax.Colormap = c;
+
+	t22 = nexttile;
+	p22 = pie(t22,y2(2,:));
+	title(t22,'Config 2, serpentine');
+	ax = gca();
+	ax.Colormap = c;
+
+	t23 = nexttile;
+	p23 = pie(t23,y3(2,:));
+	title(t23,'Config 3, serpentine');
+	ax = gca();
+	ax.Colormap = c;
+
+	t24 = nexttile;
+	p24 = pie(t24,y4(2,:));
+	title(t24,'Config 4, serpentine');
+	ax = gca();
+	ax.Colormap = c;
+
+	% Create legend labels
+	if isempty(l) == 0
+		lg = legend(l);
+		lg.Layout.Tile = 'north';
+	end
+
+	% rm 0% labels
+	txt11 = findobj(p11,'Type','Text');
+	txt12 = findobj(p12,'Type','Text');
+	txt13 = findobj(p13,'Type','Text');
+	txt14 = findobj(p14,'Type','Text');
+	txt21 = findobj(p21,'Type','Text');
+	txt22 = findobj(p22,'Type','Text');
+	txt23 = findobj(p23,'Type','Text');
+	txt24 = findobj(p24,'Type','Text');
+	Opc11 = startsWith({txt11.String}, ["0","<"]);
+	Opc12 = startsWith({txt12.String}, ["0","<"]);
+	Opc13 = startsWith({txt13.String}, ["0","<"]);
+	Opc14 = startsWith({txt14.String}, ["0","<"]);
+	Opc21 = startsWith({txt21.String}, ["0","<"]);
+	Opc22 = startsWith({txt22.String}, ["0","<"]);
+	Opc23 = startsWith({txt23.String}, ["0","<"]);
+	Opc24 = startsWith({txt24.String}, ["0","<"]);
+	delete(txt11(Opc11))
+	delete(txt12(Opc12))
+	delete(txt13(Opc13))
+	delete(txt14(Opc14))
+	delete(txt21(Opc21))
+	delete(txt22(Opc22))
+	delete(txt23(Opc23))
+	delete(txt24(Opc24))
+
+% 	set(txt11(Opc11),'String', '')
+% 	set(txt12(Opc12),'String', '')
+% 	set(txt14(Opc14),'String', '')
+% 	set(txt21(Opc21),'String', '')
+% 	set(txt22(Opc22),'String', '')
+% 	set(txt24(Opc24),'String', '')
+
+	% Save figure
+	saveas(fig, [outdir,'/fig',name,'.fig']);
+	saveas(fig, [outdir,'/fig',name,'.png'], 'png');
+	saveas(fig, [outdir,'/fig',name,'.svg'], 'svg');
 end
