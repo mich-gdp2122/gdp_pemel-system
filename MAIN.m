@@ -33,42 +33,15 @@ mkdir(outdir);
 
 
 %% Run simulations
-% 1) STRAIGHT CHANNELS
-outputData(mode_test, 'straight', outdir);
-
-% Clear for next run
-clearvars('-except', 'mode_*', 'outdir')
-
-% 2) SERPENTINE CHANNELS
-outputData(mode_test, 'serpentine', outdir);
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
-% Make output directory for current channels data
-% Load existing output data if testing (skip running simulations)
-if mode_test ~= 0 && exist(['output_',TMSch,'.mat'], 'file')
-	load(['output_',TMSch,'.mat']);
-end
-
-% Run parameters script & save workspace (except 'c','mode_' & 'outdir' variables)
-run(['parameters_',TMSch]);
-save([outdir,'/output.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
-
+% Run simulations if not testing
 if mode_test == 0
-	% Run simulations
-	disp(['Simulating TMS1 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS1_noPH_noORC.slx']);			% 1) No preheat; no ORC
-	disp(['Simulating TMS2 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS2_PH_noORC.slx']);			% 2) Preheat; no ORC
-	disp(['Simulating TMS3 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS3_noPH_ORC.slx']);			% 3) No preheat; ORC
-	disp(['Simulating TMS4 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS4_PH_ORC.slx']);				% 4) Preheat; ORC
-	% Save output data for testing (if needed)
-	save(['output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
-	
-	disp('Simulations complete')
+	runSim('straight', outdir);					% 1) STRAIGHT CHANNELS
+	clearvars('-except', 'mode_*', 'outdir')	% Clear for next run
+	runSim('serpentine', outdir);				% 2) SERPENTINE CHANNELS
 end
+% Load simulation data
+strt = load('output_straight.mat');
+sptn = load('output_serpentine.mat');
 
 
 %% Power Consumption data [kW]
@@ -258,6 +231,27 @@ load([outdir,'/output.mat']);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function runSim(TMSch,outdir)	
+	% Run parameters script & save workspace (except 'c','mode_' & 'outdir' variables)
+	run(['parameters_',TMSch]);
+	save([outdir,'/output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
+	
+	% Run simulations
+	disp(['Simulating TMS1 (',TMSch,')...']);
+	sim(['TMS/',TMSch,'_TMS1_noPH_noORC.slx']);			% 1) No preheat; no ORC
+	disp(['Simulating TMS2 (',TMSch,')...']);
+	sim(['TMS/',TMSch,'_TMS2_PH_noORC.slx']);			% 2) Preheat; no ORC
+	disp(['Simulating TMS3 (',TMSch,')...']);
+	sim(['TMS/',TMSch,'_TMS3_noPH_ORC.slx']);			% 3) No preheat; ORC
+	disp(['Simulating TMS4 (',TMSch,')...']);
+	sim(['TMS/',TMSch,'_TMS4_PH_ORC.slx']);				% 4) Preheat; ORC
+	% Save output data for testing (if needed)
+	save(['output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
+	
+	disp('Simulations complete')
+end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 function plotData(outdir_ch,y1,y2,c,yLabel,bartype,yLim,yScale,name,l, b_h, b_ar)
 	% x-axis labels
 	x1 = categorical({'1','2','3','4'});

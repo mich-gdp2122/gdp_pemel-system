@@ -32,7 +32,7 @@ while true
 	x3 = (data_c4.s - data_c2f.s)/(data_c3v.s - data_c2f.s);
 	data_c3 = data_r600a_sat(Tmax, x3);
 
-	% ORC mass flow req'd, via energy balance [kg/s] (Source: SESM2017 ch9)
+	% ORC mass flow req'd, via energy balance [kg/s]
 	mdot = Qin/(data_c3.h - h2);
 
 	% Calc pinch-point temp, pinch-point T-difference
