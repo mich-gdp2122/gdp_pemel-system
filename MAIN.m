@@ -416,6 +416,7 @@ save([outdir,'/output.mat'], 'strt', 'sptn', 'y_*', 'y1_*', 'y2_*');
 % Reload workspace file to clear clutter
 clearvars -except outdir;
 load([outdir,'/output.mat']);
+disp('Complete.');
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -423,17 +424,49 @@ load([outdir,'/output.mat']);
 function runSim(TMSch,outdir)	
 	% Run parameters script & save workspace (except 'c','mode_' & 'outdir' variables)
 	run(['parameters_',TMSch]);
-	save([outdir,'/output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
+	save([outdir,'/input_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
 	
-	% Run simulations
+	% RUN SIMULATIONS
+	% 1) No preheat; no ORC
 	disp(['Simulating TMS1 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS1_noPH_noORC.slx']);			% 1) No preheat; no ORC
+	sys_TMS1 = [TMSch,'_TMS1_noPH_noORC'];				% Model name
+	load_system(['TMS/',sys_TMS1,'.slx']);				% Load model into memory
+	mws_TMS1 = get_param(sys_TMS1,'ModelWorkspace');	% Get workspace info
+	reload(mws_TMS1);									% Reload input params
+	sim(sys_TMS1);										% Run simulation
+	save_system(sys_TMS1);								% Save any changes
+	close_system(sys_TMS1);								% Close model
+
+	% 2) Preheat; no ORC
 	disp(['Simulating TMS2 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS2_PH_noORC.slx']);			% 2) Preheat; no ORC
+	sys_TMS2 = [TMSch,'_TMS2_PH_noORC'];				% Model name
+	load_system(['TMS/',sys_TMS2,'.slx']);				% Load model into memory
+	mws_TMS2 = get_param(sys_TMS2,'ModelWorkspace');	% Get workspace info
+	reload(mws_TMS2);									% Reload input params
+	sim(sys_TMS2);										% Run simulation
+	save_system(sys_TMS2);								% Save any changes
+	close_system(sys_TMS2);								% Close model
+
+	% 3) No preheat; ORC
 	disp(['Simulating TMS3 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS3_noPH_ORC.slx']);			% 3) No preheat; ORC
+	sys_TMS3 = [TMSch,'_TMS3_noPH_ORC'];				% Model name
+	load_system(['TMS/',sys_TMS3,'.slx']);				% Load model into memory
+	mws_TMS3 = get_param(sys_TMS3,'ModelWorkspace');	% Get workspace info
+	reload(mws_TMS3);									% Reload input params
+	sim(sys_TMS3);										% Run simulation
+	save_system(sys_TMS3);								% Save any changes
+	close_system(sys_TMS3);								% Close model
+
+	% 4) Preheat; ORC
 	disp(['Simulating TMS4 (',TMSch,')...']);
-	sim(['TMS/',TMSch,'_TMS4_PH_ORC.slx']);				% 4) Preheat; ORC
+	sys_TMS4 = [TMSch,'_TMS4_PH_ORC'];					% Model name
+	load_system(['TMS/',sys_TMS4,'.slx']);				% Load model into memory
+	mws_TMS4 = get_param(sys_TMS4,'ModelWorkspace');	% Get workspace info
+	reload(mws_TMS4);									% Reload input params
+	sim(sys_TMS4);										% Run simulation
+	save_system(sys_TMS4);								% Save any changes
+	close_system(sys_TMS4);								% Close model
+
 	% Save output data for testing (if needed)
 	save(['output_',TMSch,'.mat'], '-regexp', '^(?!(c|b_x|mode_[\w|\d]*|outdir[\w|\d]*)$).');
 end

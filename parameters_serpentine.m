@@ -22,7 +22,6 @@ clnt.dp_stk    = 14209;						    % Coolant stack pressure drop [Pa]
 %% Balance-of-Plant
 % Correction factors
 cf.L_ph   = 1.4;  % Correction factor for preheater length
-cf.L_phCL = 1.4;
 cf.L_rjORC = 1;
 
 
