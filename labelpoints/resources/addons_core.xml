@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addonCore><label>labelpoints</label><version>4.1.1</version><type>Toolbox</type><identifier>e5ab52cd-4a80-11e4-9553-005056977bd0</identifier><summary>Automatically label points in your plot given x and y values &amp; an array of labels.</summary><description>[Major update with additional features coming soon; don't forget to follow this file.]
+
+Given vectors of x-values, y-values, and a vector of label names, lablepoints.m will automatically place all labels appropriately in the plot and output their handles. This function streamlines matlab's builtin text() function and greatly increases its flexibility.  
+.
+xpos = [1,2,3,4];    ypos = [1,4,1,5];     labels = {'Lancaster', 'Cincinnati', 'Sofia', 'Rochester'}
+h = labelpoints (xpos, ypos, labels)
+.
+(optional) Choose where you want your label relative to the data point using initials of compass directions (N, S, E, W, NE, NW, SE, SW, Center).
+h = labelpoints (xpos, ypos, labels, 'N')
+.
+(optional) Add (or subtract) extra space between data points and labels by using a buffer between 0:1
+h = labelpoints (xpos, ypos, labels, 'N', 0.15)
+.
+(optional) Decide whether or not the axis limits should automatically adjust if a label falls out of the axis limits (0/1)
+h = labelpoints (xpos, ypos, labels, 'N', 0.15, 1)
+.
+(optional) Let labelpoints.m identify and label only the outliers in your data.  Several outlier methods are available (see help labelpoints)
+ - Identify and label outliers that are N standard deviations from the mean
+ - Identify and label outliers that are greater than N times the interquartile range
+ - Identify and label outliers that are inside or outside of a given bound
+ - Identify and label outliers that are high residuals from a linear fit of the data.
+.
+(optional) Easily place texts in a list stacked downward, upward, to the left or right.
+h = labelpoints (xpos, ypos, labels, 'N, 'stacked', 'down')
+.
+(optional) Rotate all labels 
+h = labelpoints (xpos, ypos, labels, 'rotation', 45)
+.
+(optional) Specify the font size and color of all labels
+h = labelpoints (xpos, ypos, labels, 'FontSize', 12, 'Color', 'r')
+.
+The help section includes many versatile examples demonstrating labeling with numbers, strings, and symbols.  This function is quite flexible as the examples show.  There are only three required inputs, 3 optional inputs, and several optional parameters to increase flexibility.  The outlier options may require stats toolbox.</description><createdBy name="Adam Danz"/><image>resources/screenshot.png</image></addonCore>
