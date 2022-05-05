@@ -9,7 +9,7 @@
 %   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
 %
 %% Set program modes
-mode_test = 0;	% Test mode (don't run simulations if != 0)
+mode_test = 1;	% Test mode (don't run simulations if != 0)
 
 %%
 clearvars('-except', 'mode_*')
@@ -48,302 +48,301 @@ c.cyan   = [0.3010 0.7450 0.9330];
 c.purple = [0.4940 0.1840 0.5560];
 
 
-%% Total BoP Pwr Consumption data [kW]
-% Organise data and round it
-y_totBoP  = round([strt.TMS1_pwr(2), strt.TMS2_pwr(2), strt.TMS3_pwr(2), strt.TMS4_pwr(2); ...
-				   sptn.TMS1_pwr(2), sptn.TMS2_pwr(2), sptn.TMS3_pwr(2), sptn.TMS4_pwr(2)], ...
-			3, 'significant');
-% Bar colours and respective legend labels
-c_totBoP = [c.orange; c.blue; c.yellow; c.green];
-l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
-% Plot data
-plotBarData(outdir, y_totBoP, c_totBoP, 'BoP power consumption [kW]', [],...
-	'grouped', [], [], '1_totBoP', l, b_h, b_ar);
-
-
-%% BoP Power Consumption data [% tot]
-% Organise data and round it
-y1_BoP = round(0.1*[strt.TMS1_BoP/strt.TMS1_pwr(2); sptn.TMS1_BoP/sptn.TMS1_pwr(2)], ...
-			3, 'significant');
-y2_BoP = round(0.1*[strt.TMS2_BoP/strt.TMS2_pwr(2); sptn.TMS2_BoP/sptn.TMS2_pwr(2)], ...
-			3, 'significant');
-y3_BoP = round(0.1*[strt.TMS3_BoP/strt.TMS3_pwr(2); sptn.TMS3_BoP/sptn.TMS3_pwr(2)], ...
-			3, 'significant');
-y4_BoP = round(0.1*[strt.TMS4_BoP/strt.TMS4_pwr(2); sptn.TMS4_BoP/sptn.TMS4_pwr(2)], ...
-			3, 'significant');
-% Set any NaN values to 0
-y1_BoP(isnan(y1_BoP)) = 0;
-y2_BoP(isnan(y2_BoP)) = 0;
-y3_BoP(isnan(y3_BoP)) = 0;
-y4_BoP(isnan(y4_BoP)) = 0;
-% Figure dimensions
-p_h = 900;
-p_ar = 0.85;
-p_ar2 = 1.6;
-% Bar colours and respective legend labels
-c_BoP = [c.blue; c.cyan; c.orange; c.green];
-l     = {'Water pump', 'Coolant pump', 'Heater', 'ORC pump'};
-% Title subtitles
-subtitles_totBoP = append('Total BoP pwr: ', cellfun(@num2str, num2cell(y_totBoP), 'UniformOutput', false),' kW');
-%subtitles1 = append('Total BoP pwr: ',{num2str(y_totBoP(1,1)); num2str(y_totBoP(1,2)); num2str(y_totBoP(1,3)); num2str(y_totBoP(1,4))},' kW');
-% Plot data
-plotPieData(outdir, y1_BoP(1,:), y2_BoP(1,:), y3_BoP(1,:), y4_BoP(1,:), c_BoP, 1,...
-			'Straight Channels', [], subtitles_totBoP(1,:), '2A_BoP_strt', l, p_h, p_ar);
-plotPieData(outdir, y1_BoP(2,:), y2_BoP(2,:), y3_BoP(2,:), y4_BoP(2,:), c_BoP, 1, ...
-			'Serpentine Channels', [], subtitles_totBoP(2,:), '2B_BoP_sptn', l, p_h, p_ar);
-
-plotPieData2(outdir, y1_BoP, y2_BoP, y3_BoP, y4_BoP, c_BoP, 1, subtitles_totBoP,...
-			 '2_BoP', l, p_h, p_ar2);
-
-
-%% Heat recovery data [kW]
-% Organise data and round it
-y1_Qdot(1:2,:) = round([strt.TMS1_Qdot(2:end); ...
-						strt.TMS2_Qdot(2:end) ...
-					   ], 4, 'significant');
-y1_Qdot(3,:)   = round([strt.TMS3_Qdot(2), ...
-						strt.TMS3_Qdot(3)-abs(strt.TMS3_Qdot(4)), ...
-						strt.TMS3_Qdot(4)...
-					   ], 4, 'significant');
-y1_Qdot(4,:)   = round([strt.TMS4_Qdot(2), ...
-						strt.TMS4_Qdot(3)-abs(strt.TMS4_Qdot(4)), ...
-						strt.TMS4_Qdot(4)...
-					   ], 4, 'significant');
-
-y2_Qdot(1:2,:) = round([sptn.TMS1_Qdot(2:end); ...
-						sptn.TMS2_Qdot(2:end) ...
-					   ], 4, 'significant');
-y2_Qdot(3,:)   = round([sptn.TMS3_Qdot(2), ...
-					    sptn.TMS3_Qdot(3)-abs(sptn.TMS3_Qdot(4)), ...
-						sptn.TMS3_Qdot(4)...
-					   ], 4, 'significant');
-y2_Qdot(4,:)   = round([sptn.TMS4_Qdot(2), ...
-						sptn.TMS4_Qdot(3)-abs(sptn.TMS4_Qdot(4)), ...
-						sptn.TMS4_Qdot(4)...
-					   ], 4, 'significant');
-
-% Figure dimensions
-bQ_h = 560;
-bQ_ar = 2;
-% Bar colours and respective legend labels
-c_Qdot = [c.cyan; c.yellow; c.blue];
-l       = {'Preheater', 'ORC net pwr', 'Rejected'};
-% Plot titles
-subtitle1_Qdot = ['PEMEL heat load: ', num2str(round(strt.TMS1_Qdot(1), 3, 'significant')), ' kW'];
-subtitle2_Qdot = ['PEMEL heat load: ', num2str(round(sptn.TMS1_Qdot(1), 3, 'significant')), ' kW'];
- % Plot data
-plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [kW]', ...
-	subtitle1_Qdot, subtitle2_Qdot,'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
-
-
-%% Heat recovery data [% stack in]
-% Organise data and round it
-y1_QdotPct(1:2,:) = round(100*[abs(strt.TMS1_Qdot(2:end))/strt.TMS1_Qdot(1); ...
-							   abs(strt.TMS2_Qdot(2:end))/strt.TMS2_Qdot(1)...
-							  ], 4, 'significant');
-y1_QdotPct(3,:)   = round(100*[strt.TMS3_Qdot(2), ...
-							   strt.TMS3_Qdot(3)-abs(strt.TMS3_Qdot(4)), ...
-							   abs(strt.TMS3_Qdot(4))...
-							  ]/strt.TMS3_Qdot(1), 4, 'significant');
-y1_QdotPct(4,:)   = round(100*[strt.TMS4_Qdot(2), ...
-							   strt.TMS4_Qdot(3)-abs(strt.TMS4_Qdot(4)), ...
-							   abs(strt.TMS4_Qdot(4))...
-							  ]/strt.TMS4_Qdot(1), 4, 'significant');
-
-y2_QdotPct(1:2,:) = round(100*[abs(sptn.TMS1_Qdot(2:end))/sptn.TMS1_Qdot(1); ...
-							   abs(sptn.TMS2_Qdot(2:end))/sptn.TMS2_Qdot(1)...
-							  ], 4, 'significant');
-y2_QdotPct(3,:)   = round(100*[sptn.TMS3_Qdot(2), ...
-							   sptn.TMS3_Qdot(3)-abs(sptn.TMS3_Qdot(4)), ...
-							   abs(sptn.TMS3_Qdot(4))...
-							  ]/sptn.TMS3_Qdot(1), 4, 'significant');
-y2_QdotPct(4,:)   = round(100*[sptn.TMS4_Qdot(2), ...
-							   sptn.TMS4_Qdot(3)-abs(sptn.TMS4_Qdot(4)), ...
-							   abs(sptn.TMS4_Qdot(4))...
-							  ]/sptn.TMS4_Qdot(1), 4, 'significant');
-% Set any NaN values to 0
-y1_QdotPct(isnan(y1_QdotPct)) = 0;
-y2_QdotPct(isnan(y2_QdotPct)) = 0;
-
-% Figure dimensions
-pQ_h = 720;
-pQ_ar = 0.9;
-pQ_ar2 = 1.8;
-% Bar colours and respective legend labels
-c_QdotPct = c_Qdot;
-l       = {'Preheater', 'ORC net pwr', 'Rejected'};
-% Plot data
-plotPieData(outdir, y1_QdotPct(1,:), y1_QdotPct(2,:), y1_QdotPct(3,:), y1_QdotPct(4,:), c_QdotPct, 2,...
-			'Straight Channels', subtitle1_Qdot, [], '4A_QdotPct_strt', l, pQ_h, pQ_ar);
-plotPieData(outdir, y2_QdotPct(1,:), y2_QdotPct(2,:), y2_QdotPct(3,:), y2_QdotPct(4,:), c_QdotPct, 2,...
-			'Serpentine Channels', subtitle2_Qdot, [], '4B_QdotPct_sptn', l, pQ_h, pQ_ar);
-
-plotPieData2(outdir, [y1_QdotPct(1,:); y2_QdotPct(1,:)], [y1_QdotPct(2,:); y2_QdotPct(2,:)], ...
-			 [y1_QdotPct(3,:); y2_QdotPct(3,:)], [y1_QdotPct(4,:); y2_QdotPct(4,:)], c_QdotPct, 2, [], ...
-			 '4_QdotPct', l, pQ_h, pQ_ar2);
-
-
-%% Efficiency data [%]
-% Organise data and round it
-y_eff  = round([strt.TMS1_eff(2), strt.TMS2_eff(2), strt.TMS3_eff(2), strt.TMS4_eff(2); ...
-				   sptn.TMS1_eff(2), sptn.TMS2_eff(2), sptn.TMS3_eff(2), sptn.TMS4_eff(2)], ...
-			4, 'significant');
-% Bar colours and respective legend labels
-c_eff = c_totBoP;
-l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
-b_ar2 = 2.3;
-% Title
-title_eff = ['PEMEL efficiency: ', num2str(round(strt.TMS1_eff(1), 3, 'significant')), '%'];
-% Plot data
-plotBarData(outdir, y_eff, c_eff, 'Overall efficiency [%]', title_eff, ...
-	'grouped', [], [], '5_eff', l, b_h, b_ar2);
-
-
-%% Total Pwr consumption data [kW]
-% Organise data and round it
-y_totPwr  = round([strt.TMS1_pwr(3), strt.TMS2_pwr(3), strt.TMS3_pwr(3), strt.TMS4_pwr(3); ...
-				   sptn.TMS1_pwr(3), sptn.TMS2_pwr(3), sptn.TMS3_pwr(3), sptn.TMS4_pwr(3)], ...
-			3, 'significant');
-% Bar colours and respective legend labels
-c_totPwr = c_totBoP;
-l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
-% Title
-title_pwr = ['PEMEL power consumption: ', num2str(round(strt.TMS1_pwr(1), 3, 'significant')), ' kW'];
-% Plot data
-plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', title_pwr,...
-	'grouped', [], [], '6_totPwr', l, b_h, b_ar2);
-
-
-%% ORC T-s plot
-
-orc_h = 750;
-orc_ar = 4/3;
-
-% Generate saturation lines
-Tsat = [257:2:407, 407.01:0.1:407.81];
-for i = 1:length(Tsat)
-	s_satL(i) = Ts_sat_r600a(Tsat(i), 'T_L');
-	s_satV(i) = Ts_sat_r600a(Tsat(i), 'T_v');
-end
-% Combine into single array
-Tsat  = [Tsat, flip(Tsat)];
-s_sat = [s_satL, flip(s_satV)];
-
-
-% Create plots
-fig_ORC = figure('Position',[300,100, orc_h*orc_ar, orc_h]);
-t_ORC   = tiledlayout(fig_ORC,2,2, 'TileSpacing','compact', 'Padding','tight');
-t_ORC.YLabel.String = 'Temperature, T [K]';
-t_ORC.XLabel.String = 'Specific entropy, s [J kg^{-1} K^{-1}]';
-
-% Config 3 (straight)
-t11_ORC = nexttile;
-title(t11_ORC, 'Config 3, Straight Channels')
-hold on
-grid on
-plot(t11_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
-pl_Ts = plot(t11_ORC,strt.ORC.plotTs.s,strt.ORC.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t11_ORC,strt.ORC.plotTs.sh_n,strt.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
-yline(t11_ORC,strt.ORC.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
-ylim(t11_ORC,[270, 360])
-xlim(t11_ORC,[800, 2600])
-lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
-lbl_Ts_y = strt.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
-lbl_ts_x = strt.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
-lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
-lbl_Th_y = strt.ORC.plotTs.Th_n +  2 + zeros(1,3);
-lbl_Th_x = strt.ORC.plotTs.sh_n + 40 + zeros(1,3);
-lbl_Tc   = 'T_{sea}';
-lbl_Tc_y = strt.ORC.plotTs.Tc_n;
-lbl_Tc_x = 930;
-labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
-labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
-labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
-
-% Config 4 (straight)
-t12_ORC = nexttile;
-title(t12_ORC, 'Config 4, Straight Channels')
-hold on
-grid on
-plot(t12_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
-pl_Ts = plot(t12_ORC,strt.ORCph.plotTs.s,strt.ORCph.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t12_ORC,strt.ORCph.plotTs.sh_n,strt.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
-yline(t12_ORC,strt.ORCph.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
-ylim(t12_ORC,[270, 360])
-xlim(t12_ORC,[800, 2600])
-lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
-lbl_Ts_y = strt.ORCph.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
-lbl_ts_x = strt.ORCph.plotTs.s + [50, -15,   -40,  20, 60,   0];
-lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
-lbl_Th_y = strt.ORCph.plotTs.Th_n +  2 + zeros(1,3);
-lbl_Th_x = strt.ORCph.plotTs.sh_n + 40 + zeros(1,3);
-lbl_Tc   = 'T_{sea}';
-lbl_Tc_y = strt.ORCph.plotTs.Tc_n;
-lbl_Tc_x = 930;
-labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
-labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
-labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
-
-% Config 3 (serpentine)
-t21_ORC = nexttile;
-title(t21_ORC, 'Config 3, Serpentine Channels')
-hold on
-grid on
-plot(t21_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
-pl_Ts = plot(t21_ORC,sptn.ORC.plotTs.s,sptn.ORC.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t21_ORC,sptn.ORC.plotTs.sh_n,sptn.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
-yline(t21_ORC,sptn.ORC.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
-ylim(t21_ORC,[270, 360])
-xlim(t21_ORC,[800, 2600])
-lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
-lbl_Ts_y = sptn.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
-lbl_ts_x = sptn.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
-lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
-lbl_Th_y = sptn.ORC.plotTs.Th_n +  2 + zeros(1,3);
-lbl_Th_x = sptn.ORC.plotTs.sh_n + 40 + zeros(1,3);
-lbl_Tc   = 'T_{sea}';
-lbl_Tc_y = sptn.ORC.plotTs.Tc_n;
-lbl_Tc_x = 930;
-labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
-labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
-labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
-
-% Config 4 (serpentine)
-t22_ORC = nexttile;
-title(t22_ORC,'Config 4, Serpentine Channels')
-hold on
-grid on
-plot(t22_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
-pl_Ts = plot(t22_ORC,sptn.ORCph.plotTs.s,sptn.ORCph.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t22_ORC,sptn.ORCph.plotTs.sh_n,sptn.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
-yline(t22_ORC,sptn.ORCph.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
-ylim(t22_ORC,[270, 360])
-xlim(t22_ORC,[800, 2600])
-lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
-lbl_Ts_y = sptn.ORCph.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
-lbl_ts_x = sptn.ORCph.plotTs.s + [50, -15,   -40,  20, 60,   0];
-lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
-lbl_Th_y = sptn.ORCph.plotTs.Th_n +  2 + zeros(1,3);
-lbl_Th_x = sptn.ORCph.plotTs.sh_n + 40 + zeros(1,3);
-lbl_Tc   = 'T_{sea}';
-lbl_Tc_y = sptn.ORCph.plotTs.Tc_n;
-lbl_Tc_x = 930;
-labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
-labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
-labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
-
-% Save figure
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.fig']);
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.png'], 'png');
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.svg'], 'svg');
+% %% Total BoP Pwr Consumption data [kW]
+% % Organise data and round it
+% y_totBoP  = round([strt.TMS1_pwr(2), strt.TMS2_pwr(2), strt.TMS3_pwr(2), strt.TMS4_pwr(2); ...
+% 				   sptn.TMS1_pwr(2), sptn.TMS2_pwr(2), sptn.TMS3_pwr(2), sptn.TMS4_pwr(2)], ...
+% 			3, 'significant');
+% % Bar colours and respective legend labels
+% c_totBoP = [c.orange; c.blue; c.yellow; c.green];
+% l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
+% % Plot data
+% plotBarData(outdir, y_totBoP, c_totBoP, 'BoP power consumption [kW]', [],...
+% 	'grouped', [], [], '1_totBoP', l, b_h, b_ar);
+% 
+% 
+% %% BoP Power Consumption data [% tot]
+% % Organise data and round it
+% y1_BoP = round(0.1*[strt.TMS1_BoP/strt.TMS1_pwr(2); sptn.TMS1_BoP/sptn.TMS1_pwr(2)], ...
+% 			3, 'significant');
+% y2_BoP = round(0.1*[strt.TMS2_BoP/strt.TMS2_pwr(2); sptn.TMS2_BoP/sptn.TMS2_pwr(2)], ...
+% 			3, 'significant');
+% y3_BoP = round(0.1*[strt.TMS3_BoP/strt.TMS3_pwr(2); sptn.TMS3_BoP/sptn.TMS3_pwr(2)], ...
+% 			3, 'significant');
+% y4_BoP = round(0.1*[strt.TMS4_BoP/strt.TMS4_pwr(2); sptn.TMS4_BoP/sptn.TMS4_pwr(2)], ...
+% 			3, 'significant');
+% % Set any NaN values to 0
+% y1_BoP(isnan(y1_BoP)) = 0;
+% y2_BoP(isnan(y2_BoP)) = 0;
+% y3_BoP(isnan(y3_BoP)) = 0;
+% y4_BoP(isnan(y4_BoP)) = 0;
+% % Figure dimensions
+% p_h = 900;
+% p_ar = 0.85;
+% p_ar2 = 1.6;
+% % Bar colours and respective legend labels
+% c_BoP = [c.blue; c.cyan; c.orange; c.green];
+% l     = {'Water pump', 'Coolant pump', 'Heater', 'ORC pump'};
+% % Title subtitles
+% subtitles_totBoP = append('Total BoP pwr: ', cellfun(@num2str, num2cell(y_totBoP), 'UniformOutput', false),' kW');
+% %subtitles1 = append('Total BoP pwr: ',{num2str(y_totBoP(1,1)); num2str(y_totBoP(1,2)); num2str(y_totBoP(1,3)); num2str(y_totBoP(1,4))},' kW');
+% % Plot data
+% plotPieData(outdir, y1_BoP(1,:), y2_BoP(1,:), y3_BoP(1,:), y4_BoP(1,:), c_BoP, 1,...
+% 			'Straight Channels', [], subtitles_totBoP(1,:), '2A_BoP_strt', l, p_h, p_ar);
+% plotPieData(outdir, y1_BoP(2,:), y2_BoP(2,:), y3_BoP(2,:), y4_BoP(2,:), c_BoP, 1, ...
+% 			'Serpentine Channels', [], subtitles_totBoP(2,:), '2B_BoP_sptn', l, p_h, p_ar);
+% 
+% plotPieData2(outdir, y1_BoP, y2_BoP, y3_BoP, y4_BoP, c_BoP, 1, subtitles_totBoP,...
+% 			 '2_BoP', l, p_h, p_ar2);
+% 
+% 
+% %% Heat recovery data [kW]
+% % Organise data and round it
+% y1_Qdot(1:2,:) = round([strt.TMS1_Qdot(2:end); ...
+% 						strt.TMS2_Qdot(2:end) ...
+% 					   ], 4, 'significant');
+% y1_Qdot(3,:)   = round([strt.TMS3_Qdot(2), ...
+% 						strt.TMS3_Qdot(3)-abs(strt.TMS3_Qdot(4)), ...
+% 						strt.TMS3_Qdot(4)...
+% 					   ], 4, 'significant');
+% y1_Qdot(4,:)   = round([strt.TMS4_Qdot(2), ...
+% 						strt.TMS4_Qdot(3)-abs(strt.TMS4_Qdot(4)), ...
+% 						strt.TMS4_Qdot(4)...
+% 					   ], 4, 'significant');
+% 
+% y2_Qdot(1:2,:) = round([sptn.TMS1_Qdot(2:end); ...
+% 						sptn.TMS2_Qdot(2:end) ...
+% 					   ], 4, 'significant');
+% y2_Qdot(3,:)   = round([sptn.TMS3_Qdot(2), ...
+% 					    sptn.TMS3_Qdot(3)-abs(sptn.TMS3_Qdot(4)), ...
+% 						sptn.TMS3_Qdot(4)...
+% 					   ], 4, 'significant');
+% y2_Qdot(4,:)   = round([sptn.TMS4_Qdot(2), ...
+% 						sptn.TMS4_Qdot(3)-abs(sptn.TMS4_Qdot(4)), ...
+% 						sptn.TMS4_Qdot(4)...
+% 					   ], 4, 'significant');
+% 
+% % Figure dimensions
+% bQ_h = 560;
+% bQ_ar = 2;
+% % Bar colours and respective legend labels
+% c_Qdot = [c.cyan; c.yellow; c.blue];
+% l       = {'Preheater', 'ORC net pwr', 'Rejected'};
+% % Plot titles
+% subtitle1_Qdot = ['PEMEL heat load: ', num2str(round(strt.TMS1_Qdot(1), 3, 'significant')), ' kW'];
+% subtitle2_Qdot = ['PEMEL heat load: ', num2str(round(sptn.TMS1_Qdot(1), 3, 'significant')), ' kW'];
+%  % Plot data
+% plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [kW]', ...
+% 	subtitle1_Qdot, subtitle2_Qdot,'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
+% 
+% 
+% %% Heat recovery data [% stack in]
+% % Organise data and round it
+% y1_QdotPct(1:2,:) = round(100*[abs(strt.TMS1_Qdot(2:end))/strt.TMS1_Qdot(1); ...
+% 							   abs(strt.TMS2_Qdot(2:end))/strt.TMS2_Qdot(1)...
+% 							  ], 4, 'significant');
+% y1_QdotPct(3,:)   = round(100*[strt.TMS3_Qdot(2), ...
+% 							   strt.TMS3_Qdot(3)-abs(strt.TMS3_Qdot(4)), ...
+% 							   abs(strt.TMS3_Qdot(4))...
+% 							  ]/strt.TMS3_Qdot(1), 4, 'significant');
+% y1_QdotPct(4,:)   = round(100*[strt.TMS4_Qdot(2), ...
+% 							   strt.TMS4_Qdot(3)-abs(strt.TMS4_Qdot(4)), ...
+% 							   abs(strt.TMS4_Qdot(4))...
+% 							  ]/strt.TMS4_Qdot(1), 4, 'significant');
+% 
+% y2_QdotPct(1:2,:) = round(100*[abs(sptn.TMS1_Qdot(2:end))/sptn.TMS1_Qdot(1); ...
+% 							   abs(sptn.TMS2_Qdot(2:end))/sptn.TMS2_Qdot(1)...
+% 							  ], 4, 'significant');
+% y2_QdotPct(3,:)   = round(100*[sptn.TMS3_Qdot(2), ...
+% 							   sptn.TMS3_Qdot(3)-abs(sptn.TMS3_Qdot(4)), ...
+% 							   abs(sptn.TMS3_Qdot(4))...
+% 							  ]/sptn.TMS3_Qdot(1), 4, 'significant');
+% y2_QdotPct(4,:)   = round(100*[sptn.TMS4_Qdot(2), ...
+% 							   sptn.TMS4_Qdot(3)-abs(sptn.TMS4_Qdot(4)), ...
+% 							   abs(sptn.TMS4_Qdot(4))...
+% 							  ]/sptn.TMS4_Qdot(1), 4, 'significant');
+% % Set any NaN values to 0
+% y1_QdotPct(isnan(y1_QdotPct)) = 0;
+% y2_QdotPct(isnan(y2_QdotPct)) = 0;
+% 
+% % Figure dimensions
+% pQ_h = 720;
+% pQ_ar = 0.9;
+% pQ_ar2 = 1.8;
+% % Bar colours and respective legend labels
+% c_QdotPct = c_Qdot;
+% l       = {'Preheater', 'ORC net pwr', 'Rejected'};
+% % Plot data
+% plotPieData(outdir, y1_QdotPct(1,:), y1_QdotPct(2,:), y1_QdotPct(3,:), y1_QdotPct(4,:), c_QdotPct, 2,...
+% 			'Straight Channels', subtitle1_Qdot, [], '4A_QdotPct_strt', l, pQ_h, pQ_ar);
+% plotPieData(outdir, y2_QdotPct(1,:), y2_QdotPct(2,:), y2_QdotPct(3,:), y2_QdotPct(4,:), c_QdotPct, 2,...
+% 			'Serpentine Channels', subtitle2_Qdot, [], '4B_QdotPct_sptn', l, pQ_h, pQ_ar);
+% 
+% plotPieData2(outdir, [y1_QdotPct(1,:); y2_QdotPct(1,:)], [y1_QdotPct(2,:); y2_QdotPct(2,:)], ...
+% 			 [y1_QdotPct(3,:); y2_QdotPct(3,:)], [y1_QdotPct(4,:); y2_QdotPct(4,:)], c_QdotPct, 2, [], ...
+% 			 '4_QdotPct', l, pQ_h, pQ_ar2);
+% 
+% 
+% %% Efficiency data [%]
+% % Organise data and round it
+% y_eff  = round([strt.TMS1_eff(2), strt.TMS2_eff(2), strt.TMS3_eff(2), strt.TMS4_eff(2); ...
+% 				   sptn.TMS1_eff(2), sptn.TMS2_eff(2), sptn.TMS3_eff(2), sptn.TMS4_eff(2)], ...
+% 			4, 'significant');
+% % Bar colours and respective legend labels
+% c_eff = c_totBoP;
+% l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
+% b_ar2 = 2.3;
+% % Title
+% title_eff = ['PEMEL efficiency: ', num2str(round(strt.TMS1_eff(1), 3, 'significant')), '%'];
+% % Plot data
+% plotBarData(outdir, y_eff, c_eff, 'Overall efficiency [%]', title_eff, ...
+% 	'grouped', [], [], '5_eff', l, b_h, b_ar2);
+% 
+% 
+% %% Total Pwr consumption data [kW]
+% % Organise data and round it
+% y_totPwr  = round([strt.TMS1_pwr(3), strt.TMS2_pwr(3), strt.TMS3_pwr(3), strt.TMS4_pwr(3); ...
+% 				   sptn.TMS1_pwr(3), sptn.TMS2_pwr(3), sptn.TMS3_pwr(3), sptn.TMS4_pwr(3)], ...
+% 			3, 'significant');
+% % Bar colours and respective legend labels
+% c_totPwr = c_totBoP;
+% l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
+% % Title
+% title_pwr = ['PEMEL power consumption: ', num2str(round(strt.TMS1_pwr(1), 3, 'significant')), ' kW'];
+% % Plot data
+% plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', title_pwr,...
+% 	'grouped', [], [], '6_totPwr', l, b_h, b_ar2);
+% 
+% 
+% %% ORC T-s plot
+% orc_h = 750;	% Figure height [px]
+% orc_ar = 4/3;	% Figure aspect ratio
+% 
+% % Generate saturation lines
+% Tsat = [257:2:407, 407.01:0.1:407.81];
+% for i = 1:length(Tsat)
+% 	s_satL(i) = Ts_sat_r600a(Tsat(i), 'T_L');
+% 	s_satV(i) = Ts_sat_r600a(Tsat(i), 'T_v');
+% end
+% % Combine into single array
+% Tsat  = [Tsat, flip(Tsat)];
+% s_sat = [s_satL, flip(s_satV)];
+% 
+% % Create plots
+% fig_ORC = figure('Position',[300,100, orc_h*orc_ar, orc_h]);
+% t_ORC   = tiledlayout(fig_ORC,2,2, 'TileSpacing','compact', 'Padding','tight');
+% t_ORC.YLabel.String = 'Temperature, T [K]';
+% t_ORC.XLabel.String = 'Specific entropy, s [J kg^{-1} K^{-1}]';
+% 
+% % Config 3 (straight)
+% t11_ORC = nexttile;
+% title(t11_ORC, 'Config 3, Straight Channels')
+% hold on
+% grid on
+% plot(t11_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+% pl_Ts = plot(t11_ORC,strt.ORC.plotTs.s,strt.ORC.plotTs.T, 'o-', ...
+% 	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
+% pl_Th = plot(t11_ORC,strt.ORC.plotTs.sh_n,strt.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
+% yline(t11_ORC,strt.ORC.plotTs.Tc_n,'--', ...
+% 	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+% ylim(t11_ORC,[270, 360])
+% xlim(t11_ORC,[800, 2600])
+% lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+% lbl_Ts_y = strt.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+% lbl_ts_x = strt.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
+% lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+% lbl_Th_y = strt.ORC.plotTs.Th_n +  2 + zeros(1,3);
+% lbl_Th_x = strt.ORC.plotTs.sh_n + 40 + zeros(1,3);
+% lbl_Tc   = 'T_{sea}';
+% lbl_Tc_y = strt.ORC.plotTs.Tc_n;
+% lbl_Tc_x = 930;
+% labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+% labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+% labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+% 
+% % Config 4 (straight)
+% t12_ORC = nexttile;
+% title(t12_ORC, 'Config 4, Straight Channels')
+% hold on
+% grid on
+% plot(t12_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+% pl_Ts = plot(t12_ORC,strt.ORCph.plotTs.s,strt.ORCph.plotTs.T, 'o-', ...
+% 	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
+% pl_Th = plot(t12_ORC,strt.ORCph.plotTs.sh_n,strt.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
+% yline(t12_ORC,strt.ORCph.plotTs.Tc_n,'--', ...
+% 	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+% ylim(t12_ORC,[270, 360])
+% xlim(t12_ORC,[800, 2600])
+% lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+% lbl_Ts_y = strt.ORCph.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+% lbl_ts_x = strt.ORCph.plotTs.s + [50, -15,   -40,  20, 60,   0];
+% lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+% lbl_Th_y = strt.ORCph.plotTs.Th_n +  2 + zeros(1,3);
+% lbl_Th_x = strt.ORCph.plotTs.sh_n + 40 + zeros(1,3);
+% lbl_Tc   = 'T_{sea}';
+% lbl_Tc_y = strt.ORCph.plotTs.Tc_n;
+% lbl_Tc_x = 930;
+% labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+% labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+% labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+% 
+% % Config 3 (serpentine)
+% t21_ORC = nexttile;
+% title(t21_ORC, 'Config 3, Serpentine Channels')
+% hold on
+% grid on
+% plot(t21_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+% pl_Ts = plot(t21_ORC,sptn.ORC.plotTs.s,sptn.ORC.plotTs.T, 'o-', ...
+% 	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
+% pl_Th = plot(t21_ORC,sptn.ORC.plotTs.sh_n,sptn.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
+% yline(t21_ORC,sptn.ORC.plotTs.Tc_n,'--', ...
+% 	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+% ylim(t21_ORC,[270, 360])
+% xlim(t21_ORC,[800, 2600])
+% lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+% lbl_Ts_y = sptn.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+% lbl_ts_x = sptn.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
+% lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+% lbl_Th_y = sptn.ORC.plotTs.Th_n +  2 + zeros(1,3);
+% lbl_Th_x = sptn.ORC.plotTs.sh_n + 40 + zeros(1,3);
+% lbl_Tc   = 'T_{sea}';
+% lbl_Tc_y = sptn.ORC.plotTs.Tc_n;
+% lbl_Tc_x = 930;
+% labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+% labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+% labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+% 
+% % Config 4 (serpentine)
+% t22_ORC = nexttile;
+% title(t22_ORC,'Config 4, Serpentine Channels')
+% hold on
+% grid on
+% plot(t22_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+% pl_Ts = plot(t22_ORC,sptn.ORCph.plotTs.s,sptn.ORCph.plotTs.T, 'o-', ...
+% 	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
+% pl_Th = plot(t22_ORC,sptn.ORCph.plotTs.sh_n,sptn.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
+% yline(t22_ORC,sptn.ORCph.plotTs.Tc_n,'--', ...
+% 	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+% ylim(t22_ORC,[270, 360])
+% xlim(t22_ORC,[800, 2600])
+% lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+% lbl_Ts_y = sptn.ORCph.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+% lbl_ts_x = sptn.ORCph.plotTs.s + [50, -15,   -40,  20, 60,   0];
+% lbl_Th   = {'T_{h,in}', 'T_{pp}', 'T_{h,out}'};
+% lbl_Th_y = sptn.ORCph.plotTs.Th_n +  2 + zeros(1,3);
+% lbl_Th_x = sptn.ORCph.plotTs.sh_n + 40 + zeros(1,3);
+% lbl_Tc   = 'T_{sea}';
+% lbl_Tc_y = sptn.ORCph.plotTs.Tc_n;
+% lbl_Tc_x = 930;
+% labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+% labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+% labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+% 
+% % Save figure
+% saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.fig']);
+% saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.png'], 'png');
+% saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.svg'], 'svg');
+% 
 
 %% HX sizing data
 % Heat exchanger data
@@ -399,8 +398,9 @@ HX.U_sptn(2:8,1) = num2cell(round(...
 	 	sptn.HX_condPh.U],    ...
 	 	4,'significant'));	% Overall heat transf coeff. (serpentine) [W/(m^2*K)]
 % Create cell fields
-Tb_HX = table(HX.cpmnt, HX.config, HX.As_strt, HX.As_sptn, HX.U_strt, HX.U_sptn); ...
-Tb_HX.Properties.VariableNames = {'Component','Configuration', 'Surface area [m2]', '.', 'U [W m2 K-1)]', '..'};
+Tb_HX = table(HX.cpmnt, HX.config, HX.As_strt, HX.As_sptn, HX.U_strt, HX.U_sptn);
+Tb_HX.Properties.VariableNames = {'Component','Configuration', ...
+				'Surface area [m2]', 'Surface area [m22', 'U [W m2 K-1)]', 'U [W m2 K-1)2'};
 %Tb_HX.Properties.VariableUnits = {'', '', 'm^2', 'W/(m^2*K)'};
 % Write data to file
 writetable(Tb_HX, [outdir,'/HXdata.txt'], ...
@@ -408,6 +408,141 @@ writetable(Tb_HX, [outdir,'/HXdata.txt'], ...
 writetable(Tb_HX, [outdir,'/HXdata.xlsx'], ...
 	'WriteVariableNames', true);
 type([outdir,'/HXdata.txt'])
+
+
+%% ORC specs data
+tbORC.units = {''; ...
+			   'cm'; ...
+			   'cm2'; ...
+			   'kg s-1'; ...
+			   'kPa'; ...
+			   'kPa'; ...
+			   'K'; ...
+			   'K'; ...
+			   '%'; ...
+			   'kW'; ...
+			   'kW'; ...
+			   '%';  ...
+			   ''; ...
+			   'K'; ...
+			   'kJ kg-1'; ...
+			   'kJ kg-1'; ...
+			   'kJ kg-1'; ...
+			   'kJ kg-1'; ...
+			   'kJ kg-1'};
+
+tbORC.params = {''; ...
+			   	'Pipe diameter, D_ORC'; ...
+			   	'Pipe cross-sectional area, A_c,ORC'; ...
+			   	'Mass flow rate, m_ORC'; ...
+			   	'Min pressure, p_min'; ...
+			   	'Max pressure, p_max'; ...
+			   	'Min temperature, T_min'; ...
+			   	'Max temperature, T_max'; ...
+			   	'Vapour quality @ turbine inlet, x_3'; ...
+			   	'Gross power out, P_grs,ORC'; ...
+			   	'Net power out, P_net,ORC'; ...
+			   	'Thermal efficiency, \eta_ORC'; ...
+			   	''; ...
+			   	'T_x'; ...
+			   	'h_1'; ...
+			   	'h_2'; ...
+			   	'h_2f'; ...
+			   	'h_3'; ...
+			   	'h_4'};
+
+tbORC.strt3 = {'Config 3'; ...
+			   round(strt.ORC.D*100, 3,'significant'); ...				% D [cm]
+			   round(strt.ORC.Ac*100^2, 3,'significant'); ...			% Ac [cm^2]
+			   round(strt.ORC.mdot, 3,'significant'); ...				% Mass flow [kg/s]
+			   round(strt.ORC.pmin*1000, 3,'significant'); ...			% pmin [kPa]
+			   round(strt.ORC.pmax*1000, 3, 'significant');				% pmax [kPa]
+			   round(strt.ORC.Tmin, 4,'significant'); ...				% Tmin [K]
+			   round(strt.ORC.Tmax, 4, 'significant'); ...				% Tmax [K]
+			   round(strt.ORC.x3*100, 3, 'significant'); ...			% x3 [%]
+			   round(strt.ORC.pwr_tbne/1000, 3, 'significant'); ...		% P_grs [kW]
+			   round(strt.ORC.pwr_net/1000, 3, 'significant'); ...		% P_net [kW]
+			   round(strt.ORC.eff, 3, 'significant'); ...				% eff [%]
+			   ''; ...
+			   round(strt.ORC.Tpp, 4, 'significant'); ...				% Tpp [K]
+			   round(strt.ORC.h1/1000, 3, 'significant'); ...			% h1 [kJ/kg]
+			   round(strt.ORC.h2/1000, 3, 'significant'); ...			% h2 [kJ/kg]
+			   round(strt.ORC.h2f/1000, 3, 'significant'); ...			% h2f [kJ/kg]
+			   round(strt.ORC.h3/1000, 3, 'significant'); ...			% h3 [kJ/kg]
+			   round(strt.ORC.h4/1000, 3, 'significant')};				% h4 [kJ/kg]
+
+tbORC.strt4 = {'Config 4'; ...
+			   round(strt.ORCph.D*100, 3,'significant'); ...			% D [cm]
+			   round(strt.ORCph.Ac*100^2, 3,'significant'); ...			% Ac [cm^2]
+			   round(strt.ORCph.mdot, 3,'significant'); ...				% Mass flow [kg/s]
+			   round(strt.ORCph.pmin*1000, 3,'significant'); ...		% pmin [kPa]
+			   round(strt.ORCph.pmax*1000, 3, 'significant');			% pmax [kPa]
+			   round(strt.ORCph.Tmin, 4,'significant'); ...				% Tmin [K]
+			   round(strt.ORCph.Tmax, 4, 'significant'); ...			% Tmax [K]
+			   round(strt.ORCph.x3*100, 3, 'significant'); ...			% x3 [%]
+			   round(strt.ORCph.pwr_tbne/1000, 3, 'significant'); ...	% P_grs [kW]
+			   round(strt.ORCph.pwr_net/1000, 3, 'significant'); ...	% P_net [kW]
+			   round(strt.ORCph.eff, 3, 'significant'); ...				% eff [%]
+			   ''; ...
+			   round(strt.ORCph.Tpp, 4, 'significant'); ...				% Tpp [K]
+			   round(strt.ORCph.h1/1000, 3, 'significant'); ...			% h1 [kJ/kg]
+			   round(strt.ORCph.h2/1000, 3, 'significant'); ...			% h2 [kJ/kg]
+			   round(strt.ORCph.h2f/1000, 3, 'significant'); ...		% h2f [kJ/kg]
+			   round(strt.ORCph.h3/1000, 3, 'significant'); ...			% h3 [kJ/kg]
+			   round(strt.ORCph.h4/1000, 3, 'significant')};			% h4 [kJ/kg]
+
+tbORC.sptn3 = {'Config 3'; ...
+			   round(sptn.ORC.D*100, 3,'significant'); ...				% D [cm]
+			   round(sptn.ORC.Ac*100^2, 3,'significant'); ...	% Ac [cm^2]
+			   round(sptn.ORC.mdot, 3,'significant'); ...				% Mass flow [kg/s]
+			   round(sptn.ORC.pmin*1000, 3,'significant'); ...			% pmin [kPa]
+			   round(sptn.ORC.pmax*1000, 3, 'significant');				% pmax [kPa]
+			   round(sptn.ORC.Tmin, 4,'significant'); ...				% Tmin [K]
+			   round(sptn.ORC.Tmax, 4, 'significant'); ...				% Tmax [K]
+			   round(sptn.ORC.x3*100, 3, 'significant'); ...			% x3 [%]
+			   round(sptn.ORC.pwr_tbne/1000, 3, 'significant'); ...		% P_grs [kW]
+			   round(sptn.ORC.pwr_net/1000, 3, 'significant'); ...		% P_net [kW]
+			   round(sptn.ORC.eff, 3, 'significant'); ...				% eff [%]
+			   ''; ...
+			   round(sptn.ORC.Tpp, 4, 'significant'); ...				% Tpp [K]
+			   round(sptn.ORC.h1/1000, 3, 'significant'); ...			% h1 [kJ/kg]
+			   round(sptn.ORC.h2/1000, 3, 'significant'); ...			% h2 [kJ/kg]
+			   round(sptn.ORC.h2f/1000, 3, 'significant'); ...			% h2f [kJ/kg]
+			   round(sptn.ORC.h3/1000, 3, 'significant'); ...			% h3 [kJ/kg]
+			   round(sptn.ORC.h4/1000, 3, 'significant')};				% h4 [kJ/kg]
+
+tbORC.sptn4 = {'Config 4'; ...
+			   round(sptn.ORCph.D*100, 3,'significant'); ...			% D [cm]
+			   round(sptn.ORCph.Ac*100^2, 3,'significant'); ...			% Ac [cm^2]
+			   round(sptn.ORCph.mdot, 3,'significant'); ...				% Mass flow [kg/s]
+			   round(sptn.ORCph.pmin*1000, 3,'significant'); ...		% pmin [kPa]
+			   round(sptn.ORCph.pmax*1000, 3, 'significant');			% pmax [kPa]
+			   round(sptn.ORCph.Tmin, 4,'significant'); ...				% Tmin [K]
+			   round(sptn.ORCph.Tmax, 4, 'significant'); ...			% Tmax [K]
+			   round(sptn.ORCph.x3*100, 3, 'significant'); ...			% x3 [%]
+			   round(sptn.ORCph.pwr_tbne/1000, 3, 'significant'); ...	% P_grs [kW]
+			   round(sptn.ORCph.pwr_net/1000, 3, 'significant'); ...	% P_net [kW]
+			   round(sptn.ORCph.eff, 3, 'significant'); ...				% eff [%]
+			   ''; ...
+			   round(sptn.ORCph.Tpp, 4, 'significant'); ...				% Tpp [K]
+			   round(sptn.ORCph.h1/1000, 3, 'significant'); ...			% h1 [kJ/kg]
+			   round(sptn.ORCph.h2/1000, 3, 'significant'); ...			% h2 [kJ/kg]
+			   round(sptn.ORCph.h2f/1000, 3, 'significant'); ...		% h2f [kJ/kg]
+			   round(sptn.ORCph.h3/1000, 3, 'significant'); ...			% h3 [kJ/kg]
+			   round(sptn.ORCph.h4/1000, 3, 'significant')};			% h4 [kJ/kg]
+
+% Create cell fields
+Tb_ORC = table(tbORC.params, tbORC.units,tbORC.strt3, tbORC.strt4, tbORC.sptn3, tbORC.sptn4);
+Tb_ORC.Properties.VariableNames = {'Parameters', 'Units', 'Straight Channels', ...
+							'Straight Channel2', 'Serpentine Channels', 'Serpentine Channel2'};
+
+% Write data to file
+writetable(Tb_ORC, [outdir,'/ORCdata.txt'], ...
+	'WriteVariableNames', true, 'Delimiter','tab');
+writetable(Tb_ORC, [outdir,'/ORCdata.xlsx'], ...
+	'WriteVariableNames', true);
+type([outdir,'/ORCdata.txt'])
+
 
 %%
 % Save workspace variables to file
@@ -434,7 +569,7 @@ function runSim(TMSch,outdir)
 	mws_TMS1 = get_param(sys_TMS1,'ModelWorkspace');	% Get workspace info
 	reload(mws_TMS1);									% Reload input params
 	sim(sys_TMS1);										% Run simulation
-	save_system(sys_TMS1);								% Save any changes
+	%save_system(sys_TMS1);								% Save any changes
 	close_system(sys_TMS1);								% Close model
 
 	% 2) Preheat; no ORC
@@ -444,7 +579,7 @@ function runSim(TMSch,outdir)
 	mws_TMS2 = get_param(sys_TMS2,'ModelWorkspace');	% Get workspace info
 	reload(mws_TMS2);									% Reload input params
 	sim(sys_TMS2);										% Run simulation
-	save_system(sys_TMS2);								% Save any changes
+	%save_system(sys_TMS2);								% Save any changes
 	close_system(sys_TMS2);								% Close model
 
 	% 3) No preheat; ORC
@@ -454,7 +589,7 @@ function runSim(TMSch,outdir)
 	mws_TMS3 = get_param(sys_TMS3,'ModelWorkspace');	% Get workspace info
 	reload(mws_TMS3);									% Reload input params
 	sim(sys_TMS3);										% Run simulation
-	save_system(sys_TMS3);								% Save any changes
+	%save_system(sys_TMS3);								% Save any changes
 	close_system(sys_TMS3);								% Close model
 
 	% 4) Preheat; ORC
@@ -464,7 +599,7 @@ function runSim(TMSch,outdir)
 	mws_TMS4 = get_param(sys_TMS4,'ModelWorkspace');	% Get workspace info
 	reload(mws_TMS4);									% Reload input params
 	sim(sys_TMS4);										% Run simulation
-	save_system(sys_TMS4);								% Save any changes
+	%save_system(sys_TMS4);								% Save any changes
 	close_system(sys_TMS4);								% Close model
 
 	% Save output data for testing (if needed)
@@ -790,13 +925,6 @@ function plotPieData2(outdir,y1,y2,y3,y4,c,dp,tilesubtitle,name,l, p_h, p_ar)
 	delete(txt22(Opc22))
 	delete(txt23(Opc23))
 	delete(txt24(Opc24))
-
-% 	set(txt11(Opc11),'String', '')
-% 	set(txt12(Opc12),'String', '')
-% 	set(txt14(Opc14),'String', '')
-% 	set(txt21(Opc21),'String', '')
-% 	set(txt22(Opc22),'String', '')
-% 	set(txt24(Opc24),'String', '')
 
 	% Save figure
 	saveas(fig, [outdir,'/fig',name,'.fig']);
