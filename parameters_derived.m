@@ -32,10 +32,11 @@ clnt.mdot_tot = 1000*clnt.Vldot_ch*clch.N_tot;
 clnt.mdot_stk = clnt.mdot_tot/pemel.N_stk;
 
 % Process fluid total mass flow rates [kg/s]
+h2o.mdot_in_tot   = 1000*h2o.Vldot_in*prch.N_tot;					 % Total h2o inlet mass flow rate [kg/s]
 h2o.mdot_reac_tot = pemel.totN_cel*const.M_h2o*pemel.I/(2*const.F);  % Total h2o consumed in reaction [kg/s]
-h2o.mdot_in_tot   = h2o.stoich*h2o.mdot_reac_tot;					 % Total h2o inlet mass flow rate [kg/s]
 h2o.mdot_out_tot  = h2o.mdot_in_tot - h2o.mdot_reac_tot;			 % Total h2o outlet mass flow rate [kg/s]
 h2.mdot_reac_tot  = pemel.totN_cel*const.M_h2*pemel.I/(2*const.F);   % Total h2 mass produced [kg/s]
+h2o.stoich        = h2o.mdot_in_tot/h2o.mdot_reac_tot;				 % H2O stoichiometric ratio
 
 % Closed-loop feedwater base temperature
 h2o.T0 = calc_T0(h2o.mdot_in_tot, h2o.mdot_out_tot, amb.T, h2o.T_stk_out);
@@ -62,23 +63,23 @@ ORC = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.T_stk_out, clnt.T_stk_in, am
 
 %% Heat exchanger sizing & performance (preheat)
 % Preheater
-[HX_ph.L_h2o, HX_ph.L_clnt, HX_ph.Rt, HX_ph.As, HX_ph.U, clnt.Tout_PhCL] = ...
+[HX_ph.L_h2o, HX_ph.L_clnt, HX_ph.Rt, HX_ph.As, HX_ph.U, clnt.Tout_ph] = ...
 	HXsizer_PH(h2o.mdot_in_tot, clnt.mdot_tot, prch.D, clch.D, ...
 	h2o.T0, h2o.T_stk_in, clnt.T_stk_out);
 
 % ORC properties
-ORCph = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.Tout_PhCL, clnt.T_stk_in, amb.T_sea, ...
+ORCph = ORCspec(ORC.dTc, ORC.dTh, clnt.mdot_tot, clnt.Tout_ph, clnt.T_stk_in, amb.T_sea, ...
 	BoP.eff_pmp, BoP.eff_tbne);
 
 % Heat rejector
 [HX_rjPh.L, HX_rjPh.Rt, HX_rjPh.As, HX_rjPh.U] = ...
 	HXsizer_rjct(clnt.mdot_tot, clch.D, ...
-	amb.T_sea, clnt.Tout_PhCL, clnt.T_stk_in);
+	amb.T_sea, clnt.Tout_ph, clnt.T_stk_in);
 
 % Coolant/ORC fluid HX
 [HX_ORCph.L_h, HX_ORCph.L_c, HX_ORCph.Rt, HX_ORCph.As, HX_ORCph.U] = ...
 	HXsizer_ORC(clnt.mdot_tot, ORCph.mdot, ORCph.D, clch.D, ...
-	clnt.Tout_PhCL, clnt.T_stk_in, ORCph.Tpp, ORCph.Tmax, ORCph.Tmin, ORC.x3);
+	clnt.Tout_ph, clnt.T_stk_in, ORCph.Tpp, ORCph.Tmax, ORCph.Tmin, ORC.x3);
 
 % ORC condenser length [m], thermal resistance [K/W]
 [HX_condPh.L, HX_condPh.Rt, HX_condPh.As, HX_condPh.U] = ...

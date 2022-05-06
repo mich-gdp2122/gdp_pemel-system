@@ -21,7 +21,7 @@ if exist('Th_out','var') == 0
 	
 		% Compare new outlet T w/ prev. outlet T, then break loop if converged
 		dTh_out = max(Th_out, Th_out_prev) - min(Th_out, Th_out_prev);
-		if dTh_out < 0.01
+		if dTh_out < 0.0001
 			break
 		end
 	end

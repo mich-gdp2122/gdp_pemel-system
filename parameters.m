@@ -34,7 +34,7 @@ pemel.p_an  = amb.p;	    % Nominal anode pressure   [Pa]
 pemel.T_stk = 80 + 273.15;  % Nominal stack temperature [K]
 
 % Process water
-h2o.stoich    = 3.70;		% Stoichiometric ratio
+h2o.Vldot_in = 0.3*1e-6;	% Inlet volume flow rate per channel [mL/s -> m^3/s]
 h2o.T_stk_in  = 340;		% Stack inlet temperature [K]
 h2o.T_stk_out = 341;		% Stack outlet temperature [K]
 h2o.dp_stk    = 5;			% Stack pressure drop [bar]
