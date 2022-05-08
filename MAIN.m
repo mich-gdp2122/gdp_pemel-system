@@ -9,8 +9,8 @@
 %   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
 %
 %% Set program modes
-mode_test = 1;	% Test mode (don't run simulations if != 0)
-saveSims  = 1;  % Save simulations after running if != 0
+mode_test = 0;	% Test mode (don't run simulations if != 0)
+saveSims  = 1;  % Save model files after running if != 0
 
 %%
 clearvars('-except', 'mode_*', 'saveSims')
@@ -41,11 +41,11 @@ b_ar = 1.8;  % Aspect ratio [w:h]
 
 % Bar chart colours (RGB)
 c.red    = [0.6350 0.0780 0.1840];
-c.blue   = [0.0000 0.4470 0.7410];
+c.blue   = [0.0000 0.5500 0.9000]; %[0.0000 0.4470 0.7410];
 c.yellow = [0.9290 0.6940 0.1250];
 c.green  = [0.4660 0.6740 0.1880];
 c.orange = [0.8500 0.3250 0.0980];
-c.cyan   = [0.3010 0.7450 0.9330];
+c.cyan   = [0.3000 0.8000 0.9500];
 c.purple = [0.4940 0.1840 0.5560];
 
 
@@ -216,8 +216,9 @@ plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', title_
 
 
 %% ORC T-s plot
-orc_h = 750;	% Figure height [px]
-orc_ar = 4/3;	% Figure aspect ratio
+orc_h  = 750;						 % Figure height [px]
+orc_ar = 4/3;						 % Figure aspect ratio
+orc_c  = [0.7, 0.25, 0.85; c.red; c.blue]; % Plot colours [T-s, Th, Tc]
 
 % Generate saturation lines
 Tsat = [257:2:407, 407.01:0.1:407.81];
@@ -242,10 +243,10 @@ hold on
 grid on
 plot(t11_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
 pl_Ts = plot(t11_ORC,strt.ORC.plotTs.s,strt.ORC.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t11_ORC,strt.ORC.plotTs.sh_n,strt.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t11_ORC,strt.ORC.plotTs.sh_n,strt.ORC.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
 yline(t11_ORC,strt.ORC.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
 ylim(t11_ORC,[270, 360])
 xlim(t11_ORC,[800, 2600])
 lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
@@ -268,10 +269,10 @@ hold on
 grid on
 plot(t12_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
 pl_Ts = plot(t12_ORC,strt.ORCph.plotTs.s,strt.ORCph.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t12_ORC,strt.ORCph.plotTs.sh_n,strt.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t12_ORC,strt.ORCph.plotTs.sh_n,strt.ORCph.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
 yline(t12_ORC,strt.ORCph.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
 ylim(t12_ORC,[270, 360])
 xlim(t12_ORC,[800, 2600])
 lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
@@ -294,10 +295,10 @@ hold on
 grid on
 plot(t21_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
 pl_Ts = plot(t21_ORC,sptn.ORC.plotTs.s,sptn.ORC.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t21_ORC,sptn.ORC.plotTs.sh_n,sptn.ORC.plotTs.Th_n, 'o--', 'Color','#A2142F');
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t21_ORC,sptn.ORC.plotTs.sh_n,sptn.ORC.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
 yline(t21_ORC,sptn.ORC.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
 ylim(t21_ORC,[270, 360])
 xlim(t21_ORC,[800, 2600])
 lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
@@ -320,10 +321,10 @@ hold on
 grid on
 plot(t22_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
 pl_Ts = plot(t22_ORC,sptn.ORCph.plotTs.s,sptn.ORCph.plotTs.T, 'o-', ...
-	'LineWidth',1.1, 'MarkerSize',6, 'Color','#D95319');
-pl_Th = plot(t22_ORC,sptn.ORCph.plotTs.sh_n,sptn.ORCph.plotTs.Th_n, 'o--', 'Color','#A2142F');
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t22_ORC,sptn.ORCph.plotTs.sh_n,sptn.ORCph.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
 yline(t22_ORC,sptn.ORCph.plotTs.Tc_n,'--', ...
-	'Color','#0072BD', 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
 ylim(t22_ORC,[270, 360])
 xlim(t22_ORC,[800, 2600])
 lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
@@ -338,6 +339,11 @@ lbl_Tc_x = 930;
 labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
 labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
 labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+
+% Create legend
+% l = {'', 'T-s cycle', 'Heat source', 'Heat sink'};
+% lg = legend(l);
+% lg.Layout.Tile = 'north';
 
 % Save figure
 saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.fig']);
@@ -650,6 +656,8 @@ save([outdir,'/output.mat'], 'strt', 'sptn', 'y_*', 'y1_*', 'y2_*');
 % Reload workspace file to clear clutter
 clearvars -except outdir;
 load([outdir,'/output.mat']);
+
+newline;
 disp('Complete.');
 
 
@@ -864,9 +872,7 @@ function plotPieData(outdir,y1,y2,y3,y4,c,dp,TMSch,subtitle,tilesubtitle,name,l,
 	fig = figure('Position',[300,100, p_h*p_ar, p_h]);
 	t   = tiledlayout(fig,2,2, 'TileSpacing','compact', 'Padding','tight');
 	if isempty(subtitle) == 0
-		ttl = title(t,['\bf',TMSch],['\rm',subtitle], 'Interpreter','tex');
-		%ttl.TitleFontWeight = 'bold';
-		%ttl.SubtitleFontWeight = 'normal';
+		title(t,['\bf',TMSch],['\rm',subtitle], 'Interpreter','tex');
 	else
 		title(t,TMSch, 'FontWeight', 'bold')
 	end
