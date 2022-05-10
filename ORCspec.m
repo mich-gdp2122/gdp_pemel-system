@@ -1,4 +1,4 @@
-function ORCstruct = ORCspec(dTc, dTh_req, mdot_h, Th_in, Th_out, Tc, eff_pmp, eff_tbn)
+function ORCstruct = ORCspec(dTc, dTh_req, mdot_h, Th_in, Th_out, Tc, eff_pmp, eff_tbn, D)
 % Calculate mass flow and pipe area requirements for ORC
 
 %% Constant (non-Tmax dependent) properties
@@ -66,18 +66,20 @@ Qout = mdot*abs(data_c1.h - data_c4.h);
 
 
 %% Pipe area required to maintain incompressible flow
-Ma_max = 0.28;		% Max incompressible Mach number
-
-% Minimum rho*c
-rhoc_min = ...
-	min([data_c1.rho*data_c1.c, ...					% State 1
- 		data_c2f.rho*data_c2f.c, ...					% State 2
- 		data_c3.rho*data_c3.c, ...					% State 3
- 		data_c4.rho*data_c4.c, ...					% State 4
- 		]);
-
-% Required diameter [m] and cross-section area [m^2]
-D  = sqrt( (4*mdot)/(pi*rhoc_min*Ma_max) );
+if exist('D', 'var') == 0
+	Ma_max = 0.28;		% Max incompressible Mach number
+	
+	% Minimum rho*c
+	rhoc_min = ...
+		min([data_c1.rho*data_c1.c, ...					% State 1
+ 			data_c2f.rho*data_c2f.c, ...				% State 2
+ 			data_c3.rho*data_c3.c, ...					% State 3
+ 			data_c4.rho*data_c4.c, ...					% State 4
+ 			]);
+	
+	% Required diameter [m] and cross-section area [m^2]
+	D  = sqrt( (4*mdot)/(pi*rhoc_min*Ma_max) );
+end
 Ac = pi*(D/2)^2;
 
 

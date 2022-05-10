@@ -9,7 +9,7 @@
 %   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
 %
 %% Set program modes
-mode_test = 0;	% Test mode (don't run simulations if != 0)
+mode_test = 1;	% Test mode (don't run simulations if != 0)
 saveSims  = 1;  % Save model files after running if != 0
 
 %%
@@ -43,7 +43,7 @@ b_ar = 1.8;  % Aspect ratio [w:h]
 c.red    = [0.6350 0.0780 0.1840];
 c.blue   = [0.0000 0.5500 0.9000]; %[0.0000 0.4470 0.7410];
 c.yellow = [0.9290 0.6940 0.1250];
-c.green  = [0.4660 0.6740 0.1880];
+c.green  = [0.4660 0.7240 0.1880];
 c.orange = [0.8500 0.3250 0.0980];
 c.cyan   = [0.3000 0.8000 0.9500];
 c.purple = [0.4940 0.1840 0.5560];
@@ -78,12 +78,12 @@ y2_BoP(isnan(y2_BoP)) = 0;
 y3_BoP(isnan(y3_BoP)) = 0;
 y4_BoP(isnan(y4_BoP)) = 0;
 % Figure dimensions
-p_h = 900;
-p_ar = 0.85;
+p_h = 1000;
+p_ar = 0.88;
 p_ar2 = 1.6;
 % Bar colours and respective legend labels
 c_BoP = [c.blue; c.cyan; c.orange; c.green];
-l     = {'Water pump', 'Coolant pump', 'Heater', 'ORC pump'};
+l     = {'Water pump', 'Coolant pump', 'Electric heater', 'ORC pump'};
 % Title subtitles
 subtitles_totBoP = append('Total BoP pwr: ', cellfun(@num2str, num2cell(y_totBoP), 'UniformOutput', false),' kW');
 %subtitles1 = append('Total BoP pwr: ',{num2str(y_totBoP(1,1)); num2str(y_totBoP(1,2)); num2str(y_totBoP(1,3)); num2str(y_totBoP(1,4))},' kW');
@@ -124,14 +124,14 @@ y2_Qdot(4,:)   = round([sptn.TMS4_Qdot(2), ...
 					   ], 4, 'significant');
 
 % Figure dimensions
-bQ_h = 560;
+bQ_h = 550;
 bQ_ar = 2;
 % Bar colours and respective legend labels
 c_Qdot = [c.cyan; c.yellow; c.blue];
 l       = {'Preheater', 'ORC net pwr', 'Rejected'};
 % Plot titles
-subtitle1_Qdot = ['PEMEL heat load: ', num2str(round(strt.TMS1_Qdot(1), 3, 'significant')), ' kW'];
-subtitle2_Qdot = ['PEMEL heat load: ', num2str(round(sptn.TMS1_Qdot(1), 3, 'significant')), ' kW'];
+subtitle1_Qdot = ['PEMWE heat load: ', num2str(round(strt.TMS1_Qdot(1), 3, 'significant')), ' kW'];
+subtitle2_Qdot = ['PEMWE heat load: ', num2str(round(sptn.TMS1_Qdot(1), 3, 'significant')), ' kW'];
  % Plot data
 plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [kW]', ...
 	subtitle1_Qdot, subtitle2_Qdot,'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
@@ -194,9 +194,9 @@ c_eff = c_totBoP;
 l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
 b_ar2 = 2.3;
 % Title
-title_eff = ['PEMEL efficiency: ', num2str(round(strt.TMS1_eff(1), 3, 'significant')), '%'];
+%title_eff = ['PEMWE efficiency: ', num2str(round(strt.TMS1_eff(1), 3, 'significant')), '%'];
 % Plot data
-plotBarData(outdir, y_eff, c_eff, 'Overall efficiency [%]', title_eff, ...
+plotBarData(outdir, y_eff, c_eff, 'Overall efficiency [%]', [], ...
 	'grouped', [], [], '5_eff', l, b_h, b_ar2);
 
 
@@ -209,15 +209,15 @@ y_totPwr  = round([strt.TMS1_pwr(3), strt.TMS2_pwr(3), strt.TMS3_pwr(3), strt.TM
 c_totPwr = c_totBoP;
 l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
 % Title
-title_pwr = ['PEMEL power consumption: ', num2str(round(strt.TMS1_pwr(1), 4, 'significant')), ' kW'];
+title_pwr = ['PEMWE power consumption: ', num2str(round(strt.TMS1_pwr(1), 4, 'significant')), ' kW'];
 % Plot data
 plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', title_pwr,...
 	'grouped', [], [], '6_totPwr', l, b_h, b_ar2);
 
 
-%% ORC T-s plot
-orc_h  = 750;						 % Figure height [px]
-orc_ar = 4/3;						 % Figure aspect ratio
+%% ORC T-s plot (channels only)
+orc_h  = 375;						 % Figure height [px]
+orc_ar = 7/3;						 % Figure aspect ratio
 orc_c  = [0.7, 0.25, 0.85; c.red; c.blue]; % Plot colours [T-s, Th, Tc]
 
 % Generate saturation lines
@@ -231,10 +231,81 @@ Tsat  = [Tsat, flip(Tsat)];
 s_sat = [s_satL, flip(s_satV)];
 
 % Create plots
-fig_ORC = figure('Position',[300,100, orc_h*orc_ar, orc_h]);
-t_ORC   = tiledlayout(fig_ORC,2,2, 'TileSpacing','compact', 'Padding','tight');
+fig_ORC = figure('Position',[300,10, orc_h*orc_ar, orc_h]);
+t_ORC   = tiledlayout(fig_ORC,1,2, 'TileSpacing','compact', 'Padding','tight');
 t_ORC.YLabel.String = 'Temperature, T [K]';
 t_ORC.XLabel.String = 'Specific entropy, s [J kg^{-1} K^{-1}]';
+t_ORC.YLabel.FontSize = 12;
+t_ORC.XLabel.FontSize = 12;
+
+% Straight channels
+t11_ORC = nexttile;
+title(t11_ORC, 'Straight Channels')
+hold on
+grid on
+plot(t11_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+pl_Ts = plot(t11_ORC,strt.ORC.plotTs.s,strt.ORC.plotTs.T, 'o-', ...
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t11_ORC,strt.ORC.plotTs.sh_n,strt.ORC.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
+yline(t11_ORC,strt.ORC.plotTs.Tc_n,'--', ...
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+ylim(t11_ORC,[270, 360])
+xlim(t11_ORC,[800, 2600])
+lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+lbl_Ts_y = strt.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+lbl_ts_x = strt.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
+lbl_Th   = {'T_{clnt,in}', 'T_{x}', 'T_{clnt,out}'};
+lbl_Th_y = strt.ORC.plotTs.Th_n +  2 + zeros(1,3);
+lbl_Th_x = strt.ORC.plotTs.sh_n + 40 + zeros(1,3);
+lbl_Tc   = 'T_{sea}';
+lbl_Tc_y = strt.ORC.plotTs.Tc_n;
+lbl_Tc_x = 930;
+labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+
+% Serpentine channels
+t21_ORC = nexttile;
+title(t21_ORC, 'Serpentine Channels')
+hold on
+grid on
+plot(t21_ORC,s_sat,Tsat,'k-', 'LineWidth', 1.6);
+pl_Ts = plot(t21_ORC,sptn.ORC.plotTs.s,sptn.ORC.plotTs.T, 'o-', ...
+	'LineWidth',1.2, 'MarkerSize',6, 'Color',orc_c(1,:));
+pl_Th = plot(t21_ORC,sptn.ORC.plotTs.sh_n,sptn.ORC.plotTs.Th_n, 'o--', 'Color',orc_c(2,:));
+yline(t21_ORC,sptn.ORC.plotTs.Tc_n,'--', ...
+	'Color',orc_c(3,:), 'Interpreter', 'tex', 'LabelHorizontalAlignment', 'left');
+ylim(t21_ORC,[270, 360])
+xlim(t21_ORC,[800, 2600])
+lbl_Ts   =					   {'1', '2', '2f', '3', '4', ''};
+lbl_Ts_y = sptn.ORC.plotTs.T + [-6,   1,  -1.5, 1.5, -6,   0];
+lbl_ts_x = sptn.ORC.plotTs.s + [50, -15,   -40,  20, 60,   0];
+lbl_Th   = {'T_{clnt,in}', 'T_{x}', 'T_{clnt,out}'};
+lbl_Th_y = sptn.ORC.plotTs.Th_n +  2 + zeros(1,3);
+lbl_Th_x = sptn.ORC.plotTs.sh_n + 40 + zeros(1,3);
+lbl_Tc   = 'T_{sea}';
+lbl_Tc_y = sptn.ORC.plotTs.Tc_n;
+lbl_Tc_x = 930;
+labelpoints(lbl_ts_x,lbl_Ts_y,lbl_Ts, 'FontSize',11, 'FontWeight','bold');
+labelpoints(lbl_Th_x,lbl_Th_y,lbl_Th, 'Interpreter','tex', 'FontSize',10);
+labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
+
+saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.fig']);
+saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.png'], 'png');
+saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.svg'], 'svg');
+
+
+%% ORC T-s plot (Configs 3&4, both channels)
+orc_h  = 750;						 % Figure height [px]
+orc_ar = 4/3;						 % Figure aspect ratio
+
+% Create plots
+fig_ORC2 = figure('Position',[300,10, orc_h*orc_ar, orc_h]);
+t_ORC2   = tiledlayout(fig_ORC2,2,2, 'TileSpacing','compact', 'Padding','tight');
+t_ORC2.YLabel.String = 'Temperature, T [K]';
+t_ORC2.XLabel.String = 'Specific entropy, s [J kg^{-1} K^{-1}]';
+t_ORC2.YLabel.FontSize = 14;
+t_ORC2.XLabel.FontSize = 14;
 
 % Config 3 (straight)
 t11_ORC = nexttile;
@@ -346,9 +417,9 @@ labelpoints(lbl_Tc_x,lbl_Tc_y,lbl_Tc, 'Interpreter','tex', 'FontSize',10);
 % lg.Layout.Tile = 'north';
 
 % Save figure
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.fig']);
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.png'], 'png');
-saveas(fig_ORC, [outdir,'/fig7_ORC_Ts.svg'], 'svg');
+saveas(fig_ORC2, [outdir,'/fig7A_ORC_Ts_configs34.fig']);
+saveas(fig_ORC2, [outdir,'/fig7A_ORC_Ts_configs34.png'], 'png');
+saveas(fig_ORC2, [outdir,'/fig7A_ORC_Ts_configs34.svg'], 'svg');
 
 
 %% HX sizing data
@@ -728,7 +799,7 @@ function plotBarData(outdir,y,c,yLabel,plottitle,bartype,yLim,yScale,name,l, b_h
 	x = categorical({'Straight channels', 'Serpentine channels'});
 	x = reordercats(x, {'Straight channels', 'Serpentine channels'});
 	% Create tiled figure
-	fig = figure('Position',[300,100, b_h*b_ar, b_h]);
+	fig = figure('Position',[300,10, b_h*b_ar, b_h]);
 	
 	% Plot data
 	if strcmp(bartype,'stacked')
@@ -738,7 +809,10 @@ function plotBarData(outdir,y,c,yLabel,plottitle,bartype,yLim,yScale,name,l, b_h
 	end
 	set(gca, 'Ticklength', [0 0])
 	xlabel('Configuration');
-	ylabel(yLabel);
+	ylabel(yLabel, 'FontSize', 12);
+	ax = gca;
+	ax.FontSize = 11;
+
 	if strcmp(yScale,'log')
 		% Set log scale (if requested)
 		set('YScale','log')
@@ -782,10 +856,12 @@ function plotBarData2(outdir,y1,y2,c,yLabel,subtitle1,subtitle2,bartype,yLim, ..
 	x = reordercats(x, {'Config 1','Config 2','Config 3','Config 4'});
 
 	% Create tiled figure
-	fig = figure('Position',[300,100, b_h*b_ar, b_h]);
+	fig = figure('Position',[300,10, b_h*b_ar, b_h]);
 	t   = tiledlayout(fig,1,2, 'TileSpacing','compact', 'Padding','tight');
 	%t.XLabel.String = 'Configuration';
 	t.YLabel.String = yLabel;
+	t.YLabel.FontSize = 14;
+
 	
 	% Plot Straight channel data
 	t1 = nexttile;
@@ -819,7 +895,9 @@ function plotBarData2(outdir,y1,y2,c,yLabel,subtitle1,subtitle2,bartype,yLim, ..
 		% Generate colour data
 		b1(i).CData = c(i,:);
 	end
-	
+	ax = gca;
+	ax.FontSize = 12;
+
 	% Plot Serpentine channel data
 	t2 = nexttile;
 	if strcmp(bartype,'stacked')
@@ -852,6 +930,9 @@ function plotBarData2(outdir,y1,y2,c,yLabel,subtitle1,subtitle2,bartype,yLim, ..
 		% Generate colour data
 		b2(i).CData = c(i,:);
 	end
+	ax = gca;
+	ax.FontSize = 12;
+
 	% Create legend labels
 	if isempty(l) == 0
 		lg = legend(t1, l, 'Location','northwest');
@@ -869,8 +950,8 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 function plotPieData(outdir,y1,y2,y3,y4,c,dp,TMSch,subtitle,tilesubtitle,name,l, p_h, p_ar)
-	fig = figure('Position',[300,100, p_h*p_ar, p_h]);
-	t   = tiledlayout(fig,2,2, 'TileSpacing','compact', 'Padding','tight');
+	fig = figure('Position',[300,0, p_h*p_ar, p_h]);
+	t   = tiledlayout(fig,2,2, 'TileSpacing','tight', 'Padding','tight');
 	if isempty(subtitle) == 0
 		title(t,['\bf',TMSch],['\rm',subtitle], 'Interpreter','tex');
 	else
@@ -940,8 +1021,8 @@ end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 function plotPieData2(outdir,y1,y2,y3,y4,c,dp,tilesubtitle,name,l, p_h, p_ar)
-	fig = figure('Position',[300,100, p_h*p_ar, p_h]);
-	t   = tiledlayout(fig,2,4, 'TileSpacing','compact', 'Padding','tight');
+	fig = figure('Position',[300,0, p_h*p_ar, p_h]);
+	t   = tiledlayout(fig,2,4, 'TileSpacing','tight', 'Padding','tight');
 	
 	% Plot charts
 	% Straight
