@@ -36,8 +36,8 @@ sptn = load('output_serpentine.mat');
 
 
 %% Figure properties
-b_h  = 360;  % Height [px]
-b_ar = 1.8;  % Aspect ratio [w:h]
+b_h  = 420;  % Height [px]
+b_ar = 2;  % Aspect ratio [w:h]
 
 % Bar chart colours (RGB)
 c.red    = [0.6350 0.0780 0.1840];
@@ -197,7 +197,7 @@ b_ar2 = 2.3;
 %title_eff = ['PEMWE efficiency: ', num2str(round(strt.TMS1_eff(1), 3, 'significant')), '%'];
 % Plot data
 plotBarData(outdir, y_eff, c_eff, 'Overall efficiency [%]', [], ...
-	'grouped', [], [], '5_eff', l, b_h, b_ar2);
+	'grouped', [], [], '5_eff', l, b_h, b_ar);
 
 
 %% Total Pwr consumption data [kW]
@@ -211,8 +211,8 @@ l     = {'Config 1', 'Config 2', 'Config 3', 'Config 4'};
 % Title
 title_pwr = ['PEMWE power consumption: ', num2str(round(strt.TMS1_pwr(1), 4, 'significant')), ' kW'];
 % Plot data
-plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', title_pwr,...
-	'grouped', [], [], '6_totPwr', l, b_h, b_ar2);
+plotBarData(outdir, y_totPwr, c_totPwr, 'Overall power consumption [kW]', [],...
+	'grouped', [], [], '6_totPwr', l, b_h, b_ar);
 
 
 %% ORC T-s plot (channels only)
@@ -857,7 +857,7 @@ function plotBarData2(outdir,y1,y2,c,yLabel,subtitle1,subtitle2,bartype,yLim, ..
 
 	% Create tiled figure
 	fig = figure('Position',[300,10, b_h*b_ar, b_h]);
-	t   = tiledlayout(fig,1,2, 'TileSpacing','compact', 'Padding','tight');
+	t   = tiledlayout(fig,1,2, 'TileSpacing','compact', 'Padding','compact');
 	%t.XLabel.String = 'Configuration';
 	t.YLabel.String = yLabel;
 	t.YLabel.FontSize = 14;
@@ -981,21 +981,22 @@ function plotPieData(outdir,y1,y2,y3,y4,c,dp,TMSch,subtitle,tilesubtitle,name,l,
 	ax.Colormap = c;
 
 	% Create title subtitles (if requested)
+	titleFontSize = 12;
 	if isempty(tilesubtitle) == 0
-		title(t1,'Config 1',tilesubtitle(1));
-		title(t2,'Config 2',tilesubtitle(2));
-		title(t3,'Config 3',tilesubtitle(3));
-		title(t4,'Config 4',tilesubtitle(4));
+		title(t1,'Config 1',tilesubtitle(1), 'FontSize',titleFontSize);
+		title(t2,'Config 2',tilesubtitle(2), 'FontSize',titleFontSize);
+		title(t3,'Config 3',tilesubtitle(3), 'FontSize',titleFontSize);
+		title(t4,'Config 4',tilesubtitle(4), 'FontSize',titleFontSize);
 	else
-		title(t1,'Config 1');
-		title(t2,'Config 2');
-		title(t3,'Config 3');
-		title(t4,'Config 4');
+		title(t1,'Config 1', 'FontSize',titleFontSize);
+		title(t2,'Config 2', 'FontSize',titleFontSize);
+		title(t3,'Config 3', 'FontSize',titleFontSize);
+		title(t4,'Config 4', 'FontSize',titleFontSize);
 	end
 
 	% Create legend labels
 	if isempty(l) == 0
-		lg = legend(l);
+		lg = legend(l, 'FontSize', 11);
 		lg.Layout.Tile = 'north';
 	end
 
@@ -1012,6 +1013,13 @@ function plotPieData(outdir,y1,y2,y3,y4,c,dp,TMSch,subtitle,tilesubtitle,name,l,
 	delete(txt2(Opc2))
 	delete(txt3(Opc3))
 	delete(txt4(Opc4))
+
+	% Set label font size
+	labelFontSize = 10.5;
+	set(findobj(p1,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p2,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p3,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p4,'type','text'),'FontSize',labelFontSize);
 
 	% Save figure
 	saveas(fig, [outdir,'/fig',name,'.fig']);
@@ -1069,29 +1077,30 @@ function plotPieData2(outdir,y1,y2,y3,y4,c,dp,tilesubtitle,name,l, p_h, p_ar)
 
 	% Create legend labels
 	if isempty(l) == 0
-		lg = legend(l);
+		lg = legend(l, 'FontSize', 11);
 		lg.Layout.Tile = 'north';
 	end
 
 	% Create title subtitles (if requested)
+	titleFontSize = 12;
 	if isempty(tilesubtitle) == 0
-		title(t11,'Config 1, Straight',tilesubtitle(1,1));
-		title(t12,'Config 2, Straight',tilesubtitle(1,2));
-		title(t13,'Config 3, Straight',tilesubtitle(1,3));
-		title(t14,'Config 4, Straight',tilesubtitle(1,4));
-		title(t21,'Config 1, Serpentine',tilesubtitle(2,1));
-		title(t22,'Config 2, Serpentine',tilesubtitle(2,2));
-		title(t23,'Config 3, Serpentine',tilesubtitle(2,3));
-		title(t24,'Config 4, Serpentine',tilesubtitle(2,4));
+		title(t11,'Config 1, Straight',tilesubtitle(1,1), 'FontSize',titleFontSize);
+		title(t12,'Config 2, Straight',tilesubtitle(1,2), 'FontSize',titleFontSize);
+		title(t13,'Config 3, Straight',tilesubtitle(1,3), 'FontSize',titleFontSize);
+		title(t14,'Config 4, Straight',tilesubtitle(1,4), 'FontSize',titleFontSize);
+		title(t21,'Config 1, Serpentine',tilesubtitle(2,1), 'FontSize',titleFontSize);
+		title(t22,'Config 2, Serpentine',tilesubtitle(2,2), 'FontSize',titleFontSize);
+		title(t23,'Config 3, Serpentine',tilesubtitle(2,3), 'FontSize',titleFontSize);
+		title(t24,'Config 4, Serpentine',tilesubtitle(2,4), 'FontSize',titleFontSize);
 	else
-		title(t11,'Config 1, Straight');
-		title(t12,'Config 2, Straight');
-		title(t13,'Config 3, Straight');
-		title(t14,'Config 4, Straight');
-		title(t21,'Config 1, Serpentine');
-		title(t22,'Config 2, Serpentine');
-		title(t23,'Config 3, Serpentine');
-		title(t24,'Config 4, Serpentine');
+		title(t11,'Config 1, Straight', 'FontSize',titleFontSize);
+		title(t12,'Config 2, Straight', 'FontSize',titleFontSize);
+		title(t13,'Config 3, Straight', 'FontSize',titleFontSize);
+		title(t14,'Config 4, Straight', 'FontSize',titleFontSize);
+		title(t21,'Config 1, Serpentine', 'FontSize',titleFontSize);
+		title(t22,'Config 2, Serpentine', 'FontSize',titleFontSize);
+		title(t23,'Config 3, Serpentine', 'FontSize',titleFontSize);
+		title(t24,'Config 4, Serpentine', 'FontSize',titleFontSize);
 	end
 
 	% rm small-value labels to prevent overlapping
@@ -1119,6 +1128,17 @@ function plotPieData2(outdir,y1,y2,y3,y4,c,dp,tilesubtitle,name,l, p_h, p_ar)
 	delete(txt22(Opc22))
 	delete(txt23(Opc23))
 	delete(txt24(Opc24))
+
+	% Set label font size
+	labelFontSize = 10.5;
+	set(findobj(p11,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p12,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p13,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p14,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p21,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p22,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p23,'type','text'),'FontSize',labelFontSize);
+	set(findobj(p24,'type','text'),'FontSize',labelFontSize);
 
 	% Save figure
 	saveas(fig, [outdir,'/fig',name,'.fig']);
