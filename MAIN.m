@@ -9,7 +9,7 @@
 %   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
 %
 %% Set program modes
-mode_test = 0;	% Test mode (don't run simulations if != 0)
+mode_test = 1;	% Test mode (don't run simulations if != 0)
 saveSims  = 0;  % Save model files after running if != 0
 
 %%
@@ -124,7 +124,7 @@ y2_Qdot(4,:)   = round([sptn.TMS4_Qdot(2), ...
 					   ], 4, 'significant');
 
 % Figure dimensions
-bQ_h = 650;
+bQ_h = 620;
 bQ_ar = 2;
 % Bar colours and respective legend labels
 c_Qdot = [c.cyan; c.yellow; c.blue];
@@ -807,7 +807,7 @@ function plotBarData(outdir,y,c,yLabel,plottitle,bartype,yLim,yScale,name,l, b_h
 		b = bar(x, y, bartype, 'FaceColor', 'flat', 'BarWidth', 0.9);
 	end
 	set(gca, 'Ticklength', [0 0])
-	xlabel('Configuration');
+	%xlabel('Configuration');
 	ylabel(yLabel, 'FontSize', 12);
 	ax = gca;
 	ax.FontSize = 11;
