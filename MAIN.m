@@ -9,8 +9,8 @@
 %   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
 %
 %% Set program modes
-mode_test = 1;	% Test mode (don't run simulations if != 0)
-saveSims  = 1;  % Save model files after running if != 0
+mode_test = 0;	% Test mode (don't run simulations if != 0)
+saveSims  = 0;  % Save model files after running if != 0
 
 %%
 clearvars('-except', 'mode_*', 'saveSims')
@@ -124,17 +124,17 @@ y2_Qdot(4,:)   = round([sptn.TMS4_Qdot(2), ...
 					   ], 4, 'significant');
 
 % Figure dimensions
-bQ_h = 550;
+bQ_h = 650;
 bQ_ar = 2;
 % Bar colours and respective legend labels
 c_Qdot = [c.cyan; c.yellow; c.blue];
-l       = {'Preheater', 'ORC net pwr', 'Rejected'};
+l_Q       = {'Preheater', 'Available ORC pwr', 'Rejected'};
 % Plot titles
 subtitle1_Qdot = ['PEMWE heat load: ', num2str(round(strt.TMS1_Qdot(1), 3, 'significant')), ' kW'];
 subtitle2_Qdot = ['PEMWE heat load: ', num2str(round(sptn.TMS1_Qdot(1), 3, 'significant')), ' kW'];
  % Plot data
 plotBarData2(outdir, y1_Qdot, y2_Qdot, c_Qdot, 'Heat recovered [kW]', ...
-	subtitle1_Qdot, subtitle2_Qdot,'stacked', [], [], '3_Qdot', l, bQ_h, bQ_ar);
+	subtitle1_Qdot, subtitle2_Qdot,'stacked', [], [], '3_Qdot', l_Q, bQ_h, bQ_ar);
 
 
 %% Heat recovery data [% stack in]
@@ -172,16 +172,15 @@ pQ_ar = p_ar;
 pQ_ar2 = p_ar2;
 % Bar colours and respective legend labels
 c_QdotPct = c_Qdot;
-l       = {'Preheater', 'ORC net pwr', 'Rejected'};
 % Plot data
 plotPieData(outdir, y1_QdotPct(1,:), y1_QdotPct(2,:), y1_QdotPct(3,:), y1_QdotPct(4,:), c_QdotPct, 2,...
-			'Straight Channels', subtitle1_Qdot, [], '4A_QdotPct_strt', l, pQ_h, pQ_ar);
+			'Straight Channels', subtitle1_Qdot, [], '4A_QdotPct_strt', l_Q, pQ_h, pQ_ar);
 plotPieData(outdir, y2_QdotPct(1,:), y2_QdotPct(2,:), y2_QdotPct(3,:), y2_QdotPct(4,:), c_QdotPct, 2,...
-			'Serpentine Channels', subtitle2_Qdot, [], '4B_QdotPct_sptn', l, pQ_h, pQ_ar);
+			'Serpentine Channels', subtitle2_Qdot, [], '4B_QdotPct_sptn', l_Q, pQ_h, pQ_ar);
 
 plotPieData2(outdir, [y1_QdotPct(1,:); y2_QdotPct(1,:)], [y1_QdotPct(2,:); y2_QdotPct(2,:)], ...
 			 [y1_QdotPct(3,:); y2_QdotPct(3,:)], [y1_QdotPct(4,:); y2_QdotPct(4,:)], c_QdotPct, 2, [], ...
-			 '4_QdotPct', l, pQ_h, pQ_ar2);
+			 '4_QdotPct', l_Q, pQ_h, pQ_ar2);
 
 
 %% Efficiency data [%]
