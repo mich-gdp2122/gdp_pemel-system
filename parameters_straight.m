@@ -1,6 +1,14 @@
-%% PLACE STRAIGHT CHANNEL INPUT PARAMETERS IN THIS FILE %%
-
-%%% Load general parameters (used for both channel simulations)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael and Victor
+%
+%
+% PLACE STRAIGHT CHANNEL INPUT PARAMETERS IN THIS FILE
+%
+%
+%%
+% Load general parameters (used for both channel simulations)
 parameters;
 
 %% Cooling channel specifications
@@ -22,7 +30,7 @@ clnt.dp_stk    = 2600;			% Coolant stack pressure drop [Pa]
 %% Balance-of-Plant
 % Correction factors
 cf.L_ph    = 1.5;  % Correction factor for preheater length
-cf.L_rjORC = 1;
+cf.L_rjORC = 1;	   % Correction factor for heat rejector length
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

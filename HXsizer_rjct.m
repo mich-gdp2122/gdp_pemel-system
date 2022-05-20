@@ -1,9 +1,16 @@
 function [L, Rt, As, U] = HXsizer_rjct(mdot_h, D_h, Tc, Th_in, Th_out, h_c)
-% Determines required length of coolant heat rejector
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Determines performance and required surface area of coolant heat rejector
 %
 % Cold side assumed stationary ocean w/ infinite thermal capacity
 % (C_c = 0; dT_c = 0)
-
+%
+%
 %% 1) Calc thermal properties and heat transf coeff's
 % Hot side properties & heat transf coeff [W/(m^2*K)]
 data_h = data_water(Th_in, Th_out);

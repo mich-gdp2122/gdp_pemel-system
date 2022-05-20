@@ -1,7 +1,13 @@
-function [L_c, L_h, Rt, As, U, Th_out] = ...
-	HXsizer_PH(mdot_c, mdot_h, D_c, D_h, Tc_in, Tc_out, Th_in, Th_out)
+function [L_c, L_h, Rt, As, U, Th_out] = HXsizer_PH(mdot_c, mdot_h, D_c, D_h, Tc_in, Tc_out, Th_in, Th_out)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
 % Determines required length of hot & cold sides for preheater
-
+%
+%
 %% 1) Calc thermal properties @ avg. temperatures
 % Cool-side thermal properties, heat capacity rate
 data_c = data_water(Tc_in, Tc_out);

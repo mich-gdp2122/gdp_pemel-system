@@ -1,6 +1,14 @@
 function ORCstruct = ORCspec(dTc, dTh_req, mdot_h, Th_in, Th_out, Tc, eff_pmp, eff_tbn, D)
-% Calculate mass flow and pipe area requirements for ORC
-
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Calculates ORC performance as well as thermodynamic properties at each
+% state
+%
+%
 %% Constant (non-Tmax dependent) properties
 % Min cycle temperature, via driving temp [K]
 Tmin = Tc + dTc;
@@ -9,8 +17,9 @@ Tmin = Tc + dTc;
 data_c1  = data_r600a_sat(Tmin, 0);  % State 1
 data_c4  = data_r600a_sat(Tmin, 1);  % State 4 (sat v)
 
+% Coolant properties and heat rejection required
 data_h = data_water(Th_in, Th_out);
-Qin = mdot_h*data_h.cp*abs(Th_in - Th_out);
+Qin = mdot_h*data_h.cp*abs(Th_in - Th_out);  % [W]
 
 
 %% Calc cycle properties, find Tmax & Tpp via binary search
@@ -24,6 +33,7 @@ while true
 	% State properties on saturation line
 	data_c2f = data_r600a_sat(Tmax, 0);  % State 2f
 	data_c3v = data_r600a_sat(Tmax, 1);  % State 3v
+
 	% Subcooled liq state properties, via Gibb's eq w/ ds = 0
 	h2  = data_c1.h + 1E6*(data_c2f.p - data_c1.p)/data_c1.rho;
 	T2 = Tmin + (h2 - data_c1.h)/data_c1.cp;
@@ -35,7 +45,7 @@ while true
 	% ORC mass flow req'd, via energy balance [kg/s]
 	mdot = Qin/(data_c3.h - h2);
 
-	% Calc pinch-point temp, pinch-point T-difference
+	% Calc pinch-point temp, pinch-point T-difference [K]
 	Tpp = Th_out + ( mdot*(data_c2f.h - h2) )/(mdot_h*data_h.cp);
 	dTh = Tpp - Tmax;
 
@@ -57,7 +67,7 @@ while true
 end
 clear ddTh Tmax_lwr Tmax_upr
 
-% Heat in to preheater & evaporator sections, respectively
+% Heat in to preheater & evaporator sections, respectively [W]
 Qin_evp = mdot_h*data_h.cp*(Th_in - Tpp);
 Qin_ph  = mdot_h*data_h.cp*(Tpp - Th_out);
 
@@ -65,7 +75,7 @@ Qin_ph  = mdot_h*data_h.cp*(Tpp - Th_out);
 Qout = mdot*abs(data_c1.h - data_c4.h);
 
 
-%% Pipe area required to maintain incompressible flow
+%% Pipe diameter required to maintain incompressible flow (if value not supplied)
 if exist('D', 'var') == 0
 	Ma_max = 0.28;		% Max incompressible Mach number
 	
@@ -77,9 +87,10 @@ if exist('D', 'var') == 0
  			data_c4.rho*data_c4.c, ...					% State 4
  			]);
 	
-	% Required diameter [m] and cross-section area [m^2]
+	% Required diameter [m]
 	D  = sqrt( (4*mdot)/(pi*rhoc_min*Ma_max) );
 end
+% Cross-section area [m^2]
 Ac = pi*(D/2)^2;
 
 
@@ -88,14 +99,14 @@ Ac = pi*(D/2)^2;
 pwr_pmp  = (1/eff_pmp)*mdot*abs(h2 - data_c1.h);
 pwr_tbne = eff_tbn*mdot*abs(data_c4.h - data_c3.h); 
 
-% Net power out
+% Net power out [W]
 pwr_net = pwr_tbne - pwr_pmp;
 
 % Thermal efficiency [%]
 eff = 100*(pwr_tbne - pwr_pmp)/Qin;
 
 
-%% ORC T-s cycle points
+%% ORC T-s cycle points (for plotting)
 %     [1,         2,         2f,         3,          4,          1   ]
 T_n = [Tmin,      T2,        Tmax,       Tmax,       Tmin,       Tmin];
 s_n = [data_c1.s, data_c1.s, data_c2f.s, data_c4.s, data_c4.s, data_c1.s];

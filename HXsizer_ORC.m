@@ -1,6 +1,13 @@
-function [L_h, L_c, Rt, As, U] = ...
-	HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tpp, Tc2f, Tc2, x3)
-% Determines required length of hot & cold sides for ORC recovery heater
+function [L_h, L_c, Rt, As, U] = HXsizer_ORC(mdot_h, mdot_c, D_c, D_h, Th_in, Th_out, Tpp, Tc2f, Tc2, x3)
+% % FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Determines performance and required surface area of ORC heat recovery unit
+%
+%
 %% 1) Subcooled (boiler) region
 % Calc thermal properties
 data_hPH = data_water(Tpp, Th_out);  % Hot-side  (coolant)
@@ -21,7 +28,7 @@ C_maxPH = max(C_cPH,C_hPH);
 C_rtoPH = C_minPH/C_maxPH;
 
 % Calc effectiveness and NTU
-efct = ( C_hPH*(Tpp - Th_out) )/( C_minPH*(Tpp - Tc2) );  % Effectiveness
+efct = ( C_hPH*(Tpp - Th_out) )/( C_minPH*(Tpp - Tc2) );		% Effectiveness
 NTU  = (1/(1 - C_rtoPH))*log( (1 - efct*C_rtoPH)/(1 - efct) );  % NTU for counter-flow HX
 
 % Calc hot & cold side heat transf coeff's
@@ -50,14 +57,14 @@ AsEvp = (mdot_h*data_hEvp.cp/U_Evp)*log( (Th_in - Tc2f)/(Tpp - Tc2f) );
 
 
 %% 3) Combine sections to one HX
-% Total surface area
+% Total surface area [m^2]
 As = AsPH + AsEvp;
 
 % Req'd hot-side pipe length [m] & pipe volume occupied [m^3]
 L_h   = As/(pi*D_h);
 L_c   = As/(pi*D_c);
 
-% Average heat transf coeff
+% Average heat transf coeff [W/(m^2*K)]
 U = (AsPH*U_PH + AsEvp*U_Evp)/As;
 
 % Thermal resistance [K/W]

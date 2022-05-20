@@ -1,15 +1,23 @@
 function h = calc_h_pipe2P(sfCase, k, mu, Dh, mdot, T, xA, xB)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
 % Calculate heat transfer coefficient for liquid flow in pipe
 %  T: Saturation temperaturedata_c.mu
 % xA: Inlet quality/vapour mass fraction
 % xB: Outlet quality/vapour mass fraction
-
+%
+%
+%%
 % Saturated properties
-data_sL = data_r600a_sat(T, 0);  % Liquid
-data_sV = data_r600a_sat(T, 1);  % Vapour
+data_sL = data_r600a_sat(T, 0);			% Liquid
+data_sV = data_r600a_sat(T, 1);			% Vapour
 
 % Reynold's number
-Re    = (4*mdot)/(pi*Dh*mu);	% Avg. 2P fluid
+Re    = (4*mdot)/(pi*Dh*mu);			% Avg. 2P fluid
 Re_sL = (4*mdot)/(pi*Dh*data_sL.mu);	% Sat. liquid
 
 % Reynold's no. transition region

@@ -1,6 +1,17 @@
-%% Derived Parameters
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael and Victor
+%
+%
+% Derived input parameters
+%
+% ***DO NOT PLACE INPUTS IN THIS FILE***
+%
+%
+%%
 % Current density -> current
-pemel.I       = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
+pemel.I  = pemel.i*pemel.A_cel;	% i -> I [A/cm^2 -> A/m^2 -> A]
 
 % Single cooling, process channel geometries
 clch.Vol = clch.Ac*clch.L;	% Cooling channel volume [m^3]
@@ -16,16 +27,14 @@ clch.Prm_tot   = clch.N_tot*clch.Prm;	   % Cool tube cross-section perimeter [m]
 clch.Vol_tot   = clch.N_tot*clch.Vol;	   % Cool tube volume [m^3]
 clch.As_tot    = clch.N_tot*clch.As;	   % Cool tube surface area [m^2]
 prch.Ac_tot    = prch.N_tot*prch.Ac;	   % Process channel cross-section area [m^2]
-%prch.Prm_tot   = prch.N_tot*prch.Prm;	   % Process channel cross-section perimeter [m]
 
 % Stack channel hydraulic diameters [m]
-clch.Dh_stk = 4*clch.Ac/clch.Prm;  % Cooling channels
-prch.Dh_stk = 4*prch.Ac/prch.Prm;  % Process channels
+clch.Dh_stk = 4*clch.Ac/clch.Prm;   % Cooling channels
+prch.Dh_stk = 4*prch.Ac/prch.Prm;   % Process channels
 
 % External pipe diameters (circular pipe assumed) [m]
 prch.D = sqrt(4*prch.Ac_tot/pi);	% Process water
 clch.D = sqrt(4*clch.Ac_tot/pi);	% Coolant
-%Con.D  = sqrt(4*Con.PortA_A/pi);	% ORC condenser
 
 % Total mass flow rates (for total no. cells overall) [kg/s]
 clnt.mdot_tot = 1000*clnt.Vldot_ch*clch.N_tot;
@@ -91,7 +100,7 @@ htr.L = HX_ph.L_h2o;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function T0_h2o = calc_T0(mdot_in, mdot_out, T_amb, T_out)
-% Calculate post-mixed feedwater temperature for closed-loop config	
+% Calculate post-mixed feedwater temperature for closed-loop config	[K]
 	data_amb = data_water(T_amb, T_amb);
 	data_out = data_water(T_out, T_out);
 	T0_h2o  = ( (mdot_in - mdot_out)*data_amb.cp*T_amb + mdot_out*data_out.cp*T_out )...

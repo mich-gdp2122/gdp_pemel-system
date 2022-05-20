@@ -1,14 +1,22 @@
-%% PLACE GENERAL INPUT PARAMETERS IN THIS FILE (used for both channel simulations)
-
-%%% Load constants and gas properties
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael and Victor
+%
+%
+% PLACE GENERAL INPUT PARAMETERS IN THIS FILE (used for both channel simulations)
+%
+%
+%%
+% Load constants and gas properties
 const_file;
 data_gas_file;
 
 %% Ambient conditions
-amb.T     = 20 + 273.15;       % Ambient temperature  [K]
-amb.p     = 1  * 101325;       % Ambient air pressure [Pa]
-amb.phi   = 0.60;              % Ambient humidity     [0-1]
-amb.T_sea = 10 + 273.15;	   % Ocean background temperature [K]
+amb.T     = 20 + 273.15;     % Ambient temperature  [K]
+amb.p     = 1  * 101325;     % Ambient air pressure [Pa]
+amb.phi   = 0.60;            % Ambient humidity     [0-1]
+amb.T_sea = 10 + 273.15;	 % Ocean background temperature [K]
 
 
 %% General stack specifications
@@ -54,5 +62,3 @@ htr.PwrRt = 50;		 % Elec. heater rated power [kW]
 %ORC.mdot = 1.7;				% Nominal mass flow rate [kg/s]
 ORC.dTh  = 8;					% ORC HX driving temp diff [K]
 ORC.dTc  = 8;					% ORC condensor driving temp [K]
-%ORC.x1	 = 0.3;					% State 1 quality (vapour mass fraction)
-%ORC.x3   = 0.95;				% State 3 quality

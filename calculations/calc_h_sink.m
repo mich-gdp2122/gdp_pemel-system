@@ -1,6 +1,15 @@
 function h = calc_h_sink(rho, k, mu, Pr, beta, D_h, Th_in, Th_out, Tc)
-% Calculate heat transfer coefficient of heatsink fluid (eg. sea) for
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Calculate heat transfer coefficient of infinite-capacity fluid (eg. sea) for
 % horizontal cylindrical pipe, via natural convection
+%
+%
+%%
 g    = 9.81;				% Gravitational acceleration [m/s^2]
 Ts_h = (Th_in + Th_out)/2;	% Avg. pipe surface temperature [K]
 

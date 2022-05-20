@@ -1,8 +1,18 @@
 function data = data_r600a_sat(T, xA, xB) %[rho, v, cp, k, mu, Pr, dh, p, c, h, s, ds] = data_r600a_sat(T, xA, xB)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
 % Saturated fluid properties for isobutane/r600a (liquid and vapour)
+% Obtained from NIST Chemistry WebBook: https://webbook.nist.gov/chemistry/
+% 
 %  T: Saturation temperature
 % xA: Inlet quality/vapour mass fraction
 % xB: Outlet quality/vapour mass fraction
+%
+%
 %%
 T_i = 273.15:5:363.15;	% Temperature vector [K]
 

@@ -1,6 +1,12 @@
-%%%% Place all constants here
-%load('const.mat');
-
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Place all physical constants here
+%
+%
 %%
 const.R	     = 8.314;    % Universal gas const [J/(mol*K)]
 const.F	     = 96485.3;  % Faraday  [C/mol]

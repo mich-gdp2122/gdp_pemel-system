@@ -1,9 +1,15 @@
 function h = calc_h_pipeL(sfCase, k, mu, Pr, Dh, mdot)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
 % Calculate heat transfer coefficient for liquid flow in pipe
-
+%
+%
+%%
 % Reynold's number
-%u = mdot/(rho*(pi/4)*Dh^2);
-%Re = (rho*u*Dh)/mu;
 Re = (4*mdot)/(pi*Dh*mu);
 
 % Reynold's no. transition region
@@ -25,9 +31,9 @@ end
 % Coolant Nusselt number []
 switch sfCase
 	case 'Qs'
-		Nu_lam = 4.36;				% Laminar case (const. surface Q)
+		Nu_lam = 4.36;						% Laminar case (const. surface Q)
 	case 'Ts'
-		Nu_lam = 3.66;				% Laminar case (const. surface T)
+		Nu_lam = 3.66;						% Laminar case (const. surface T)
 	otherwise
 		error(['Unknown pipe surface heat profile, ''', sfCase, '''.', newline ...
 			  '(Choose ''Qs'' for const. surface heat flux, or ',...
@@ -36,11 +42,11 @@ end
 	Nu_tur = ( (f/8)*(Re - 1000)*Pr )/...	% Turbulent case (Gnielinski)
 		 ( 1 + 12.7*((f/8)^0.5)*( Pr^(2/3) - 1 ) );  
 
-if Re <= Re_lam						% Laminar case
+if Re <= Re_lam								% Laminar case
 	Nu = Nu_lam;
-elseif Re >= Re_tur					% Turbulent case
+elseif Re >= Re_tur							% Turbulent case
 	Nu = Nu_tur;
-elseif Re > Re_lam && Re < Re_tur	% Transitional case (via interpolation)
+elseif Re > Re_lam && Re < Re_tur			% Transitional case (via interpolation)
 	Nu = blend(Nu_lam, Nu_tur, Re_lam, Re_tur, Re);
 end
 

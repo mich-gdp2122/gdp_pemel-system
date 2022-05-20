@@ -1,8 +1,15 @@
-%%%% Data for thermal properties of gases (H2, O2)
-%load('data_gas.mat');
-
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Temperature-dependent thermal property vectors of gases (H2, O2)
+% Obtained from NIST Chemistry WebBook: https://webbook.nist.gov/chemistry/
+%
+%
 %% Temperature vector
-gasData.T_i = [273.16:5:423.16];  % [K]
+gasData.T_i = 273.16:5:423.16;  % [K]
 
 %% H2 gas data
 % sp. enthalpy [kJ/kg]

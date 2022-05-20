@@ -1,9 +1,18 @@
-function data = data_water(T_in, T_out) %[rho, cp, k, mu, Pr, beta, s] = data_water(T_in, T_out)
-% Properties of water, averaged b/tw 0.01 & 0.1 MPa
-
+function data = data_water(T_in, T_out)
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
+%
+% Created by Michael
+%
+%
+% Properties of water at 0.1 MPa
+% Obtained from built-in Simscape Thermal Liquid library
+%
 % Rows of the tables correspond to the temperature vector
+%
+%
 %%
-T = mean([T_in T_out]);	% Convert to avg temperature
+T = mean([T_in T_out]);	    % Convert to avg temperature
 T_TLU = 273.1600:10:373.16; % Temperature vector [K]
 
 rho_TLU = [...
@@ -101,7 +110,7 @@ s_TLU = 1E3*[6.74E-06 ...
 	1.0757 ...
 	1.193 ...
 	1.3028 ...
-	];  % Sp. entroy [J/(kg*K)]
+	];  % Sp. entropy [J/(kg*K)]
 
 % outputs
 data.rho  = interp1(T_TLU, rho_TLU, T, 'makima', 'extrap');

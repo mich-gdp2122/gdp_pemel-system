@@ -1,16 +1,21 @@
-% Main data-gathering script for TMS models
+% FEEG6013 Group Design Project, 2021-2022
+% Group 19
 %
-% SIMULINK MODEL OUTPUTS:
-%	
-%	TMS(i)_pwr   [stk, BoP, tot]				Stack, Total BoP, Total [kW]
-%	TMS(i)_BoP   [pmpFW, pmpClnt, htr]		H2O pump, Clnt pump, heater [W]
-%	TMS(i)_Qdot [stkIn, PHOut, rjOut]		Stack in, Phtr out, RJ out [kW]
-%	TMS(i)_eff   [stk, BoP, tot]				Stack, BoP, Overall [%]
-%   TMS(i)_ORC   [P_Grs, P_net, Qin, eff]	
+% Created by Michael
+%
+%
+% Main data-gathering script for PEMWE system models
+%
+%
+% Set necessary program modes below then press 'Run' above.
+%
+% Output plots and tables are automatically saved in generated output
+% folder
+%
 %
 %% Set program modes
-mode_test = 1;	% Test mode (don't run simulations if != 0)
-saveSims  = 0;  % Save model files after running if != 0
+mode_test = 0;	% Test mode (don't run simulations if != 0)        (DEFAULT: 0)
+saveSims  = 0;  % Save simulink model files after running if != 0  (DEFAULT: 0)
 
 %%
 clearvars('-except', 'mode_*', 'saveSims')
